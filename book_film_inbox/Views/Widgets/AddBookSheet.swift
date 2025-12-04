@@ -15,13 +15,19 @@ struct AddBookSheet: View {
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
     var olService: OpenLibraryService = OpenLibraryService.shared
+    @FocusState private var isSearchFieldFocused: Bool
+    
+    @State private var showToast = false
+    @State private var toastMessage = ""
     
     var body: some View {
         NavigationStack {
             VStack {
-                TextField("Поиск...", text: $searchText)
+                TextField(".placeholder_search", text: $searchText)
                     .textFieldStyle(.roundedBorder)
-                    .padding()
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 8)
+                    .focused($isSearchFieldFocused)
                     .onChange(of: searchText) { oldValue, newValue in
                             searchTask?.cancel()
                             
@@ -38,82 +44,87 @@ struct AddBookSheet: View {
                                 }
                             }
                         }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isSearchFieldFocused = true
+                        }
+                    }
                 
                 if isSearching {
-                    ProgressView("Поиск...")
+                    ProgressView(".placeholder_search")
                 } else if results.isEmpty && !searchText.isEmpty {
-                    ContentUnavailableView("Ничего не найдено",
+                    ContentUnavailableView(".label_addsheet_notfound",
                                          systemImage: "magnifyingglass")
                 } else if results.isEmpty {
-                    ContentUnavailableView("Начните вводить название",
+                    ContentUnavailableView(".label_addsheet_enter_text",
                                          systemImage: "magnifyingglass")
                 } else {
                     List(results) { item in
-                        Button {
-                            Task {
-                                if !viewModel.isInLibrary(title: item.title) {
-                                    await viewModel.addItem(item)
-                                    dismiss()
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "book.fill")
-                                    .font(.largeTitle)
-                                    .frame(width: 50)
-                                
-                                let yearText = item.year != nil ? String(item.year!) : "—"
-                                let ratingText = String(format: "%.1f", item.rating)
-                                
-                                VStack(alignment: .leading) {
-                                    Text(item.title)
-                                        .font(.headline)
-                                    Text(verbatim: "\(yearText) · ⭐️ \(ratingText)")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                if viewModel.isInLibrary(title: item.title) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                }
-                            }
-                        }
-                        .disabled(viewModel.isInLibrary(title: item.title))
+                        BookSearchItemCard(
+                            item: item,
+                            isInLibrary: viewModel.isInLibrary(title: item.title))
                     }
                 }
             }
-            .navigationTitle("Добавить книгу")
+            .navigationTitle(".sheetAddBook")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                Button("common.button.close") { dismiss() }
+                Button(".buttonClose") { dismiss() }
             }
+        }
+        .sensoryFeedback(.error, trigger: showToast) // Haptic feedback on error
+        .overlay(alignment: .bottom) {
+            if showToast {
+                Text(toastMessage)
+                    .font(.subheadline)
+                    .padding()
+                    .background(.red.gradient)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .padding()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.5, dampingFraction: 0.7), value: showToast)
+        .onAppear {
+            isSearchFieldFocused = true
         }
     }
     
     
     private func performSearch(query: String) async {
-            guard !query.isEmpty else {
-                results = []
-                return
-            }
-            
-            isSearching = true
-            
-            do {
-                let olResults = try await olService.searchBooksWithDetails(query: query)
-                await MainActor.run {
-                    results = olResults
-                    isSearching = false
-                }
-            } catch {
-                await MainActor.run {
-                    results = []
-                    isSearching = false
-                }
-                print("Search error: \(error)")
-            }
+        guard !query.isEmpty else {
+            results = []
+            return
         }
+        
+        isSearching = true
+        
+        do {
+            let olResults = try await olService.searchBooksWithDetails(query: query)
+            await MainActor.run {
+                results = olResults
+                isSearching = false
+            }
+        } catch {
+            await MainActor.run {
+                results = []
+                isSearching = false
+            }
+            showToastMessage("Search error: \(error)")
+            print("Search error: \(error)")
+        }
+    }
+    
+    private func showToastMessage(_ message: String) {
+        toastMessage = message
+        showToast = true
+        
+        Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+            showToast = false
+        }
+    }
 }
+

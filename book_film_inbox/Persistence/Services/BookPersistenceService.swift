@@ -8,7 +8,6 @@
 import Foundation
 import SwiftData
 
-
 @MainActor
 class BookPersistenceService {
     
@@ -19,24 +18,21 @@ class BookPersistenceService {
         do {
             modelContainer = try ModelContainer(for: BookItem.self)
             modelContext = ModelContext(modelContainer)
+            
+            if let url = modelContainer.configurations.first?.url {
+                print("📁 Database location:")
+                print(url.path)
+            }
+            
         } catch {
             fatalError("Failed to initialize ModelContainer: \(error)")
         }
-        
-        // TODO: remove me
-//        if let url = modelContainer.configurations.first?.url {
-//                    print("📁 SwiftData DataiftData Database Location:")
-//                    print(url.path)
-//                }
     }
     
     
     func findByType(_ filter: FilterType) -> [BookItem] {
         var predicate: Predicate<BookItem>?
-        let pendingState = MediaStatus.PENDING.rawValue
-        let inProgressState = MediaStatus.IN_PROGRESS.rawValue
-        let doneState = MediaStatus.DONE.rawValue
-        
+        let pendingState = MediaStatus.PLANNED.rawValue
         
         switch filter {
         case .ALL:
@@ -45,17 +41,9 @@ class BookPersistenceService {
             predicate = #Predicate<BookItem> { book in
                 book.isFavourite == true
             }
-        case .PENDING:
+        case .PLANNED:
             predicate = #Predicate<BookItem> { book in
                 book.status == pendingState
-            }
-        case .IN_PROGRESS:
-            predicate = #Predicate<BookItem> { book in
-                book.status == inProgressState
-            }
-        case .COMPLETED:
-            predicate = #Predicate<BookItem> { book in
-                book.status == doneState
             }
         }
         

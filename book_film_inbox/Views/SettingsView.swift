@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-// TODO: for openLibrary add status badge and note that sometimes it fails
-// FIXME: if openlibrary is down - need workaround way to add book draft
-
 struct SettingsView: View {
     @EnvironmentObject var viewModel: SettingsViewModel
+    private let walletAddress = "0x0000000000000000000000000000000006000000"
     
     var body: some View {
         NavigationStack {
@@ -25,23 +23,68 @@ struct SettingsView: View {
 //                }
                 
                 // Book Sources Section
-                Section("settings.source.books") {
+                Section(".pageSettings_sourcebooks") {
                     HStack {
                         Text("OpenLibrary")
                     }
                 }
                 
                 // About Section
-                Section("settings.about") {
+                Section(".pageSettings_about") {
                     HStack {
-                        Text("settings.version")
+                        Text(".pageSettings_version")
                         Spacer()
                         Text("1.0.0")
                             .foregroundColor(.secondary)
                     }
                 }
+                // Support Us Section
+                Section(".pageSettings_support") { // 💙 Support us with Ethereum
+
+                    Text(".pageSettings_support_text")
+                        .foregroundColor(.secondary)
+                    // Send donations in ETH or any ERC-20 token using your iPhone wallet app.
+
+                    // Address + Copy
+                    HStack {
+                        Text(walletAddress)
+                            .font(.system(.body, design: .monospaced))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+
+                        Button(action: {
+                            UIPasteboard.general.string = walletAddress
+                        }) {
+                            Image(systemName: "doc.on.doc")
+                                .font(.title3)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(12)
+
+                    Button(action: {
+                        let urlString = "ethereum:\(walletAddress)"
+                        if let url = URL(string: urlString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        Text("pageSettings_support_openWallet") // Open Wallet to Donate"
+                            .font(.headline.bold())
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+
             }
-            .navigationTitle("title.settings")
+            .navigationTitle(".titleSettings")
         }
     }
+}
+
+
+
+#Preview {
+    SettingsView()
 }

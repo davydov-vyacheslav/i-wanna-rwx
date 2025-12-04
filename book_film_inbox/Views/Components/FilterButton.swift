@@ -33,7 +33,7 @@ struct FilterButton: View {
             VStack(spacing: 4) {
                 Image(systemName: iconName)
                     .font(.system(size: 16))
-                Text("\(count)")
+                Text(verbatim: "\(count)")
                     .font(.caption)
             }
             .frame(minWidth: 60)
@@ -51,12 +51,8 @@ struct FilterButton: View {
             return "list.bullet"
         case .FAVOURITES:
             return "heart.fill"
-        case .PENDING:
+        case .PLANNED:
             return "clock"
-        case .IN_PROGRESS:
-            return "play.fill"
-        case .COMPLETED:
-            return "checkmark.circle.fill"
         }
     }
     
@@ -71,7 +67,7 @@ struct FilterButton: View {
 
 
 #Preview {
-    FilterButton(filterType: .COMPLETED, count: 3, isSelected: false, isFavorite: true) {
+    FilterButton(filterType: .ALL, count: 3, isSelected: false, isFavorite: true) {
         
     }
 }

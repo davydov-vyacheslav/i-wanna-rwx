@@ -20,13 +20,13 @@ struct ContentView: View {
             
             BooksView()
                 .tabItem {
-                    Label("title.books", systemImage: "book")
+                    Label(".titleBooks", systemImage: "book")
                 }
                 .tag(1)
             
             SettingsView()
                 .tabItem {
-                    Label("title.settings", systemImage: "gear")
+                    Label(".titleSettings", systemImage: "gear")
                 }
                 .tag(2)
         }

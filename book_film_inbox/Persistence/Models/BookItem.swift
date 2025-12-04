@@ -19,7 +19,7 @@ import SwiftData
     var sourceUrl: URL
     var coverUrl: URL?
     @Attribute(.externalStorage) var coverImageData: Data?
-    var status: String = MediaStatus.PENDING.rawValue
+    var status: String = MediaStatus.PLANNED.rawValue
     var title: String
     var year: Int?
     var type: String = "Book"
@@ -31,7 +31,7 @@ import SwiftData
         sourceUrl: URL,
         coverUrl: URL? = nil,
         coverImageData: Data? = nil,
-        status: MediaStatus = .PENDING,
+        status: MediaStatus = .PLANNED,
         title: String,
         year: Int?
     ) {
@@ -52,10 +52,8 @@ import SwiftData
 
 extension BookItem {
 
-    // TODO: icon = book.fill
-
     var mediaStatus: MediaStatus {
-        get { MediaStatus(rawValue: status) ?? .PENDING }
+        get { MediaStatus(rawValue: status) ?? .PLANNED }
         set { status = newValue.rawValue }
     }
 

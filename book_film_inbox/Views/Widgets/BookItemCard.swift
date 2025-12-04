@@ -9,12 +9,14 @@ import SwiftUI
 
 struct BookItemCard: View {
     @EnvironmentObject var viewModel: BooksViewModel
+    @EnvironmentObject var appState: AppState
     let item: BookItem
     @State private var showingProgressSheet = false
+    @State private var showDescription = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .top, spacing: 8) {
                 // Poster
                 CachedAsyncImage(
                     imageData: item.coverImageData,
@@ -23,9 +25,12 @@ struct BookItemCard: View {
                     height: 112,
                     placeholder: "book.fill"
                 )
+                .onTapGesture {
+                    UIApplication.shared.open(item.sourceUrl)
+                }
 
                 // Content
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     // Title
                     HStack {
                         Image(systemName: "book")
@@ -36,115 +41,118 @@ struct BookItemCard: View {
                             .lineLimit(2)
                     }
                     
-                    // Meta
+                    // Meta + Actions Buttons
                     HStack(spacing: 8) {
+                        
                         Text(item.year.map(String.init) ?? "—")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        
-                        HStack(spacing: 2) {
+
+                        if item.rating > 0 {
                             Image(systemName: "star.fill")
                                 .font(.caption)
                                 .foregroundColor(.yellow)
                             Text(String(format: "%.1f", item.rating))
                                 .font(.caption)
                         }
+                        
+                        Spacer()
+                        
+                        HStack(spacing: 16) {
+                            Button {
+                                viewModel.toggleFavorite(item)
+                            } label: {
+                                Image(systemName: item.isFavourite ? "heart.fill" : "heart")
+                                    .foregroundColor(item.isFavourite ? .red : .secondary)
+                            }
+                            .buttonStyle(.plain)
+                            
+                            if item.mediaStatus == .DONE {
+                                Button {
+                                    viewModel.changeStatus(item, to: .PLANNED)
+                                } label: {
+                                    Image(systemName: "clock")
+                                        .foregroundColor(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            
+                            if item.mediaStatus == .PLANNED {
+                                Button {
+                                    viewModel.changeStatus(item, to: .DONE)
+                                } label: {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.green)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+
                     }
                     
-                    Text(item.itemDescription ?? "N/A")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
+                    if let desc = item.itemDescription {
+                        Text(desc)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                    } else {
+                        Text(".label_nodescription")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                    }
+                    
+                    Spacer()
                     
                     // Badges
                     HStack(spacing: 6) {
-                        if item.mediaStatus == .IN_PROGRESS {
-                            StatusBadge(icon: "clock", text: String(localized: "status.in_progress"), color: .blue)
+                        if item.mediaStatus == .PLANNED {
+                            StatusBadge(icon: "clock", text: ".status_planned", color: .blue)
                         }
                         if item.mediaStatus == .DONE {
-                            StatusBadge(icon: "checkmark", text: "Просмотрено", color: .green)
+                            StatusBadge(icon: "checkmark", text: ".status_seen", color: .green)
                         }
                     }
                 }
+                .onLongPressGesture(minimumDuration: 0.5) {
+                    if let description = item.itemDescription {
+                        appState.showDescriptionOverlay(description)
+                    }
+                }
+                
             }
             
-            // Actions
-            HStack(spacing: 8) {
-                Spacer()
-                
-                Button {
-                    viewModel.toggleFavorite(item)
-                } label: {
-                    Image(systemName: item.isFavourite ? "heart.fill" : "heart")
-                        .foregroundColor(item.isFavourite ? .red : .secondary)
-                }
-                .buttonStyle(.plain)
-                
-                if item.mediaStatus != .PENDING {
-                    Button {
-                        viewModel.changeStatus(item, to: .PENDING)
-                    } label: {
-                        Image(systemName: "clock")
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-                if item.mediaStatus != .IN_PROGRESS && item.mediaStatus != .DONE {
-                    Button {
-                        viewModel.changeStatus(item, to: .IN_PROGRESS)
-                    } label: {
-                        Image(systemName: "play.fill")
-                            .foregroundColor(.blue)
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-                if item.mediaStatus != .DONE {
-                    Button {
-                        viewModel.changeStatus(item, to: .DONE)
-                    } label: {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(.green)
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-                Button {
-                    viewModel.deleteItem(item)
-                } label: {
-                    Image(systemName: "trash")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
         }
-        .padding()
+        .padding(.horizontal, 8)
+        .padding(.vertical, 8)
         .background(Color(uiColor: .secondarySystemBackground))
         .cornerRadius(16)
     }
 }
 
-struct StatusBadge: View {
-    let icon: String
-    let text: String
-    let color: Color
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-            Text(text)
-        }
-        .font(.caption)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(color.opacity(0.1))
-        .foregroundColor(color)
-        .cornerRadius(12)
-    }
-}
-
 
 #Preview {
-    BookItemCard(item: BookItem(sourceUrl: URL(string: "https://google.com")!, title: "title", year: 1999))
+    BookItemCard(item: BookItem(
+        description: "Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere",
+        isFavourite: true,
+        rating: 5.0,
+        sourceUrl: URL(string: "https://google.com")!,
+        status: MediaStatus.PLANNED,
+        title: "title",
+        year: 1999))
+    BookItemCard(item: BookItem(
+        description: nil,
+        isFavourite: false,
+        rating: nil,
+        sourceUrl: URL(string: "https://google.com")!,
+        title: "title",
+        year: nil))
+    BookItemCard(item: BookItem(
+        description: nil,
+        isFavourite: false,
+        rating: nil,
+        sourceUrl: URL(string: "https://google.com")!,
+        status: MediaStatus.DONE,
+        title: "title",
+        year: nil))
+
 }

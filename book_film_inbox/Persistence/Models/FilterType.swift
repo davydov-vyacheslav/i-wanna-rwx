@@ -10,7 +10,5 @@ import Foundation
 enum FilterType: String, CaseIterable {
     case ALL
     case FAVOURITES
-    case PENDING
-    case IN_PROGRESS
-    case COMPLETED
+    case PLANNED
 }

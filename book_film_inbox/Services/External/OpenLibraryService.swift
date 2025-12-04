@@ -85,12 +85,16 @@ class OpenLibraryService {
    
     // MARK: - Search Books
     
-    func searchBooks(query: String, limit: Int = 10) async throws -> [BookItem] {
+    func searchBooks(query: String, limit: Int = 20) async throws -> [BookItem] {
         
-        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        let searchURL = "\(baseURL)/search.json?q=\(encodedQuery)&limit=\(limit)&fields=key,cover_i,title,subtitle,author_name,editions,name ,ratings_average,first_publish_year"
+        var components = URLComponents(string: "\(baseURL)/search.json")
+        components?.queryItems = [
+            URLQueryItem(name: "q", value: query),
+            URLQueryItem(name: "limit", value: String(limit)),
+            URLQueryItem(name: "fields", value: "key,cover_i,title,subtitle,author_name,editions,name,ratings_average,first_publish_year")
+        ]
         
-        guard let url = URL(string: searchURL) else {
+        guard let url = components?.url else {
             throw OLError.invalidURL
         }
         
@@ -195,7 +199,7 @@ class OpenLibraryService {
     
     // MARK: - Search with Full Details
     
-    func searchBooksWithDetails(query: String, limit: Int = 10) async throws -> [BookItem] {
+    func searchBooksWithDetails(query: String, limit: Int = 20) async throws -> [BookItem] {
         let books = try await searchBooks(query: query, limit: limit)
         
         var detailedBooks: [BookItem] = []
@@ -223,6 +227,7 @@ class OpenLibraryService {
             }
         }
         
+        print(detailedBooks)
         return detailedBooks
     }
 }

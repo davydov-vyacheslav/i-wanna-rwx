@@ -41,21 +41,32 @@ struct BooksView: View {
                 // List
                 if filteredItems.isEmpty {
                     Spacer()
-                    Text("common.label.list.empty")
+                    Text(".label_list_empty")
                         .foregroundColor(.secondary)
                     Spacer()
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(filteredItems) { item in
-                                BookItemCard(item: item)
-                            }
+                    List {
+                        ForEach(filteredItems) { item in
+                            BookItemCard(item: item)
+                                .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        viewModel.deleteItem(item)
+                                    } label: {
+                                        Label(".buttonDelete", systemImage: "trash")
+                                    }
+                                    .tint(.red)
+                                }
                         }
-                        .padding()
+                        
                     }
+                    .listStyle(.plain)
+                    .padding(.horizontal)
                 }
             }
-            .navigationTitle("title.books")
+            .navigationTitle(".titleBooks")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
