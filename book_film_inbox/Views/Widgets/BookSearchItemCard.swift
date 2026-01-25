@@ -12,7 +12,7 @@ struct BookSearchItemCard: View {
     @Environment(\.dismiss) var dismiss
     let item: ExternalBookItem
     let isInLibrary: Bool
-    
+
     var body: some View {
         Button {
             Task {
@@ -25,6 +25,8 @@ struct BookSearchItemCard: View {
                         status: .PLANNED,
                         title: item.title,
                         year: item.year,
+                        isbn: item.isbn,
+                        author: item.author,
                         isDraft: item.isDraft
                     ), item.coverUrl)
                     dismiss()
@@ -59,13 +61,12 @@ struct BookSearchItemCard: View {
                         }
                     }
                     
-                    if let desc = item.itemDescription {
-                        Text(desc)
+                    if let author = item.author {
+                        Text(author)
                             .font(.caption)
                             .foregroundColor(.secondary)
-                            .lineLimit(4)
                     } else {
-                        Text(item.isDraft ? ".label_nodescription_draft" : "label_nodescription")
+                        Text(item.isDraft ? ".label_no_author_draft" : "label_no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -96,6 +97,8 @@ struct BookSearchItemCard: View {
         sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.PLANNED,
         title: "title",
+        isbn: "12333333333",
+        author: "Xxxx M.D.",
         year: 1999), isInLibrary: false)
     BookSearchItemCard(item: ExternalBookItem(
         description: nil,
@@ -103,6 +106,8 @@ struct BookSearchItemCard: View {
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
         title: "title",
+        isbn: "12333333333",
+        author: "Xxxx M.D.",
         year: nil), isInLibrary: false)
     BookSearchItemCard(item: ExternalBookItem(
         description: nil,
@@ -111,6 +116,8 @@ struct BookSearchItemCard: View {
         sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.DONE,
         title: "title",
+        isbn: "12333333333",
+        author: "Xxxx M.D.",
         year: nil), isInLibrary: true)
 
 }

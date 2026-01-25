@@ -28,6 +28,8 @@ struct ExternalBookItem: Identifiable {
     var coverImageData: Data?
     var status: MediaStatus = MediaStatus.PLANNED
     var title: String
+    var isbn: String?
+    var author: String?
     var year: Int?
     var isDraft: Bool = false
     
@@ -40,6 +42,8 @@ struct ExternalBookItem: Identifiable {
         coverImageData: Data? = nil,
         status: MediaStatus = .PLANNED,
         title: String,
+        isbn: String?,
+        author: String?,
         year: Int? = nil,
         isDraft: Bool? = false
     ) {
@@ -54,6 +58,8 @@ struct ExternalBookItem: Identifiable {
         self.status = status
         self.title = title
         self.year = year
+        self.isbn = isbn
+        self.author = author
         self.isDraft = isDraft!
     }
     

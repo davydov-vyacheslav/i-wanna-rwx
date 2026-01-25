@@ -26,6 +26,7 @@ struct OLSearchDoc: Codable {
     let firstPublishYear: Int?
     let coverI: Int?
     let ratingsAverage: Double?
+    let isbn: [String]?
     
     enum CodingKeys: String, CodingKey {
         case key
@@ -34,6 +35,7 @@ struct OLSearchDoc: Codable {
         case firstPublishYear = "first_publish_year"
         case coverI = "cover_i"
         case ratingsAverage = "ratings_average"
+        case isbn
     }
 }
 
@@ -91,7 +93,7 @@ class OpenLibraryService {
         components?.queryItems = [
             URLQueryItem(name: "q", value: query),
             URLQueryItem(name: "limit", value: String(limit)),
-            URLQueryItem(name: "fields", value: "key,cover_i,title,subtitle,author_name,editions,name,ratings_average,first_publish_year")
+            URLQueryItem(name: "fields", value: "key,cover_i,title,subtitle,author_name,editions,name,ratings_average,first_publish_year,isbn")
         ]
         
         guard let url = components?.url else {
@@ -164,6 +166,7 @@ class OpenLibraryService {
             sourceUrl: URL(string: "\(baseURL)/works/\(cleanKey)")!,
             coverUrl: URL(string: coverUrl ?? ""),
             title: workDetail.title ?? "",
+            isbn: nil, author: nil,
             year: year
         )
     }
@@ -179,6 +182,8 @@ class OpenLibraryService {
             sourceUrl: URL(string: "\(baseURL)\(doc.key)")!,
             coverUrl: URL(string: coverUrl ?? ""),
             title: doc.title,
+            isbn: doc.isbn?[0] ?? "N/A ?",
+            author: doc.authorName?.joined(separator: ", ") ?? "",
             year: doc.firstPublishYear
         )
     }
@@ -216,6 +221,8 @@ class OpenLibraryService {
                         sourceUrl: book.sourceUrl,
                         coverUrl: detailedBook.coverUrl ?? book.coverUrl,
                         title: detailedBook.title,
+                        isbn: book.isbn,
+                        author: book.author,
                         year: detailedBook.year ?? book.year
                     )
                     detailedBooks.append(mergedBook)

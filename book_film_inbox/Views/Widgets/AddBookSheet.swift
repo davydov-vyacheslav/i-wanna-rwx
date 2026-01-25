@@ -59,6 +59,8 @@ struct AddBookSheet: View {
                                 sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
                                 status: MediaStatus.PLANNED,
                                 title: searchText,
+                                isbn: nil,
+                                author: nil,
                                 isDraft: true
                             ),
                             isInLibrary: false
@@ -75,7 +77,7 @@ struct AddBookSheet: View {
                         ForEach(results) { item in
                             BookSearchItemCard(
                                 item: item,
-                                isInLibrary: viewModel.isInLibrary(title: item.title))
+                                isInLibrary: viewModel.isInLibrary(isbn: item.isbn ?? "NoISBN"))
                         }
                         
                         BookSearchItemCard(
@@ -83,6 +85,8 @@ struct AddBookSheet: View {
                                 sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
                                 status: MediaStatus.PLANNED,
                                 title: searchText,
+                                isbn: nil,
+                                author: nil,
                                 isDraft: true
                             ),
                             isInLibrary: false

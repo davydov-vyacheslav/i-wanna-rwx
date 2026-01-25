@@ -20,6 +20,8 @@ import SwiftData
     @Attribute(.externalStorage) var coverImageData: Data?
     var status: String = MediaStatus.PLANNED.rawValue
     var title: String
+    var mainAuthor: String?
+    var isbn: String?
     var year: Int?
     var isDraft: Bool = false
     
@@ -32,7 +34,9 @@ import SwiftData
         status: MediaStatus = .PLANNED,
         title: String,
         year: Int? = nil,
-        isDraft: Bool? = false
+        isbn: String?,
+        author: String?,
+        isDraft: Bool = false
     ) {
         self.id = UUID()
         self.title = title
@@ -44,7 +48,9 @@ import SwiftData
         self.status = status.rawValue
         self.title = title
         self.year = year
-        self.isDraft = isDraft!
+        self.isbn = isbn
+        self.mainAuthor = author
+        self.isDraft = isDraft
     }
     
 }

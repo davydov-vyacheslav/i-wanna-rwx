@@ -70,6 +70,7 @@ class BookPersistenceService {
     }
     
     func deleteBook(_ book: BookItem) {
+        _ = book.coverImageData // lazy data load to avoid 'This backing data was detached from a context without resolving attribute faults'
         modelContext.delete(book)
         saveContext()
     }
@@ -84,9 +85,9 @@ class BookPersistenceService {
         saveContext()
     }
     
-    func isInLibrary(_ title: String) -> Bool {
+    func isInLibrary(_ isbn: String) -> Bool {
         let predicate = #Predicate<BookItem> { book in
-            book.title == title
+            book.isbn == isbn
         }
         let descriptor = FetchDescriptor<BookItem>(predicate: predicate)
         

@@ -25,6 +25,8 @@ enum SchemaV102: VersionedSchema {
         var status: String = MediaStatus.PLANNED.rawValue
         var title: String
         var year: Int?
+        var isbn: String?
+        var mainAuthor: String?
         var isDraft: Bool = false
         
         public init(
@@ -37,6 +39,8 @@ enum SchemaV102: VersionedSchema {
             status: String = "PLANNED",
             title: String,
             year: Int?,
+            isbn: String?,
+            author: String?,
             isDraft: Bool? = false
         ) {
             self.id = id!
@@ -49,6 +53,8 @@ enum SchemaV102: VersionedSchema {
             self.status = status
             self.title = title
             self.year = year
+            self.isbn = isbn
+            self.mainAuthor = author
             self.isDraft = isDraft!
         }
         

@@ -90,6 +90,8 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                     status: oldBook.status,
                     title: oldBook.title,
                     year: oldBook.year,
+                    isbn: nil,
+                    author: nil,
                     isDraft: false
                 )
                 

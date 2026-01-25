@@ -94,13 +94,12 @@ struct BookItemCard: View {
                     }
                     .frame(height: 16)
                     
-                    if let desc = item.itemDescription {
-                        Text(desc)
+                    if let author = item.mainAuthor {
+                        Text(author)
                             .font(.caption)
                             .foregroundColor(.secondary)
-                            .lineLimit(3)
                     } else {
-                        Text(item.isDraft ? ".label_nodescription_draft" : "label_nodescription")
+                        Text(item.isDraft ? ".label_no_author_draft" : "label_no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -142,14 +141,18 @@ struct BookItemCard: View {
         sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.PLANNED,
         title: "title",
-        year: 1999))
+        year: 1999,
+        isbn: "1234567",
+        author: "Auhor M.V."))
     BookItemCard(item: BookItem(
         description: nil,
         isFavourite: false,
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
         title: "title",
-        year: nil))
+        year: nil,
+        isbn: "NONE",
+        author: "N/A"))
     BookItemCard(item: BookItem(
         description: nil,
         isFavourite: false,
@@ -157,6 +160,8 @@ struct BookItemCard: View {
         sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.DONE,
         title: "title",
-        year: nil))
+        year: nil,
+        isbn: "NONE",
+        author: "N/A"))
 
 }

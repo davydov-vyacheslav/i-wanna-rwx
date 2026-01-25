@@ -49,7 +49,7 @@ class BooksViewModel: ObservableObject {
         objectWillChange.send() 
     }
     
-    func isInLibrary(title: String) -> Bool {
-        storageService.isInLibrary(title)
+    func isInLibrary(isbn: String) -> Bool {
+        storageService.isInLibrary(isbn)
     }
 }
