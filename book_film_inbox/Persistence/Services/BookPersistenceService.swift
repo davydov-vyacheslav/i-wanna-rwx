@@ -19,10 +19,10 @@ class BookPersistenceService {
             modelContainer = try ModelContainer(for: BookItem.self)
             modelContext = ModelContext(modelContainer)
             
-            if let url = modelContainer.configurations.first?.url {
-                print("📁 Database location:")
-                print(url.path)
-            }
+//            if let url = modelContainer.configurations.first?.url {
+//                print("📁 Database location:")
+//                print(url.path)
+//            }
             
         } catch {
             fatalError("Failed to initialize ModelContainer: \(error)")

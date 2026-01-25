@@ -39,11 +39,10 @@ struct SettingsView: View {
                     }
                 }
                 // Support Us Section
-                Section(".pageSettings_support") { // 💙 Support us with Ethereum
+                Section(".pageSettings_support") {
 
                     Text(".pageSettings_support_text")
                         .foregroundColor(.secondary)
-                    // Send donations in ETH or any ERC-20 token using your iPhone wallet app.
 
                     // Address + Copy
                     HStack {
@@ -71,7 +70,7 @@ struct SettingsView: View {
                             UIApplication.shared.open(url)
                         }
                     }) {
-                        Text("pageSettings_support_openWallet") // Open Wallet to Donate"
+                        Text("pageSettings_support_openWallet")
                             .font(.headline.bold())
                             .frame(maxWidth: .infinity)
                     }

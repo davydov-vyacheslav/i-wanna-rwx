@@ -10,14 +10,23 @@ import SwiftUI
 struct BookSearchItemCard: View {
     @EnvironmentObject var viewModel: BooksViewModel
     @Environment(\.dismiss) var dismiss
-    let item: BookItem
+    let item: ExternalBookItem
     let isInLibrary: Bool
     
     var body: some View {
         Button {
             Task {
                 if !isInLibrary {
-                    await viewModel.addItem(item)
+                    await viewModel.addItem(BookItem(
+                        description: item.itemDescription,
+                        isFavourite: item.isFavourite,
+                        rating: item.rating,
+                        sourceUrl: item.sourceUrl,
+                        status: .PLANNED,
+                        title: item.title,
+                        year: item.year,
+                        isDraft: item.isDraft
+                    ), item.coverUrl)
                     dismiss()
                 }
             }
@@ -56,7 +65,7 @@ struct BookSearchItemCard: View {
                             .foregroundColor(.secondary)
                             .lineLimit(4)
                     } else {
-                        Text(".label_nodescription")
+                        Text(item.isDraft ? ".label_nodescription_draft" : "label_nodescription")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -80,7 +89,7 @@ struct BookSearchItemCard: View {
 
 
 #Preview {
-    BookSearchItemCard(item: BookItem(
+    BookSearchItemCard(item: ExternalBookItem(
         description: "Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere",
         isFavourite: true,
         rating: 5.0,
@@ -88,14 +97,14 @@ struct BookSearchItemCard: View {
         status: MediaStatus.PLANNED,
         title: "title",
         year: 1999), isInLibrary: false)
-    BookSearchItemCard(item: BookItem(
+    BookSearchItemCard(item: ExternalBookItem(
         description: nil,
         isFavourite: false,
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
         title: "title",
         year: nil), isInLibrary: false)
-    BookSearchItemCard(item: BookItem(
+    BookSearchItemCard(item: ExternalBookItem(
         description: nil,
         isFavourite: false,
         rating: nil,

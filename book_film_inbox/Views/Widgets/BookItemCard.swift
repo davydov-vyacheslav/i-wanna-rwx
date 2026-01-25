@@ -20,9 +20,9 @@ struct BookItemCard: View {
                 // Poster
                 CachedAsyncImage(
                     imageData: item.coverImageData,
-                    url: item.coverUrl,
+                    url: nil,
                     width: 80,
-                    height: 112,
+                    height: 116,
                     placeholder: "book.fill"
                 )
                 .onTapGesture {
@@ -30,11 +30,11 @@ struct BookItemCard: View {
                 }
 
                 // Content
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1) {
                     // Title
                     HStack {
                         Image(systemName: "book")
-                            .foregroundColor(.orange)
+                            .foregroundColor(item.isDraft ? .gray : .orange)
                         
                         Text(item.title)
                             .font(.headline)
@@ -66,6 +66,7 @@ struct BookItemCard: View {
                                     .foregroundColor(item.isFavourite ? .red : .secondary)
                             }
                             .buttonStyle(.plain)
+                            .frame(width: 16)
                             
                             if item.mediaStatus == .DONE {
                                 Button {
@@ -75,6 +76,7 @@ struct BookItemCard: View {
                                         .foregroundColor(.secondary)
                                 }
                                 .buttonStyle(.plain)
+                                .frame(width: 16)
                             }
                             
                             if item.mediaStatus == .PLANNED {
@@ -85,18 +87,20 @@ struct BookItemCard: View {
                                         .foregroundColor(.green)
                                 }
                                 .buttonStyle(.plain)
+                                .frame(width: 16)
                             }
                         }
 
                     }
+                    .frame(height: 16)
                     
                     if let desc = item.itemDescription {
                         Text(desc)
                             .font(.caption)
                             .foregroundColor(.secondary)
-                            .lineLimit(2)
+                            .lineLimit(3)
                     } else {
-                        Text(".label_nodescription")
+                        Text(item.isDraft ? ".label_nodescription_draft" : "label_nodescription")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }

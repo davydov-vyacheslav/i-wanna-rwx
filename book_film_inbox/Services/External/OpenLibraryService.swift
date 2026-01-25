@@ -85,7 +85,7 @@ class OpenLibraryService {
    
     // MARK: - Search Books
     
-    func searchBooks(query: String, limit: Int = 20) async throws -> [BookItem] {
+    func searchBooks(query: String, limit: Int = 20) async throws -> [ExternalBookItem] {
         
         var components = URLComponents(string: "\(baseURL)/search.json")
         components?.queryItems = [
@@ -124,7 +124,7 @@ class OpenLibraryService {
     
     // MARK: - Get Book Details
     
-    func getBookDetails(workKey: String) async throws -> BookItem? {
+    func getBookDetails(workKey: String) async throws -> ExternalBookItem? {
         
         // Clean the work key (remove /works/ if present)
         let cleanKey = workKey.replacingOccurrences(of: "/works/", with: "")
@@ -159,7 +159,7 @@ class OpenLibraryService {
         
         let year = extractYear(from: workDetail.firstPublishDate)
         
-        return BookItem(
+        return ExternalBookItem(
             description: workDetail.description?.value,
             sourceUrl: URL(string: "\(baseURL)/works/\(cleanKey)")!,
             coverUrl: URL(string: coverUrl ?? ""),
@@ -171,10 +171,10 @@ class OpenLibraryService {
     
     // MARK: - Helper Methods
     
-    private func convertToBook(from doc: OLSearchDoc) -> BookItem {
+    private func convertToBook(from doc: OLSearchDoc) -> ExternalBookItem {
         let coverUrl = doc.coverI.map { "https://covers.openlibrary.org/b/id/\($0)-L.jpg" }
     
-        return BookItem(
+        return ExternalBookItem(
             rating: doc.ratingsAverage,
             sourceUrl: URL(string: "\(baseURL)\(doc.key)")!,
             coverUrl: URL(string: coverUrl ?? ""),
@@ -199,10 +199,10 @@ class OpenLibraryService {
     
     // MARK: - Search with Full Details
     
-    func searchBooksWithDetails(query: String, limit: Int = 20) async throws -> [BookItem] {
+    func searchBooksWithDetails(query: String, limit: Int = 20) async throws -> [ExternalBookItem] {
         let books = try await searchBooks(query: query, limit: limit)
         
-        var detailedBooks: [BookItem] = []
+        var detailedBooks: [ExternalBookItem] = []
         
         for book in books {
             // Extract work key from source URL
@@ -210,7 +210,7 @@ class OpenLibraryService {
                 if let detailedBook = try? await getBookDetails(workKey: workKey) {
                     // Merge search data with detailed data
                     
-                    let mergedBook = BookItem(
+                    let mergedBook = ExternalBookItem(
                         description: detailedBook.itemDescription,
                         rating: book.rating,
                         sourceUrl: book.sourceUrl,

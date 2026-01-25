@@ -1,4 +1,11 @@
 //
+//  ExternalBookItem.swift
+//  IWannaRWX
+//
+//  Created by Slava Davydov on 05.12.2025.
+//
+
+//
 //  BookItem.swift
 //  book_film_inbox
 //
@@ -10,15 +17,16 @@ import Foundation
 import SwiftData
 
 
-@Model class BookItem: Identifiable {
+struct ExternalBookItem: Identifiable {
     
-    var id: UUID = UUID()
+    var id: UUID
     var itemDescription: String?
     var isFavourite: Bool = false
     var rating: Double = 0.0
     var sourceUrl: URL
-    @Attribute(.externalStorage) var coverImageData: Data?
-    var status: String = MediaStatus.PLANNED.rawValue
+    var coverUrl: URL?
+    var coverImageData: Data?
+    var status: MediaStatus = MediaStatus.PLANNED
     var title: String
     var year: Int?
     var isDraft: Bool = false
@@ -28,6 +36,7 @@ import SwiftData
         isFavourite: Bool? = false,
         rating: Double? = 0.0,
         sourceUrl: URL,
+        coverUrl: URL? = nil,
         coverImageData: Data? = nil,
         status: MediaStatus = .PLANNED,
         title: String,
@@ -40,22 +49,14 @@ import SwiftData
         self.isFavourite = isFavourite!
         self.rating = rating ?? 0.0
         self.sourceUrl = sourceUrl
+        self.coverUrl = coverUrl
         self.coverImageData = coverImageData
-        self.status = status.rawValue
+        self.status = status
         self.title = title
         self.year = year
         self.isDraft = isDraft!
     }
     
-}
-
-extension BookItem {
-
-    var mediaStatus: MediaStatus {
-        get { MediaStatus(rawValue: status) ?? .PLANNED }
-        set { status = newValue.rawValue }
-    }
-
 }
 
 

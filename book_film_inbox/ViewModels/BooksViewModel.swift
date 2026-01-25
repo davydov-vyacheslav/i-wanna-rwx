@@ -19,9 +19,9 @@ class BooksViewModel: ObservableObject {
         storageService.count(filter)
     }
     
-    func addItem(_ item: BookItem) async {
+    func addItem(_ item: BookItem, _ coverUrlRaw: URL? = nil) async {
         // Download image if URL exists
-        if let coverUrl = item.coverUrl {
+        if let coverUrl = coverUrlRaw {
             do {
                 let (data, _) = try await URLSession.shared.data(from: coverUrl)
                 item.coverImageData = data

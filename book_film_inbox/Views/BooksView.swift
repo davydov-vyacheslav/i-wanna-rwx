@@ -67,6 +67,7 @@ struct BooksView: View {
                 }
             }
             .navigationTitle(".titleBooks")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {

@@ -29,23 +29,20 @@ struct InboxApp: App {
                 .zIndex(999)
             }
         }
-        .modelContainer(for: SchemaV101.BookItem.self)
+        .modelContainer(for: SchemaV102.BookItem.self)
     }
 }
 
-// TODO: Book functionality
-// book unique not by title, but title+year (?) // sourceUrl
-// list sorting by title
-// soft delete? on delete - remove images, but keep evveything else + add menu 'removed items' to restore
-// share link
-// plus button to overlays title 'books' to reduce space waste
-// UI/UX: when change from planned to done - in Card metadata and description 'dance'
-// TODO: remove cover url
+// TODO: remove cover url + from database model (migration) + collapse migration (something went wrong)
+// TODO: [close to be done]
+// На странице поиска в конце - добавить книгу- заглушку с названием из поисковой строки
+// Добавить новый статус - draft
+// !!! снова проблемы с удалением карточки
+// /persistnece/book (service + model)
 
 // FIXME: i18n in IOS 18 vs 26 ?
 //  what is proper way for naming?
-//  how can I use generated resources like R in android?
-//  no fallback for some reasons :shrug:
+//  no fallback for some reasons :shrug: - on missing values want to have base translation, not keys
 // FIXME: overall system performance issue
 // FIXME: services throw exception, not catch them
 // On search when cancelled - dont show error message
@@ -75,3 +72,10 @@ struct InboxApp: App {
 // TODO: other
 // About - donate button - extract wallet value
 // About - add link to github ?!
+
+// -------
+// TODO: Books. Hardcore
+// Add another main search source
+//   Add ability to change их (включить/выключить, вставить апикей)
+// По этому полю к книге подключать источники : sourceUrl + sourceType
+// В списке книг указать перечень иконок источников с возможностью линков на нужные ресурсы. Не больше 6?

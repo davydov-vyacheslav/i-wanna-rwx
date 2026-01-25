@@ -11,7 +11,7 @@ struct AddBookSheet: View {
     @EnvironmentObject var viewModel: BooksViewModel
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
-    @State private var results: [BookItem] = []
+    @State private var results: [ExternalBookItem] = []
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
     var olService: OpenLibraryService = OpenLibraryService.shared
@@ -53,16 +53,40 @@ struct AddBookSheet: View {
                 if isSearching {
                     ProgressView(".placeholder_search")
                 } else if results.isEmpty && !searchText.isEmpty {
-                    ContentUnavailableView(".label_addsheet_notfound",
-                                         systemImage: "magnifyingglass")
+                    List {
+                        BookSearchItemCard(
+                            item: ExternalBookItem(
+                                sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
+                                status: MediaStatus.PLANNED,
+                                title: searchText,
+                                isDraft: true
+                            ),
+                            isInLibrary: false
+                        )
+                    }
+
+//                    ContentUnavailableView(".label_addsheet_notfound",
+//                                         systemImage: "magnifyingglass")
                 } else if results.isEmpty {
                     ContentUnavailableView(".label_addsheet_enter_text",
                                          systemImage: "magnifyingglass")
                 } else {
-                    List(results) { item in
+                    List {
+                        ForEach(results) { item in
+                            BookSearchItemCard(
+                                item: item,
+                                isInLibrary: viewModel.isInLibrary(title: item.title))
+                        }
+                        
                         BookSearchItemCard(
-                            item: item,
-                            isInLibrary: viewModel.isInLibrary(title: item.title))
+                            item: ExternalBookItem(
+                                sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
+                                status: MediaStatus.PLANNED,
+                                title: searchText,
+                                isDraft: true
+                            ),
+                            isInLibrary: false
+                        )
                     }
                 }
             }
