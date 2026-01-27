@@ -34,7 +34,7 @@ struct BookItemCard: View {
                     // Title
                     HStack {
                         Image(systemName: "book")
-                            .foregroundColor(item.isDraft ? .gray : .orange)
+                            .foregroundColor(item.isDraft() ? .gray : .orange)
                         
                         Text(item.title)
                             .font(.headline)
@@ -90,7 +90,6 @@ struct BookItemCard: View {
                                 .frame(width: 16)
                             }
                         }
-
                     }
                     .frame(height: 16)
                     
@@ -99,7 +98,7 @@ struct BookItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text(item.isDraft ? ".label_no_author_draft" : "label_no_author")
+                        Text(item.isDraft() ? ".label_no_author_draft" : ".label_no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -110,10 +109,10 @@ struct BookItemCard: View {
                     HStack(spacing: 6) {
                         if item.mediaStatus == .PLANNED {
                             StatusBadge(icon: "clock", text: ".status_planned", color: .blue)
-                        }
-                        if item.mediaStatus == .DONE {
+                        } else if item.mediaStatus == .DONE {
                             StatusBadge(icon: "checkmark", text: ".status_seen", color: .green)
                         }
+                        StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
                     }
                 }
                 .onLongPressGesture(minimumDuration: 0.5) {
@@ -143,7 +142,8 @@ struct BookItemCard: View {
         title: "title",
         year: 1999,
         isbn: "1234567",
-        author: "Auhor M.V."))
+        author: "Auhor M.V.",
+        sourceName: "Test service"))
     BookItemCard(item: BookItem(
         description: nil,
         isFavourite: false,
@@ -152,7 +152,8 @@ struct BookItemCard: View {
         title: "title",
         year: nil,
         isbn: "NONE",
-        author: "N/A"))
+        author: "N/A",
+        sourceName: CommonConstants.DraftSourceType))
     BookItemCard(item: BookItem(
         description: nil,
         isFavourite: false,
@@ -162,6 +163,7 @@ struct BookItemCard: View {
         title: "title",
         year: nil,
         isbn: "NONE",
-        author: "N/A"))
+        author: "N/A",
+        sourceName: "Test service"))
 
 }

@@ -27,7 +27,7 @@ struct BookSearchItemCard: View {
                         year: item.year,
                         isbn: item.isbn,
                         author: item.author,
-                        isDraft: item.isDraft
+                        sourceName: item.sourceName
                     ), item.coverUrl)
                     dismiss()
                 }
@@ -66,7 +66,7 @@ struct BookSearchItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text(item.isDraft ? ".label_no_author_draft" : "label_no_author")
+                        Text(item.isDraft() ? ".label_no_author_draft" : ".label_no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -92,32 +92,32 @@ struct BookSearchItemCard: View {
 #Preview {
     BookSearchItemCard(item: ExternalBookItem(
         description: "Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere",
-        isFavourite: true,
         rating: 5.0,
         sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.PLANNED,
         title: "title",
         isbn: "12333333333",
         author: "Xxxx M.D.",
-        year: 1999), isInLibrary: false)
+        year: 1999,
+        sourceName: "Test service"), isInLibrary: false)
     BookSearchItemCard(item: ExternalBookItem(
         description: nil,
-        isFavourite: false,
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
         title: "title",
         isbn: "12333333333",
         author: "Xxxx M.D.",
-        year: nil), isInLibrary: false)
+        year: nil,
+        sourceName: "Test service"), isInLibrary: false)
     BookSearchItemCard(item: ExternalBookItem(
         description: nil,
-        isFavourite: false,
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.DONE,
         title: "title",
         isbn: "12333333333",
         author: "Xxxx M.D.",
-        year: nil), isInLibrary: true)
+        year: nil,
+        sourceName: "Test service"), isInLibrary: true)
 
 }

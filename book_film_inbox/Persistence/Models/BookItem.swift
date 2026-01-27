@@ -9,7 +9,6 @@
 import Foundation
 import SwiftData
 
-
 @Model class BookItem: Identifiable {
     
     var id: UUID = UUID()
@@ -23,7 +22,7 @@ import SwiftData
     var mainAuthor: String?
     var isbn: String?
     var year: Int?
-    var isDraft: Bool = false
+    var sourceName: String
     
     public init(
         description: String? = nil,
@@ -36,7 +35,7 @@ import SwiftData
         year: Int? = nil,
         isbn: String?,
         author: String?,
-        isDraft: Bool = false
+        sourceName: String
     ) {
         self.id = UUID()
         self.title = title
@@ -50,7 +49,7 @@ import SwiftData
         self.year = year
         self.isbn = isbn
         self.mainAuthor = author
-        self.isDraft = isDraft
+        self.sourceName = sourceName
     }
     
 }
@@ -62,6 +61,9 @@ extension BookItem {
         set { status = newValue.rawValue }
     }
 
+    func isDraft() -> Bool {
+        return sourceName == CommonConstants.DraftSourceType
+    }
 }
 
 

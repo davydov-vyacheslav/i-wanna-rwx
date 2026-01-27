@@ -10,6 +10,7 @@ import SwiftData
 
 @MainActor
 class BookPersistenceService {
+    // TODO: media persitence service + MediaItem
     
     private let modelContainer: ModelContainer
     private let modelContext: ModelContext

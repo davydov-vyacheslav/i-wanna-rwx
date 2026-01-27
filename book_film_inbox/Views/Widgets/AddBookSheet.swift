@@ -7,130 +7,52 @@
 
 import SwiftUI
 
+
 struct AddBookSheet: View {
     @EnvironmentObject var viewModel: BooksViewModel
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
     @Environment(\.dismiss) var dismiss
+    
     @State private var searchText = ""
     @State private var results: [ExternalBookItem] = []
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
-    var olService: OpenLibraryService = OpenLibraryService.shared
+    @State private var hasSearched = false
+    @State private var selectedService: SettingsSourceEntity? = nil
+    
+    @StateObject private var settingsSearchStore = SettingsSourceStore.shared
+    
     @FocusState private var isSearchFieldFocused: Bool
     
     @State private var showToast = false
     @State private var toastMessage = ""
-    @State private var hasSearched = false
+    
+    var availableServices: [SettingsSourceEntity] {
+        settingsSearchStore.availableBookSources.filter { service in
+            !service.instance.requiresToken || settingsViewModel.hasToken(for: service.instance.serviceName)
+        }
+    }
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Search field with better styling
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                    
-                    TextField(".placeholder_search", text: $searchText)
-                        .focused($isSearchFieldFocused)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                    
-                    // Clear button
-                    if !searchText.isEmpty {
-                        Button {
-                            searchText = ""
-                            results = []
-                            hasSearched = false
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    
-                    // Live search indicator
-                    if isSearching {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    }
-                }
-                .padding(12)
-                .background(Color(.systemGray6))
-                .cornerRadius(10)
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                
-                // Character count hint
-                if !searchText.isEmpty && searchText.count < 3 {
-                    Text(".hint_search_min_3_char")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
-                        .padding(.bottom, 4)
-                }
+                // Search Bar Component
+                MediaSearchBar(
+                    searchText: $searchText,
+                    selectedService: $selectedService,
+                    isSearching: $isSearching,
+                    availableServices: availableServices,
+                    onClear: {
+                        results = []
+                        hasSearched = false
+                    },
+                    isSearchFieldFocused: $isSearchFieldFocused
+                )
                 
                 Divider()
                 
-                // Results
-                if isSearching {
-                    VStack {
-                        Spacer()
-                        ProgressView(".placeholder_search")
-                        Spacer()
-                    }
-                } else if !hasSearched && searchText.isEmpty {
-                    // Initial state
-                    VStack(spacing: 12) {
-                        Spacer()
-                        Image(systemName: "books.vertical")
-                            .font(.system(size: 60))
-                            .foregroundColor(.secondary)
-                        Text(".label_addsheet_enter_text")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                } else {
-                    // Results list
-                    List {
-                        // Search results section
-                        if !results.isEmpty {
-                            Section {
-                                ForEach(results) { item in
-                                    BookSearchItemCard(
-                                        item: item,
-                                        isInLibrary: viewModel.isInLibrary(isbn: item.isbn ?? "NoISBN")
-                                    )
-                                }
-                            } header: {
-                                Text(".label_search_results")
-                                    .textCase(nil)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        // Manual add section - always at the bottom
-                        Section {
-                            BookSearchItemCard(
-                                item: ExternalBookItem(
-                                    sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
-                                    status: MediaStatus.PLANNED,
-                                    title: searchText,
-                                    isbn: nil,
-                                    author: nil,
-                                    isDraft: true
-                                ),
-                                isInLibrary: false
-                            )
-                        } header: {
-                            Text(".label_cant_find_book")
-                                .textCase(nil)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-                }
+                // Results Area
+                resultsView
             }
             .navigationTitle(".sheetAddBook")
             .navigationBarTitleDisplayMode(.inline)
@@ -140,50 +62,155 @@ struct AddBookSheet: View {
                 }
             }
             .onChange(of: searchText) { oldValue, newValue in
-                searchTask?.cancel()
-                
-                guard newValue.count >= 3 else {
-                    results = []
-                    isSearching = false
-                    return
-                }
-                
-                isSearching = true
-                
-                searchTask = Task {
-                    try? await Task.sleep(nanoseconds: 500_000_000)
-                    
-                    if !Task.isCancelled {
-                        await performSearch(query: newValue)
-                    }
-                }
+                handleSearchTextChange(newValue)
+            }
+            .onChange(of: selectedService) { oldValue, newValue in
+                handleServiceChange()
             }
             .task {
-                // Автофокус при показе окна
-                try? await Task.sleep(nanoseconds: 100_000_000)
-                isSearchFieldFocused = true
+                await initializeView()
             }
         }
         .sensoryFeedback(.error, trigger: showToast)
         .overlay(alignment: .bottom) {
             if showToast {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                    Text(toastMessage)
-                        .font(.subheadline)
-                }
-                .padding()
-                .background(.red.gradient)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .shadow(radius: 5)
-                .padding()
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                toastView
             }
         }
         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: showToast)
     }
     
+    // MARK: - Results View
+    @ViewBuilder
+    private var resultsView: some View {
+        if isSearching {
+            searchingState
+        } else if !hasSearched && searchText.isEmpty {
+            emptyState
+        } else {
+            resultsList
+        }
+    }
+    
+    private var searchingState: some View {
+        VStack {
+            Spacer()
+            ProgressView(".placeholder_search")
+            Spacer()
+        }
+    }
+    
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            Image(systemName: "books.vertical")
+                .font(.system(size: 60))
+                .foregroundColor(.secondary)
+            Text(".label_addsheet_enter_text")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            if availableServices.isEmpty {
+                Text(".media_no_search_service")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+            Spacer()
+        }
+    }
+    
+    private var resultsList: some View {
+        List {
+            // Search results section
+            if !results.isEmpty {
+                Section {
+                    ForEach(results) { item in
+                        BookSearchItemCard(
+                            item: item,
+                            isInLibrary: viewModel.isInLibrary(isbn: item.isbn ?? "NoISBN")
+                        )
+                    }
+                } header: {
+                    Text(".label_search_results")
+                        .textCase(nil)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            // Manual add section
+            Section {
+                BookSearchItemCard(
+                    item: ExternalBookItem.draft(searchText: searchText),
+                    isInLibrary: false
+                )
+            } header: {
+                Text(".label_cant_find_book")
+                    .textCase(nil)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+    
+    private var toastView: some View {
+        HStack {
+            Image(systemName: "exclamationmark.triangle.fill")
+            Text(toastMessage)
+                .font(.subheadline)
+        }
+        .padding()
+        .background(.red.gradient)
+        .foregroundColor(.white)
+        .cornerRadius(10)
+        .shadow(radius: 5)
+        .padding()
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+    
+    // MARK: - Event Handlers
+    private func handleSearchTextChange(_ newValue: String) {
+        searchTask?.cancel()
+        
+        guard newValue.count >= 3 else {
+            results = []
+            isSearching = false
+            return
+        }
+        
+        isSearching = true
+        
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            
+            if !Task.isCancelled {
+                await performSearch(query: newValue)
+            }
+        }
+    }
+    
+    private func handleServiceChange() {
+        if searchText.count >= 3 {
+            Task {
+                await performSearch(query: searchText)
+            }
+        }
+    }
+    
+    private func initializeView() async {
+        // Select first available service
+        if !availableServices.isEmpty, selectedService == nil {
+            selectedService = availableServices.first
+        }
+        
+        // Autofocus on screen appear
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        isSearchFieldFocused = true
+    }
+    
+    // MARK: - Search Logic
     private func performSearch(query: String) async {
         guard !query.isEmpty else {
             results = []
@@ -191,10 +218,31 @@ struct AddBookSheet: View {
             return
         }
         
-        do {
-            let olResults = try await olService.searchBooksWithDetails(query: query)
+        guard let service = selectedService else {
             await MainActor.run {
-                results = olResults
+                results = []
+                isSearching = false
+                hasSearched = true
+            }
+            showToastMessage("Service not available")
+            return
+        }
+        
+        do {
+            let token = service.instance.requiresToken
+            ? settingsViewModel.getToken(for: service.instance.serviceName)
+                : nil
+            
+            let searchResults = try await service.instance.search(
+                query: query,
+                token: token,
+                limit: 10
+            )
+            
+            let bookResults = searchResults.compactMap { $0 as? ExternalBookItem }
+            
+            await MainActor.run {
+                results = bookResults
                 isSearching = false
                 hasSearched = true
             }

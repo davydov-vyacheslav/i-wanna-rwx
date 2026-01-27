@@ -27,7 +27,7 @@ enum SchemaV102: VersionedSchema {
         var year: Int?
         var isbn: String?
         var mainAuthor: String?
-        var isDraft: Bool = false
+        var sourceName: String
         
         public init(
             id: UUID? = UUID(),
@@ -41,7 +41,7 @@ enum SchemaV102: VersionedSchema {
             year: Int?,
             isbn: String?,
             author: String?,
-            isDraft: Bool? = false
+            sourceName: String
         ) {
             self.id = id!
             self.title = title
@@ -55,7 +55,7 @@ enum SchemaV102: VersionedSchema {
             self.year = year
             self.isbn = isbn
             self.mainAuthor = author
-            self.isDraft = isDraft!
+            self.sourceName = sourceName
         }
         
     }

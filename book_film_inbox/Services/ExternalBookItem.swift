@@ -17,7 +17,7 @@ import Foundation
 import SwiftData
 
 
-struct ExternalBookItem: Identifiable {
+struct ExternalBookItem: ExternalMediaItem {
     
     var id: UUID
     var itemDescription: String?
@@ -31,11 +31,10 @@ struct ExternalBookItem: Identifiable {
     var isbn: String?
     var author: String?
     var year: Int?
-    var isDraft: Bool = false
-    
+    var sourceName: String
+
     public init(
         description: String? = nil,
-        isFavourite: Bool? = false,
         rating: Double? = 0.0,
         sourceUrl: URL,
         coverUrl: URL? = nil,
@@ -45,22 +44,35 @@ struct ExternalBookItem: Identifiable {
         isbn: String?,
         author: String?,
         year: Int? = nil,
-        isDraft: Bool? = false
+        sourceName: String
     ) {
         self.id = UUID()
         self.title = title
         self.itemDescription = description
-        self.isFavourite = isFavourite!
         self.rating = rating ?? 0.0
         self.sourceUrl = sourceUrl
         self.coverUrl = coverUrl
         self.coverImageData = coverImageData
         self.status = status
-        self.title = title
         self.year = year
         self.isbn = isbn
         self.author = author
-        self.isDraft = isDraft!
+        self.sourceName = sourceName
+    }
+    
+    static func draft(searchText: String) -> ExternalBookItem {
+        ExternalBookItem(
+            sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
+            status: MediaStatus.PLANNED,
+            title: searchText,
+            isbn: "NoISBN",
+            author: nil,
+            sourceName: CommonConstants.DraftSourceType
+        )
+    }
+    
+    func isDraft() -> Bool {
+        return sourceName == CommonConstants.DraftSourceType
     }
     
 }

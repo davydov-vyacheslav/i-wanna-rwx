@@ -70,9 +70,14 @@ struct OLDescription: Codable {
 
 // MARK: - Open Library Service
 
-class OpenLibraryService {
+class OpenLibraryService: SearchService {
     
-    static let shared = OpenLibraryService()
+    typealias SearchResultItem = ExternalBookItem
+    
+    var serviceName: String = "Open Library"
+    var requiresToken: Bool = false
+    var tokenPlaceholder: String? = nil
+    var helpURL: String? = nil
     
     private let baseURL = "https://openlibrary.org"
     private let session: URLSession
@@ -86,6 +91,11 @@ class OpenLibraryService {
     
    
     // MARK: - Search Books
+
+    // @Override
+    func search(query: String, token: String?, limit: Int) async throws -> [ExternalBookItem] {
+        return try await searchBooksWithDetails(query: query, limit: limit)
+    }
     
     func searchBooks(query: String, limit: Int = 20) async throws -> [ExternalBookItem] {
         
@@ -166,8 +176,10 @@ class OpenLibraryService {
             sourceUrl: URL(string: "\(baseURL)/works/\(cleanKey)")!,
             coverUrl: URL(string: coverUrl ?? ""),
             title: workDetail.title ?? "",
-            isbn: nil, author: nil,
-            year: year
+            isbn: nil,
+            author: nil,
+            year: year,
+            sourceName: serviceName
         )
     }
     
@@ -184,7 +196,8 @@ class OpenLibraryService {
             title: doc.title,
             isbn: doc.isbn?[0] ?? "N/A ?",
             author: doc.authorName?.joined(separator: ", ") ?? "",
-            year: doc.firstPublishYear
+            year: doc.firstPublishYear,
+            sourceName: serviceName
         )
     }
     
@@ -223,7 +236,8 @@ class OpenLibraryService {
                         title: detailedBook.title,
                         isbn: book.isbn,
                         author: book.author,
-                        year: detailedBook.year ?? book.year
+                        year: detailedBook.year ?? book.year,
+                        sourceName: book.sourceName
                     )
                     detailedBooks.append(mergedBook)
                 } else {

@@ -36,7 +36,7 @@ class BooksViewModel: ObservableObject {
     
     func deleteItem(_ item: BookItem) {
         storageService.deleteBook(item)
-        objectWillChange.send() // FIXME: use @Published on local BookItem[] ?
+        objectWillChange.send()
     }
     
     func toggleFavorite(_ item: BookItem) {

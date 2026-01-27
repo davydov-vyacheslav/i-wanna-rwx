@@ -30,14 +30,13 @@ struct InboxApp: App {
             }
         }
         .modelContainer(for: SchemaV102.BookItem.self)
+        // ^^ TODO: sync with iCloud
     }
 }
 
 // TODO: remove cover url + from database model (migration) + collapse migration (something went wrong)
 // TODO: [close to be done]
 // На странице поиска в конце - добавить книгу- заглушку с названием из поисковой строки
-// Добавить новый статус - draft
-// !!! снова проблемы с удалением карточки
 // /persistnece/book (service + model)
 
 // FIXME: i18n in IOS 18 vs 26 ?
@@ -49,7 +48,7 @@ struct InboxApp: App {
 // Application image
 // Splash screen
 // we my library contains a lot of items - images should be obtained consequently
-// profile requests , especially on OLService
+// profile/analyze requests , especially on OLService
 
 
 // -----
@@ -58,24 +57,14 @@ struct InboxApp: App {
 // - if openlibrary is down - need workaround way to add book draft
 
 // -----
-// TODO: Movie section afterall
-// - load data from imdb / goodreads
-// - for series movies that are not yet released full - add button 'sync'
-// - for series movies add amount of seasons
-
-// -----
 // TODO: Reminders:
 // can I send push noification from ohone cron? witout 3rd party server
 // - licenses, subscriptions
 
 // -------
 // TODO: other
-// About - donate button - extract wallet value
 // About - add link to github ?!
 
-// -------
-// TODO: Books. Hardcore
-// Add another main search source
-//   Add ability to change их (включить/выключить, вставить апикей)
-// По этому полю к книге подключать источники : sourceUrl + sourceType
-// В списке книг указать перечень иконок источников с возможностью линков на нужные ресурсы. Не больше 6?
+// FIXME: AddBookSheet
+// make common for book and video
+

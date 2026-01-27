@@ -9,23 +9,24 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var viewModel: SettingsViewModel
-    private let walletAddress = "0x0000000000000000000000000000000006000000"
+    @StateObject private var settingsSearchStore = SettingsSourceStore.shared
+    private let walletAddress = "0xB06095188DdCB0e1Acd8fDd16FaC96Fbac3d6882"
     
     var body: some View {
         NavigationStack {
             List {
                 
                 // Movie Sources Section
-//                Section("settings.source.movie") {
-//                    HStack {
-//                        Text("IMDB")
-//                    }
-//                }
+                Section(".pageSettings_source_movie") {
+                    ForEach(settingsSearchStore.availableVideoSources) { source in
+                        SettingsSourceRow(searchService: source.instance, viewModel: viewModel)
+                    }
+                }
                 
                 // Book Sources Section
                 Section(".pageSettings_sourcebooks") {
-                    HStack {
-                        Text("OpenLibrary")
+                    ForEach(settingsSearchStore.availableBookSources) { source in
+                        SettingsSourceRow(searchService: source.instance, viewModel: viewModel)
                     }
                 }
                 
@@ -70,7 +71,7 @@ struct SettingsView: View {
                             UIApplication.shared.open(url)
                         }
                     }) {
-                        Text("pageSettings_support_openWallet")
+                        Text(".pageSettings_support_openWallet")
                             .font(.headline.bold())
                             .frame(maxWidth: .infinity)
                     }

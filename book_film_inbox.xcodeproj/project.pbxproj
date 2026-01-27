@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5E46751A2F267F9E0006C548 /* TMDb in Frameworks */ = {isa = PBXBuildFile; productRef = 5E4675192F267F9E0006C548 /* TMDb */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5EED6B102ED3A490008F96FF /* IWannaRWX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IWannaRWX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E46751A2F267F9E0006C548 /* TMDb in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = IWannaRWX;
 			packageProductDependencies = (
+				5E4675192F267F9E0006C548 /* TMDb */,
 			);
 			productName = book_film_inbox;
 			productReference = 5EED6B102ED3A490008F96FF /* IWannaRWX.app */;
@@ -96,6 +102,9 @@
 			);
 			mainGroup = 5EED6B072ED3A490008F96FF;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5E4675182F267F9E0006C548 /* XCRemoteSwiftPackageReference "TMDb" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5EED6B112ED3A490008F96FF /* Products */;
 			projectDirPath = "";
@@ -346,6 +355,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5E4675182F267F9E0006C548 /* XCRemoteSwiftPackageReference "TMDb" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/adamayoung/TMDb";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5E4675192F267F9E0006C548 /* TMDb */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E4675182F267F9E0006C548 /* XCRemoteSwiftPackageReference "TMDb" */;
+			productName = TMDb;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5EED6B082ED3A490008F96FF /* Project object */;
 }
