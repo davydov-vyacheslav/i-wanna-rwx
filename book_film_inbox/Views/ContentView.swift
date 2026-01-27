@@ -12,11 +12,11 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-//            MoviesView()
-//                .tabItem {
-//                    Label("title.movies", systemImage: "film")
-//                }
-//                .tag(0)
+            MoviesView()
+                .tabItem {
+                    Label(".titleMovies", systemImage: "film")
+                }
+                .tag(0)
             
             BooksView()
                 .tabItem {

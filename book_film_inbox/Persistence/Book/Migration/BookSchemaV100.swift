@@ -9,7 +9,7 @@ import SwiftData
 import Foundation
 
 // MARK: - Schema V1 (Old)
-enum SchemaV100: VersionedSchema {
+enum BookSchemaV100: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
     static var models: [any PersistentModel.Type] {
         [BookItem.self]

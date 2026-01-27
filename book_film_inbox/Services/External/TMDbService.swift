@@ -6,38 +6,89 @@
 //
 
 import TMDb
+import Foundation
 
-class TMDbService {
+class TMDbService: SearchService {
     
-    //typealias SearchResultItem = ExternalBookItem
-    //tokenPlaceholder: "Enter API Key",
-    // helpURL: "https://www.themoviedb.org/settings/api"
-    func search(name: String) async throws -> [Movie] {
-        // return Movie, MediaPageableList,
-        let tmdbClient = TMDbClient(apiKey: "YOUR_API_KEY")
-        
-        // Discover movies with filters
-        let popularMovies = try await tmdbClient.discover.movies(
-            sortedBy: .popularity(descending: true)
-        ).results
+    typealias SearchResultItem = ExternalMovieItem
+    
+    var serviceName: String = "TMDb"
+    var requiresToken: Bool = true
+    var tokenPlaceholder: String? = "Enter API Key"
+    var helpURL: String? = "https://www.themoviedb.org/settings/api"
 
-        // Get movie details
-        let fightClub = try await tmdbClient.movies.details(forMovie: 550)
-        print("Title: \(fightClub.title)")
-        print("Release Date: \(fightClub.releaseDate)")
-        print("Rating: \(fightClub.voteAverage)/10")
-
-        // Search across movies, TV shows, and people
-        let searchResults = try await tmdbClient.search.searchAll(query: name)
-
-        // Generate poster image URL
-        let config = try await tmdbClient.configurations.apiConfiguration()
-        if let posterPath = fightClub.posterPath {
-            let posterURL = config.images.posterURL(for: posterPath, idealWidth: 500)
-        }
-        
-        return []
+    var tmdbClient: TMDbClient
+    
+    init() {
+        let currentToken = SettingsService.shared.getToken(for: serviceName)
+        tmdbClient = TMDbClient(apiKey: currentToken ?? "foo token")
     }
     
+    func search(query: String, token: String?, limit: Int) async throws -> [ExternalMovieItem] {
+
+        // Search across movies, TV shows, and people
+        let searchResults = try await tmdbClient.search.searchAll(query: query)
+        
+        let imagesConfig = try await tmdbClient.configurations.apiConfiguration().images
+        
+        let movies: [ExternalMovieItem] = searchResults.results.compactMap { result in
+            switch result {
+            case .movie(let movie):
+                return toExternalMovieItem(movie: movie, imagesConfiguration: imagesConfig)
+            case .tvSeries(let tvSeries):
+                return toExternalMovieItem(tvSeries: tvSeries, imagesConfiguration: imagesConfig)
+            default:
+                return nil
+            }
+        }
+        
+        return Array(movies.prefix(limit))
+    }
+    
+    // FIXME: author retrieval
+    func toExternalMovieItem(movie: MovieListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
+        let coverUrl = movie.posterPath.map { imagesConfiguration.posterURL(for: $0, idealWidth: 250) } ?? nil
+        let releaseYear = movie.releaseDate.map { Calendar.current.component(.year, from: $0) } ?? nil
+        let rating = movie.voteAverage.map {String(format: "%.1f / 10", $0) } ?? nil
+        
+        return ExternalMovieItem(
+            title: movie.title,
+            sourceUrl: URL(string: "https://www.themoviedb.org/movie/\(movie.id)")!,
+            sourceName: serviceName,
+            description: movie.overview,
+            rating: rating,
+            coverUrl: coverUrl,
+            coverImageData: nil,
+            status: .PLANNED,
+            author: nil,
+            year: releaseYear,
+            type: .MOVIE,
+            sourceId: movie.id,
+            originalTitle: movie.originalTitle
+        )
+    }
+    
+    func toExternalMovieItem(tvSeries: TVSeriesListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
+        let coverUrl = tvSeries.posterPath.map { imagesConfiguration.posterURL(for: $0, idealWidth: 250) } ?? nil
+        let releaseYear = tvSeries.firstAirDate.map { Calendar.current.component(.year, from: $0) } ?? nil
+        let rating = tvSeries.voteAverage.map {String(format: "%.1f / 10", $0) } ?? nil
+
+        return ExternalMovieItem(
+            title: tvSeries.name,
+            sourceUrl: URL(string: "https://www.themoviedb.org/movie/\(tvSeries.id)")!,
+            sourceName: serviceName,
+            description: tvSeries.overview,
+            rating: rating,
+            coverUrl: coverUrl,
+            coverImageData: nil,
+            status: .PLANNED,
+            author: nil,
+            year: releaseYear,
+            type: .TV_SERIES,
+            sourceId: tvSeries.id,
+            originalTitle: tvSeries.originalName
+        )
+
+    }
     
 }

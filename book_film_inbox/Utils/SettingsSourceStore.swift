@@ -22,11 +22,11 @@ class SettingsSourceStore: ObservableObject {
     func reloadSources() {
         availableBookSources = [
             SettingsSourceEntity(instance: OpenLibraryService()),
-            SettingsSourceEntity(instance: XDummyBookSearchService())
+            //SettingsSourceEntity(instance: XDummyBookSearchService())
         ]
         
         availableVideoSources = [
-            SettingsSourceEntity(instance: OpenLibraryService()),
+            SettingsSourceEntity(instance: TMDbService()),
         ]
     }
 }

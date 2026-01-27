@@ -10,27 +10,14 @@ import SwiftData
 
 @MainActor
 class BookPersistenceService {
-    // TODO: media persitence service + MediaItem
     
-    private let modelContainer: ModelContainer
     private let modelContext: ModelContext
-    
-    init() {
-        do {
-            modelContainer = try ModelContainer(for: BookItem.self)
-            modelContext = ModelContext(modelContainer)
-            
-//            if let url = modelContainer.configurations.first?.url {
-//                print("📁 Database location:")
-//                print(url.path)
-//            }
-            
-        } catch {
-            fatalError("Failed to initialize ModelContainer: \(error)")
-        }
+
+    init(context: ModelContext) {
+        self.modelContext = context
     }
     
-    
+    // MARK: - Main methods
     func findByType(_ filter: FilterType) -> [BookItem] {
         var predicate: Predicate<BookItem>?
         let pendingState = MediaStatus.PLANNED.rawValue
@@ -39,12 +26,12 @@ class BookPersistenceService {
         case .ALL:
             predicate = nil // No filter, fetch all
         case .FAVOURITES:
-            predicate = #Predicate<BookItem> { book in
-                book.isFavourite == true
+            predicate = #Predicate<BookItem> { item in
+                item.isFavourite == true
             }
         case .PLANNED:
-            predicate = #Predicate<BookItem> { book in
-                book.status == pendingState
+            predicate = #Predicate<BookItem> { item in
+                item.status == pendingState
             }
         }
         
@@ -65,24 +52,24 @@ class BookPersistenceService {
         findByType(filter).count
     }
     
-    func addBook(_ book: BookItem) {
-        modelContext.insert(book)
+    func add(_ item: BookItem) {
+        modelContext.insert(item)
         saveContext()
     }
     
-    func deleteBook(_ book: BookItem) {
-        _ = book.coverImageData // lazy data load to avoid 'This backing data was detached from a context without resolving attribute faults'
-        modelContext.delete(book)
+    func delete(_ item: BookItem) {
+        _ = item.coverImageData // lazy data load to avoid 'This backing data was detached from a context without resolving attribute faults'
+        modelContext.delete(item)
         saveContext()
     }
     
-    func toggleFavorite(_ book: BookItem) {
-        book.isFavourite.toggle()
+    func toggleFavorite(_ item: BookItem) {
+        item.isFavourite.toggle()
         saveContext()
     }
     
-    func changeStatus(_ book: BookItem, to status: MediaStatus) {
-        book.status = status.rawValue
+    func changeStatus(_ item: BookItem, to status: MediaStatus) {
+        item.status = status.rawValue
         saveContext()
     }
     
@@ -96,7 +83,7 @@ class BookPersistenceService {
             let results = try modelContext.fetch(descriptor)
             return !results.isEmpty
         } catch {
-            print("Error checking if book exists by title: \(error)")
+            print("Error checking if book exists by isbn: \(error)")
             return false
         }
     }

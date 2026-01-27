@@ -11,13 +11,11 @@ import SwiftData
 
 protocol ExternalMediaItem: Identifiable {
     
-    var id: UUID { get }
     var itemDescription: String? { get }
     var title: String { get }
     var sourceUrl: URL { get }
     var sourceName: String { get }
     var status: MediaStatus { get }
-    var rating: Double { get }
     var coverUrl: URL? { get }
     var coverImageData: Data? { get }
     var year: Int? { get }

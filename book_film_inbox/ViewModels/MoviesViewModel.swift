@@ -1,18 +1,18 @@
 //
-//  MediaViewModel.swift
-//  book_film_inbox
+//  MoviesViewModel.swift
+//  IWannaRWX
 //
-//  Created by Slava Davydov on 23.11.2025.
+//  Created by Slava Davydov on 27.01.2026.
 //
 
 import Foundation
 import Combine
 
 @MainActor
-class BooksViewModel: ObservableObject {
-    private let storageService = BookPersistenceService(context: BookPersistenceController.shared.context)
+class MoviesViewModel: ObservableObject {
+    private let storageService = MoviePersistenceService(context: MoviePersistenceController.shared.context)
     
-    func filteredItems(filter: FilterType) -> [BookItem] {
+    func filteredItems(filter: FilterType) -> [MovieItem] {
         storageService.findByType(filter)
     }
     
@@ -20,7 +20,7 @@ class BooksViewModel: ObservableObject {
         storageService.count(filter)
     }
     
-    func addItem(_ item: BookItem, _ coverUrlRaw: URL? = nil) async {
+    func addItem(_ item: MovieItem, _ coverUrlRaw: URL? = nil) async {
         // Download image if URL exists
         if let coverUrl = coverUrlRaw {
             do {
@@ -35,22 +35,22 @@ class BooksViewModel: ObservableObject {
         objectWillChange.send()
     }
     
-    func deleteItem(_ item: BookItem) {
+    func deleteItem(_ item: MovieItem) {
         storageService.delete(item)
         objectWillChange.send()
     }
     
-    func toggleFavorite(_ item: BookItem) {
+    func toggleFavorite(_ item: MovieItem) {
         storageService.toggleFavorite(item)
         objectWillChange.send()
     }
     
-    func changeStatus(_ item: BookItem, to status: MediaStatus) {
+    func changeStatus(_ item: MovieItem, to status: MediaStatus) {
         storageService.changeStatus(item, to: status)
-        objectWillChange.send() 
+        objectWillChange.send()
     }
     
-    func isInLibrary(isbn: String) -> Bool {
-        storageService.isInLibrary(isbn)
+    func isInLibrary(sourceId: Int?, sourceName: String) -> Bool {
+        storageService.isInLibrary(sourceId: sourceId, sourceName: sourceName)
     }
 }

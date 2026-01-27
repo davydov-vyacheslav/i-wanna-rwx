@@ -22,7 +22,7 @@ struct BookSearchItemCard: View {
                         isFavourite: item.isFavourite,
                         rating: item.rating,
                         sourceUrl: item.sourceUrl,
-                        status: .PLANNED,
+                        status: MediaStatus.PLANNED.rawValue,
                         title: item.title,
                         year: item.year,
                         isbn: item.isbn,
@@ -91,33 +91,36 @@ struct BookSearchItemCard: View {
 
 #Preview {
     BookSearchItemCard(item: ExternalBookItem(
+        title: "title",
+        sourceUrl: URL(string: "https://google.com")!,
+        sourceName: "Test service",
         description: "Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere",
         rating: 5.0,
-        sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.PLANNED,
-        title: "title",
         isbn: "12333333333",
         author: "Xxxx M.D.",
         year: 1999,
-        sourceName: "Test service"), isInLibrary: false)
+    ), isInLibrary: false)
     BookSearchItemCard(item: ExternalBookItem(
+        title: "title",
+        sourceUrl: URL(string: "https://google.com")!,
+        sourceName: "Test service",
         description: nil,
         rating: nil,
-        sourceUrl: URL(string: "https://google.com")!,
-        title: "title",
         isbn: "12333333333",
         author: "Xxxx M.D.",
         year: nil,
-        sourceName: "Test service"), isInLibrary: false)
+    ), isInLibrary: false)
     BookSearchItemCard(item: ExternalBookItem(
+        title: "title",
+        sourceUrl: URL(string: "https://google.com")!,
+        sourceName: "Test service",
         description: nil,
         rating: nil,
-        sourceUrl: URL(string: "https://google.com")!,
         status: MediaStatus.DONE,
-        title: "title",
         isbn: "12333333333",
         author: "Xxxx M.D.",
         year: nil,
-        sourceName: "Test service"), isInLibrary: true)
+    ), isInLibrary: true)
 
 }

@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct InboxApp: App {
     @StateObject private var booksViewModel = BooksViewModel()
+    @StateObject private var moviesViewModel = MoviesViewModel()
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject var appState = AppState()
     
@@ -18,6 +19,7 @@ struct InboxApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(booksViewModel)
+                .environmentObject(moviesViewModel)
                 .environmentObject(settingsViewModel)
                 .environmentObject(appState)
             
@@ -29,7 +31,6 @@ struct InboxApp: App {
                 .zIndex(999)
             }
         }
-        .modelContainer(for: SchemaV102.BookItem.self)
         // ^^ TODO: sync with iCloud
     }
 }
@@ -49,7 +50,7 @@ struct InboxApp: App {
 // Splash screen
 // we my library contains a lot of items - images should be obtained consequently
 // profile/analyze requests , especially on OLService
-
+// TODO: dark and light themes ??
 
 // -----
 // TODO: Settings

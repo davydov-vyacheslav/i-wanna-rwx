@@ -1,0 +1,87 @@
+//
+//  MoviesView.swift
+//  book_film_inbox
+//
+//  Created by Slava Davydov on 27.01.2026.
+//
+
+import SwiftUI
+
+struct MoviesView: View {
+    @EnvironmentObject var viewModel: MoviesViewModel
+    @State private var selectedFilter: FilterType = .ALL
+    @State private var showingAddSheet = false
+    
+    var filteredItems: [MovieItem] {
+        viewModel.filteredItems(filter: selectedFilter)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Filters
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(FilterType.allCases, id: \.self) { filter in
+                            FilterButton(
+                                filterType: filter,
+                                count: viewModel.count(filter: filter),
+                                isSelected: selectedFilter == filter,
+                                isFavorite: filter == .FAVOURITES
+                            ) {
+                                selectedFilter = filter
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.vertical, 12)
+                .background(Color(uiColor: .systemBackground))
+                
+                // List
+                if filteredItems.isEmpty {
+                    Spacer()
+                    Text(".label_list_empty")
+                        .foregroundColor(.secondary)
+                    Spacer()
+                } else {
+                    List {
+                        ForEach(filteredItems) { item in
+                            MovieItemCard(item: item)
+                                .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        viewModel.deleteItem(item)
+                                    } label: {
+                                        Label(".buttonDelete", systemImage: "trash")
+                                    }
+                                    .tint(.red)
+                                }
+                        }
+                        
+                    }
+                    .listStyle(.plain)
+                    .padding(.horizontal)
+                }
+            }
+            .navigationTitle(".titleMovies")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddSheet) {
+                AddMovieSheet()
+            }
+        }
+    }
+}
+
+

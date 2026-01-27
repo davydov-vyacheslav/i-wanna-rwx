@@ -7,9 +7,10 @@
 
 import SwiftData
 
+
 enum BookMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [SchemaV100.self, SchemaV101.self, SchemaV102.self]
+        [BookSchemaV100.self, BookSchemaV101.self, BookSchemaV102.self]
     }
     
     static var stages: [MigrationStage] {
@@ -17,14 +18,14 @@ enum BookMigrationPlan: SchemaMigrationPlan {
     }
     
     static let migrateV100toV101 = MigrationStage.custom(
-        fromVersion: SchemaV100.self,
-        toVersion: SchemaV101.self,
+        fromVersion: BookSchemaV100.self,
+        toVersion: BookSchemaV101.self,
         willMigrate: { context in
             
             print(">> Migration from V100 to V101")
             
             // Fetch all books from V1
-            let books = try context.fetch(FetchDescriptor<SchemaV100.BookItem>())
+            let books = try context.fetch(FetchDescriptor<BookSchemaV100.BookItem>())
             
             // Migrate each book
             for oldBook in books {
@@ -41,7 +42,7 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                }
                 
                 // Create new book with migrated data
-                let newBook = SchemaV101.BookItem(
+                let newBook = BookSchemaV101.BookItem(
                     id: oldBook.id,
                     description: oldBook.itemDescription,
                     isFavourite: oldBook.isFavourite,
@@ -67,20 +68,20 @@ enum BookMigrationPlan: SchemaMigrationPlan {
     )
     
     static let migrateV101toV102 = MigrationStage.custom(
-        fromVersion: SchemaV101.self,
-        toVersion: SchemaV102.self,
+        fromVersion: BookSchemaV101.self,
+        toVersion: BookSchemaV102.self,
         willMigrate: { context in
             
             print(">> Migration from V101 to V102")
             
             // Fetch all books from V1
-            let books = try context.fetch(FetchDescriptor<SchemaV101.BookItem>())
+            let books = try context.fetch(FetchDescriptor<BookSchemaV101.BookItem>())
             
             // Migrate each book
             for oldBook in books {
                 
                 // Create new book with migrated data
-                let newBook = SchemaV102.BookItem(
+                let newBook = BookSchemaV102.BookItem(
                     id: oldBook.id,
                     description: oldBook.itemDescription,
                     isFavourite: oldBook.isFavourite,
@@ -103,8 +104,14 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                 context.delete(oldBook)
             }
             
+            
             try context.save()
         },
         didMigrate: nil
     )
+    
+    // static let migrateV101toV102 = MigrationStage.lightweight(
+    //fromVersion: SchemaV101.self,
+    //toVersion: SchemaV102.self
+    //)
 }

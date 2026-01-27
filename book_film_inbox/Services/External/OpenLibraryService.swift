@@ -172,14 +172,12 @@ class OpenLibraryService: SearchService {
         let year = extractYear(from: workDetail.firstPublishDate)
         
         return ExternalBookItem(
-            description: workDetail.description?.value,
-            sourceUrl: URL(string: "\(baseURL)/works/\(cleanKey)")!,
-            coverUrl: URL(string: coverUrl ?? ""),
             title: workDetail.title ?? "",
-            isbn: nil,
-            author: nil,
+            sourceUrl: URL(string: "\(baseURL)/works/\(cleanKey)")!,
+            sourceName: serviceName,
+            description: workDetail.description?.value,
+            coverUrl: URL(string: coverUrl ?? ""),
             year: year,
-            sourceName: serviceName
         )
     }
     
@@ -190,14 +188,14 @@ class OpenLibraryService: SearchService {
         let coverUrl = doc.coverI.map { "https://covers.openlibrary.org/b/id/\($0)-L.jpg" }
     
         return ExternalBookItem(
-            rating: doc.ratingsAverage,
-            sourceUrl: URL(string: "\(baseURL)\(doc.key)")!,
-            coverUrl: URL(string: coverUrl ?? ""),
             title: doc.title,
+            sourceUrl: URL(string: "\(baseURL)\(doc.key)")!,
+            sourceName: serviceName,
+            rating: doc.ratingsAverage,
+            coverUrl: URL(string: coverUrl ?? ""),
             isbn: doc.isbn?[0] ?? "N/A ?",
             author: doc.authorName?.joined(separator: ", ") ?? "",
             year: doc.firstPublishYear,
-            sourceName: serviceName
         )
     }
     
@@ -229,15 +227,15 @@ class OpenLibraryService: SearchService {
                     // Merge search data with detailed data
                     
                     let mergedBook = ExternalBookItem(
+                        title: detailedBook.title,
+                        sourceUrl: book.sourceUrl,
+                        sourceName: book.sourceName,
                         description: detailedBook.itemDescription,
                         rating: book.rating,
-                        sourceUrl: book.sourceUrl,
                         coverUrl: detailedBook.coverUrl ?? book.coverUrl,
-                        title: detailedBook.title,
                         isbn: book.isbn,
                         author: book.author,
                         year: detailedBook.year ?? book.year,
-                        sourceName: book.sourceName
                     )
                     detailedBooks.append(mergedBook)
                 } else {
