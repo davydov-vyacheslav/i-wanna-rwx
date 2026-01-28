@@ -7,7 +7,9 @@
 
 protocol SearchService<SearchResultItem> {
     associatedtype SearchResultItem: ExternalMediaItem
+    
     func search(query: String, token: String?, limit: Int) async throws -> [SearchResultItem]
+    func getDetails(item: SearchResultItem) async throws -> SearchResultItem
 
     var serviceName: String { get }
     var requiresToken: Bool { get }

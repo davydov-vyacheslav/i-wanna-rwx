@@ -89,16 +89,11 @@ class OpenLibraryService: SearchService {
         self.session = URLSession(configuration: config)
     }
     
-   
+    
     // MARK: - Search Books
-
+    
     // @Override
     func search(query: String, token: String?, limit: Int) async throws -> [ExternalBookItem] {
-        return try await searchBooksWithDetails(query: query, limit: limit)
-    }
-    
-    func searchBooks(query: String, limit: Int = 20) async throws -> [ExternalBookItem] {
-        
         var components = URLComponents(string: "\(baseURL)/search.json")
         components?.queryItems = [
             URLQueryItem(name: "q", value: query),
@@ -135,7 +130,35 @@ class OpenLibraryService: SearchService {
     }
     
     // MARK: - Get Book Details
-    
+
+    func getDetails(item: ExternalBookItem) async throws -> ExternalBookItem {
+        // Extract work key from source URL
+        if let workKey = item.sourceUrl.absoluteString.components(separatedBy: "/works/").last {
+            if let detailedBook = try? await getBookDetails(workKey: workKey) {
+                // Merge search data with detailed data
+                
+                let mergedBook = ExternalBookItem(
+                    title: detailedBook.title,
+                    sourceUrl: item.sourceUrl,
+                    sourceName: item.sourceName,
+                    description: detailedBook.itemDescription,
+                    rating: item.rating,
+                    coverUrl: detailedBook.coverUrl ?? item.coverUrl,
+                    isbn: item.isbn,
+                    author: item.author,
+                    year: detailedBook.year ?? item.year,
+                )
+                
+                return mergedBook
+            } else {
+                return item
+            }
+        } else {
+            return item
+        }
+
+    }
+        
     func getBookDetails(workKey: String) async throws -> ExternalBookItem? {
         
         // Clean the work key (remove /works/ if present)
@@ -186,7 +209,7 @@ class OpenLibraryService: SearchService {
     
     private func convertToBook(from doc: OLSearchDoc) -> ExternalBookItem {
         let coverUrl = doc.coverI.map { "https://covers.openlibrary.org/b/id/\($0)-L.jpg" }
-    
+        
         return ExternalBookItem(
             title: doc.title,
             sourceUrl: URL(string: "\(baseURL)\(doc.key)")!,
@@ -213,44 +236,7 @@ class OpenLibraryService: SearchService {
         return Int(yearString)
     }
     
-    // MARK: - Search with Full Details
-    
-    func searchBooksWithDetails(query: String, limit: Int = 20) async throws -> [ExternalBookItem] {
-        let books = try await searchBooks(query: query, limit: limit)
-        
-        var detailedBooks: [ExternalBookItem] = []
-        
-        for book in books {
-            // Extract work key from source URL
-            if let workKey = book.sourceUrl.absoluteString.components(separatedBy: "/works/").last {
-                if let detailedBook = try? await getBookDetails(workKey: workKey) {
-                    // Merge search data with detailed data
-                    
-                    let mergedBook = ExternalBookItem(
-                        title: detailedBook.title,
-                        sourceUrl: book.sourceUrl,
-                        sourceName: book.sourceName,
-                        description: detailedBook.itemDescription,
-                        rating: book.rating,
-                        coverUrl: detailedBook.coverUrl ?? book.coverUrl,
-                        isbn: book.isbn,
-                        author: book.author,
-                        year: detailedBook.year ?? book.year,
-                    )
-                    detailedBooks.append(mergedBook)
-                } else {
-                    detailedBooks.append(book)
-                }
-            } else {
-                detailedBooks.append(book)
-            }
-        }
-        
-        print(detailedBooks)
-        return detailedBooks
-    }
 }
-
 // MARK: - Error Handling
 
 enum OLError: Error {

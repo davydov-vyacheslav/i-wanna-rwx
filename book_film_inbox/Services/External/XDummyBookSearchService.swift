@@ -46,4 +46,8 @@ class XDummyBookSearchService: SearchService {
         }
     }
     
+    func getDetails(item: ExternalBookItem) async throws -> ExternalBookItem {
+        return item
+    }
+    
 }

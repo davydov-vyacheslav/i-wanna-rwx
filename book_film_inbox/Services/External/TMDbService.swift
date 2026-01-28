@@ -45,7 +45,38 @@ class TMDbService: SearchService {
         return Array(movies.prefix(limit))
     }
     
-    // FIXME: author retrieval
+    func getDetails(item: ExternalMovieItem) async throws -> ExternalMovieItem {
+        var creator : String? = nil
+        switch item.type {
+        case .MOVIE:
+            let credits = try? await tmdbClient.movies.credits(forMovie: item.sourceId!)
+            creator = credits?.crew.first(where: { $0.job == "Director" })?.name
+        case .TV_SERIES:
+            let credits = try? await tmdbClient.tvSeries.credits(forTVSeries: item.sourceId!)
+            creator = credits?.crew.first(where: {
+                $0.job == "Executive Producer" || $0.job == "Director" || $0.department == "Production"
+            })?.name
+        }
+        
+        return ExternalMovieItem(
+            id: item.id,
+            title: item.title,
+            sourceUrl: item.sourceUrl,
+            sourceName: item.sourceName,
+            description: item.itemDescription,
+            rating: item.rating,
+            coverUrl: item.coverUrl,
+            coverImageData: item.coverImageData,
+            status: item.status,
+            author: creator,
+            year: item.year,
+            type: item.type,
+            sourceId: item.sourceId,
+            originalTitle: item.originalTitle
+        )
+        
+    }
+    
     func toExternalMovieItem(movie: MovieListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
         let coverUrl = movie.posterPath.map { imagesConfiguration.posterURL(for: $0, idealWidth: 250) } ?? nil
         let releaseYear = movie.releaseDate.map { Calendar.current.component(.year, from: $0) } ?? nil

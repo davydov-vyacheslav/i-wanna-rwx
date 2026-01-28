@@ -89,7 +89,6 @@ struct MovieItemCard: View {
                                 .frame(width: 16)
                             }
                             
-                            // TODO: show type
                         }
                     }
                     .frame(height: 16)

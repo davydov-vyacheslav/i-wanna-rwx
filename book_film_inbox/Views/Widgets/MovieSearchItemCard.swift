@@ -12,27 +12,31 @@ struct MovieSearchItemCard: View {
     @Environment(\.dismiss) var dismiss
     let item: ExternalMovieItem
     let isInLibrary: Bool
+    let selectedService: (any SearchService<ExternalMovieItem>)?
 
     var body: some View {
         Button {
             Task {
                 
                 if !isInLibrary {
+                    let detailedItem = try await selectedService?.getDetails(item: item) ?? item
+                    
                     await viewModel.addItem(MovieItem(
-                        description: item.itemDescription,
-                        isFavourite: item.isFavourite,
-                        rating: item.rating ?? "N/A",
-                        sourceUrl: item.sourceUrl,
+                        description: detailedItem.itemDescription,
+                        isFavourite: detailedItem.isFavourite,
+                        rating: detailedItem.rating ?? "N/A",
+                        sourceUrl: detailedItem.sourceUrl,
                         status: .PLANNED,
-                        title: item.title,
-                        year: item.year,
-                        author: item.author,
-                        sourceName: item.sourceName,
-                        type: item.type,
-                        sourceId: item.sourceId,
-                        originalTitle: item.originalTitle
-                    ), item.coverUrl)
+                        title: detailedItem.title,
+                        year: detailedItem.year,
+                        author: detailedItem.author,
+                        sourceName: detailedItem.sourceName,
+                        type: detailedItem.type,
+                        sourceId: detailedItem.sourceId,
+                        originalTitle: detailedItem.originalTitle
+                    ), detailedItem.coverUrl)
                     dismiss()
+
                 }
             }
         } label: {
@@ -67,16 +71,6 @@ struct MovieSearchItemCard: View {
                         Text(verbatim: "⭐️ \(item.rating ?? "N/A")")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                    }
-                    
-                    if let author = item.author {
-                        Text(author)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text(item.isDraft() ? ".label_no_author_draft" : ".label_no_author")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
                     }
                     
                 }

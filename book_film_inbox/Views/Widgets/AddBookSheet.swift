@@ -128,7 +128,8 @@ struct AddBookSheet: View {
                     ForEach(results) { item in
                         BookSearchItemCard(
                             item: item,
-                            isInLibrary: viewModel.isInLibrary(isbn: item.isbn ?? "NoISBN")
+                            isInLibrary: viewModel.isInLibrary(isbn: item.isbn ?? "NoISBN"),
+                            selectedService: selectedService?.instance as? any SearchService<ExternalBookItem>
                         )
                     }
                 } header: {
@@ -143,7 +144,8 @@ struct AddBookSheet: View {
             Section {
                 BookSearchItemCard(
                     item: ExternalBookItem.draft(searchText: searchText),
-                    isInLibrary: false
+                    isInLibrary: false,
+                    selectedService: nil
                 )
             } header: {
                 Text(".label_cant_find_book")

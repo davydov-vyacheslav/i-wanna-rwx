@@ -12,23 +12,25 @@ struct BookSearchItemCard: View {
     @Environment(\.dismiss) var dismiss
     let item: ExternalBookItem
     let isInLibrary: Bool
+    let selectedService: (any SearchService<ExternalBookItem>)?
 
     var body: some View {
         Button {
             Task {
                 if !isInLibrary {
+                    let detailedItem = try await selectedService?.getDetails(item: item) ?? item
                     await viewModel.addItem(BookItem(
-                        description: item.itemDescription,
-                        isFavourite: item.isFavourite,
-                        rating: item.rating,
-                        sourceUrl: item.sourceUrl,
+                        description: detailedItem.itemDescription,
+                        isFavourite: detailedItem.isFavourite,
+                        rating: detailedItem.rating,
+                        sourceUrl: detailedItem.sourceUrl,
                         status: MediaStatus.PLANNED.rawValue,
-                        title: item.title,
-                        year: item.year,
-                        isbn: item.isbn,
-                        author: item.author,
-                        sourceName: item.sourceName
-                    ), item.coverUrl)
+                        title: detailedItem.title,
+                        year: detailedItem.year,
+                        isbn: detailedItem.isbn,
+                        author: detailedItem.author,
+                        sourceName: detailedItem.sourceName
+                    ), detailedItem.coverUrl)
                     dismiss()
                 }
             }
@@ -100,7 +102,7 @@ struct BookSearchItemCard: View {
         isbn: "12333333333",
         author: "Xxxx M.D.",
         year: 1999,
-    ), isInLibrary: false)
+    ), isInLibrary: false, selectedService: XDummyBookSearchService())
     BookSearchItemCard(item: ExternalBookItem(
         title: "title",
         sourceUrl: URL(string: "https://google.com")!,
@@ -110,7 +112,7 @@ struct BookSearchItemCard: View {
         isbn: "12333333333",
         author: "Xxxx M.D.",
         year: nil,
-    ), isInLibrary: false)
+    ), isInLibrary: false, selectedService: XDummyBookSearchService())
     BookSearchItemCard(item: ExternalBookItem(
         title: "title",
         sourceUrl: URL(string: "https://google.com")!,
@@ -121,6 +123,6 @@ struct BookSearchItemCard: View {
         isbn: "12333333333",
         author: "Xxxx M.D.",
         year: nil,
-    ), isInLibrary: true)
+    ), isInLibrary: true, selectedService: XDummyBookSearchService())
 
 }

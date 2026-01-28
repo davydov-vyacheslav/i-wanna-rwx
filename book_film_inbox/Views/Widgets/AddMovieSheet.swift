@@ -128,7 +128,8 @@ struct AddMovieSheet: View {
                     ForEach(results) { item in
                         MovieSearchItemCard(
                             item: item,
-                            isInLibrary: viewModel.isInLibrary(sourceId: item.sourceId, sourceName: item.sourceName)
+                            isInLibrary: viewModel.isInLibrary(sourceId: item.sourceId, sourceName: item.sourceName),
+                            selectedService: selectedService?.instance as? any SearchService<ExternalMovieItem>
                         )
                     }
                 } header: {
@@ -143,7 +144,8 @@ struct AddMovieSheet: View {
             Section {
                 MovieSearchItemCard(
                     item: ExternalMovieItem.draft(searchText: searchText),
-                    isInLibrary: false
+                    isInLibrary: false,
+                    selectedService: nil
                 )
             } header: {
                 Text(".label_cant_find_movie")

@@ -12,7 +12,7 @@ import SwiftData
 
 struct ExternalMovieItem: ExternalMediaItem {
     
-    var id: UUID = UUID()
+    var id: UUID
     var itemDescription: String?
     var isFavourite: Bool = false
     var rating: String?
@@ -29,6 +29,7 @@ struct ExternalMovieItem: ExternalMediaItem {
     var sourceName: String
 
     public init(
+        id: UUID? = UUID(),
         title: String,
         sourceUrl: URL,
         sourceName: String,
@@ -43,6 +44,7 @@ struct ExternalMovieItem: ExternalMediaItem {
         sourceId: Int? = nil,
         originalTitle: String? = nil,
     ) {
+        self.id = id!
         self.title = title
         self.itemDescription = description
         self.rating = rating

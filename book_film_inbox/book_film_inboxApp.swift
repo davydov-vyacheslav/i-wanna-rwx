@@ -31,26 +31,11 @@ struct InboxApp: App {
                 .zIndex(999)
             }
         }
-        // ^^ TODO: sync with iCloud
     }
 }
 
-// TODO: remove cover url + from database model (migration) + collapse migration (something went wrong)
-// TODO: [close to be done]
-// На странице поиска в конце - добавить книгу- заглушку с названием из поисковой строки
-// /persistnece/book (service + model)
-
-// FIXME: i18n in IOS 18 vs 26 ?
-//  what is proper way for naming?
-//  no fallback for some reasons :shrug: - on missing values want to have base translation, not keys
-// FIXME: overall system performance issue
-// FIXME: services throw exception, not catch them
-// On search when cancelled - dont show error message
-// Application image
-// Splash screen
-// we my library contains a lot of items - images should be obtained consequently
-// profile/analyze requests , especially on OLService
-// TODO: dark and light themes ??
+// TODO: Splash screen - some weirds going on, on first app start it doesn't appear :/
+// TODO: sync database, keychain with iCloud
 
 // -----
 // TODO: Settings
@@ -64,8 +49,14 @@ struct InboxApp: App {
 
 // -------
 // TODO: other
-// About - add link to github ?!
+// About - add link to github ?! + create readme file with description
 
-// FIXME: AddBookSheet
-// make common for book and video
+// FIXME: make common for book and video: ask AI ? Final stage
+// FIXME: i18n - what is proper way for naming?
+
+// первый запуск долгий (?)
+// ?? при поиске книг какакя-то срань что не показываются результаты хотя они есть
+// Бесячая надпись про сеть, когда отменяешь результаты поиска - need to ignore (?)
+// swipes between sections
+
 
