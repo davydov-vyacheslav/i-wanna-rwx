@@ -14,25 +14,25 @@ struct ContentView: View {
         TabView(selection: $selectedTab) {
             MoviesView()
                 .tabItem {
-                    Label(".titleMovies", systemImage: "film")
+                    Label(".title.movie.list", systemImage: "film")
                 }
                 .tag(0)
             
             BooksView()
                 .tabItem {
-                    Label(".titleBooks", systemImage: "book")
+                    Label(".title.book.list", systemImage: "book")
                 }
                 .tag(1)
 
             RemindersView()
                 .tabItem {
-                    Label(".titleReminders", systemImage: "repeat")
+                    Label(".title.reminder.list", systemImage: "repeat")
                 }
                 .tag(2)
 
             SettingsView()
                 .tabItem {
-                    Label(".titleSettings", systemImage: "gear")
+                    Label(".title.settings", systemImage: "gear")
                 }
                 .tag(3)
         }

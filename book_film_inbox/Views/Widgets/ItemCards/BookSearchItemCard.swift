@@ -68,7 +68,7 @@ struct BookSearchItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text(item.isDraft() ? ".label_no_author_draft" : ".label_no_author")
+                        Text(item.isDraft() ? ".label.common_media.draft.no_author" : ".label.common_media.no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }

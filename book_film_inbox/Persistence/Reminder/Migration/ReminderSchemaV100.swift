@@ -94,12 +94,7 @@ enum ReminderSchemaV100: VersionedSchema {
         }
         
         var isExpired: Bool {
-            guard
-                let days = daysUntilExpiry,
-                let reminderDays = reminderDays
-            else {
-                return false
-            }
+            guard let days = daysUntilExpiry else { return false }
             return days < 0
         }
         

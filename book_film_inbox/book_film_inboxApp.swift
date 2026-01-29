@@ -37,7 +37,7 @@ struct InboxApp: App {
 }
 
 // TODO: Splash screen - some weirds going on, on first app start it doesn't appear :/ can't set it in project's properties
-// TODO: sync database, keychain with iCloud
+// TODO: sync database, keychain with iCloud ??
 
 // -----
 // TODO: Settings
@@ -52,16 +52,16 @@ struct InboxApp: App {
 // TODO: other
 // About - add link to github ?! + create readme file with description
 
-// FIXME: make common for book and video: ask AI ? Final stage
-// FIXME: i18n - what is proper way for naming?
+// TODO: project cleanup
+// make common for book and video: ask AI ? Final stage ->
+// merge SearchItemCard with correspond ItemCard
+// use LazyVStack instead of VStack
 
 // первый запуск долгий (?)
 // ?? при поиске книг какакя-то срань что не показываются результаты хотя они есть
 // Бесячая надпись про сеть, когда отменяешь результаты поиска - need to ignore (?)
 // swipes between sections
 
-// move all ItemCard to subfolder
-// merge SearchItemCard with correspond ItemCard
-// use LazyVStack instead of VStack
+// plurality
 
 

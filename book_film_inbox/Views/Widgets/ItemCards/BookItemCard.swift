@@ -1,16 +1,16 @@
 //
-//  MovieItemCard.swift
-//  IWannaRWX
+//  MediaItemCard.swift
+//  book_film_inbox
 //
-//  Created by Slava Davydov on 27.01.2026.
+//  Created by Slava Davydov on 23.11.2025.
 //
 
 import SwiftUI
 
-struct MovieItemCard: View {
-    @EnvironmentObject var viewModel: MoviesViewModel
+struct BookItemCard: View {
+    @EnvironmentObject var viewModel: BooksViewModel
     @EnvironmentObject var appState: AppState
-    let item: MovieItem
+    let item: BookItem
     @State private var showingProgressSheet = false
     @State private var showDescription = false
     
@@ -23,7 +23,7 @@ struct MovieItemCard: View {
                     url: nil,
                     width: 80,
                     height: 116,
-                    placeholder: "film.fill"
+                    placeholder: "book.fill"
                 )
                 .onTapGesture {
                     UIApplication.shared.open(item.sourceUrl)
@@ -33,8 +33,7 @@ struct MovieItemCard: View {
                 VStack(alignment: .leading, spacing: 1) {
                     // Title
                     HStack {
-                        
-                        Image(systemName: item.type == VideoType.TV_SERIES.rawValue ? "tv" : "film")
+                        Image(systemName: "book")
                             .foregroundColor(item.isDraft() ? .gray : .orange)
                         
                         Text(item.title)
@@ -49,11 +48,13 @@ struct MovieItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        Image(systemName: "star.fill")
-                            .font(.caption)
-                            .foregroundColor(.yellow)
-                        Text(verbatim: item.rating)
-                            .font(.caption)
+                        if item.rating > 0 {
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundColor(.yellow)
+                            Text(String(format: "%.1f", item.rating))
+                                .font(.caption)
+                        }
                         
                         Spacer()
                         
@@ -88,7 +89,6 @@ struct MovieItemCard: View {
                                 .buttonStyle(.plain)
                                 .frame(width: 16)
                             }
-                            
                         }
                     }
                     .frame(height: 16)
@@ -98,7 +98,7 @@ struct MovieItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text(item.isDraft() ? ".label_no_author_draft" : ".label_no_author")
+                        Text(item.isDraft() ? ".label.common_media.draft.no_author" : ".label.common_media.no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -108,9 +108,9 @@ struct MovieItemCard: View {
                     // Badges
                     HStack(spacing: 6) {
                         if item.mediaStatus == .PLANNED {
-                            StatusBadge(icon: "clock", text: ".status_planned", color: .blue)
+                            StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
                         } else if item.mediaStatus == .DONE {
-                            StatusBadge(icon: "checkmark", text: ".status_seen", color: .green)
+                            StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
                     }
@@ -129,4 +129,41 @@ struct MovieItemCard: View {
         .background(Color(uiColor: .secondarySystemBackground))
         .cornerRadius(16)
     }
+}
+
+
+#Preview {
+    BookItemCard(item: BookItem(
+        description: "Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere",
+        isFavourite: true,
+        rating: 5.0,
+        sourceUrl: URL(string: "https://google.com")!,
+        status: MediaStatus.PLANNED.rawValue,
+        title: "title",
+        year: 1999,
+        isbn: "1234567",
+        author: "Auhor M.V.",
+        sourceName: "Test service"))
+    BookItemCard(item: BookItem(
+        description: nil,
+        isFavourite: false,
+        rating: nil,
+        sourceUrl: URL(string: "https://google.com")!,
+        title: "title",
+        year: nil,
+        isbn: "NONE",
+        author: "N/A",
+        sourceName: CommonConstants.DraftSourceType))
+    BookItemCard(item: BookItem(
+        description: nil,
+        isFavourite: false,
+        rating: nil,
+        sourceUrl: URL(string: "https://google.com")!,
+        status: MediaStatus.DONE.rawValue,
+        title: "title",
+        year: nil,
+        isbn: "NONE",
+        author: "N/A",
+        sourceName: "Test service"))
+
 }

@@ -54,11 +54,11 @@ struct AddBookSheet: View {
                 // Results Area
                 resultsView
             }
-            .navigationTitle(".sheetAddBook")
+            .navigationTitle(".title.book.add")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(".buttonClose") { dismiss() }
+                    Button(".button.close") { dismiss() }
                 }
             }
             .onChange(of: searchText) { oldValue, newValue in
@@ -95,7 +95,7 @@ struct AddBookSheet: View {
     private var searchingState: some View {
         VStack {
             Spacer()
-            ProgressView(".placeholder_search")
+            ProgressView(".placeholder.common.search")
             Spacer()
         }
     }
@@ -106,11 +106,11 @@ struct AddBookSheet: View {
             Image(systemName: "books.vertical")
                 .font(.largeTitle)
                 .foregroundColor(.secondary)
-            Text(".label_addsheet_enter_text")
+            Text(".label.common.search.enter_text")
                 .font(.headline)
                 .foregroundColor(.secondary)
             if availableServices.isEmpty {
-                Text(".media_no_search_service")
+                Text(".label.common_media.search.no_service_available")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -133,7 +133,7 @@ struct AddBookSheet: View {
                         )
                     }
                 } header: {
-                    Text(".label_search_results")
+                    Text(".label.common_media.search_results")
                         .textCase(nil)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -148,7 +148,7 @@ struct AddBookSheet: View {
                     selectedService: nil
                 )
             } header: {
-                Text(".label_cant_find_book")
+                Text(".label.book.cant_find")
                     .textCase(nil)
                     .font(.subheadline)
                     .foregroundColor(.secondary)

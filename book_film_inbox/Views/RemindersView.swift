@@ -44,14 +44,14 @@ struct RemindersView: View {
                 if filteredItems.isEmpty {
                     VStack {
                         Spacer()
-                        Text(".label_list_empty")
+                        Text(".label.common.list_empty")
                             .foregroundColor(.secondary)
                         Spacer()
                     }
                 }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
-            .navigationTitle(".titleReminders")
+            .navigationTitle(".title.reminder.list")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -149,8 +149,8 @@ extension ReminderItem {
 extension ReminderItem.ReminderType {
     var displayName: LocalizedStringKey {
         switch self {
-        case .subscription: return ".badge_reminder_subscription"
-        case .license: return ".badge_reminder_license"
+        case .subscription: return ".badge.reminder.subscription"
+        case .license: return ".badge.reminder.license"
         }
     }
 }

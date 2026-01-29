@@ -41,7 +41,7 @@ struct MoviesView: View {
                 // List
                 if filteredItems.isEmpty {
                     Spacer()
-                    Text(".label_list_empty")
+                    Text(".label.common.list_empty")
                         .foregroundColor(.secondary)
                     Spacer()
                 } else {
@@ -55,7 +55,7 @@ struct MoviesView: View {
                                     Button(role: .destructive) {
                                         viewModel.deleteItem(item)
                                     } label: {
-                                        Label(".buttonDelete", systemImage: "trash")
+                                        Label(".button.delete", systemImage: "trash")
                                     }
                                     .tint(.red)
                                 }
@@ -66,7 +66,7 @@ struct MoviesView: View {
                     .padding(.horizontal)
                 }
             }
-            .navigationTitle(".titleMovies")
+            .navigationTitle(".title.movie.list")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

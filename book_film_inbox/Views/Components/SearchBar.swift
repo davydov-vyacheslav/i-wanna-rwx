@@ -54,7 +54,7 @@ struct MediaSearchBar: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
             
-            TextField(".placeholder_search", text: $searchText)
+            TextField(".placeholder.common.search", text: $searchText)
                 .focused($isSearchFieldFocused)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -116,7 +116,7 @@ struct MediaSearchBar: View {
     // MARK: - Current Service Indicator
     private func currentServiceIndicator(serviceName: String) -> some View {
         HStack {
-            Text(".text.search_in")
+            Text(".label.common_media.search_in")
                 .font(.caption)
                 .foregroundColor(.secondary)
             Text(serviceName)
@@ -135,7 +135,7 @@ struct MediaSearchBar: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.orange)
             VStack(alignment: .leading, spacing: 2) {
-                Text(".media_no_search_services")
+                Text(".label.common_media.search.no_services")
                     .font(.subheadline)
                     .fontWeight(.medium)
             }
@@ -151,7 +151,7 @@ struct MediaSearchBar: View {
     // MARK: - Character Count Hint
     private var characterCountHint: some View {
         HStack {
-            Text(".hint_search_min_3_char")
+            Text(".label.common_media.search.min_3_char")
                 .font(.caption)
                 .foregroundColor(.secondary)
             Spacer()

@@ -69,7 +69,7 @@ struct ReadonlyReminderSheet: View {
                                 .stroke(Color.green.opacity(0.3), lineWidth: 1)
                         )
                     } else {
-                        ReminderInfoField(title: ".label.remind.renew_info") {
+                        ReminderInfoField(title: ".label.reminder.renew_info") {
                            
                             if item.expiryDate == nil {
                                 Text(".label.reminder.expiration_date_not_set")
@@ -80,7 +80,7 @@ struct ReadonlyReminderSheet: View {
                                         .month(.wide)
                                         .year(.defaultDigits)
                                 )
-                                Text(".label.remind.expiration_date \(formattedDate)")
+                                Text(".label.reminder.expiration_date \(formattedDate)")
                             }
                             
                             Text(item.formattedRenewalType)
@@ -119,7 +119,7 @@ struct ReadonlyReminderSheet: View {
                         Button {
                             showingEditSheet = true
                         } label: {
-                            Label(".buttonEdit", systemImage: "pencil")
+                            Label(".button.edit", systemImage: "pencil")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, minHeight: 32)
                         }
@@ -130,7 +130,7 @@ struct ReadonlyReminderSheet: View {
                         Button(role: .destructive) {
                             showingDeleteAlert = true
                         } label: {
-                            Label(".buttonDelete", systemImage: "trash")
+                            Label(".button.delete", systemImage: "trash")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, minHeight: 32)
                         }
@@ -145,15 +145,15 @@ struct ReadonlyReminderSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(".buttonClose") { dismiss() }
+                    Button(".button.close") { dismiss() }
                 }
             }
             .sheet(isPresented: $showingEditSheet) {
                 AddEditReminderSheet(viewModel: viewModel, item: item)
             }
             .alert(".label.common.remove \(item.name)", isPresented: $showingDeleteAlert) {
-                Button(".buttonCancel", role: .cancel) { }
-                Button(".buttonDelete", role: .destructive) {
+                Button(".button.cancel", role: .cancel) { }
+                Button(".button.delete", role: .destructive) {
                     viewModel.deleteItem(item)
                     dismiss()
                 }

@@ -49,7 +49,7 @@ struct AddEditReminderSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text(".label.remind.common_info")) {
+                Section(header: Text(".label.reminder.common_info")) {
                     // Type selector. We won't be able to change type on flight
                     if !isEdit {
                         Picker(".label.reminder.type", selection: $type) {
@@ -66,7 +66,7 @@ struct AddEditReminderSheet: View {
                 }
 
                 // Renewal Type
-                Section(header: Text(".label.remind.renew_info")) {
+                Section(header: Text(".label.reminder.renew_info")) {
                     Picker(".label.reminder.renewal_reccurrence", selection: $renewalType) {
                         Text(ReminderItem.RenewalType.monthly.displayName).tag(ReminderItem.RenewalType.monthly)
                         Text(ReminderItem.RenewalType.yearly.displayName).tag(ReminderItem.RenewalType.yearly)
@@ -79,7 +79,7 @@ struct AddEditReminderSheet: View {
                     if renewalType == .custom {
                         Stepper(".label.reminder.renewal_amount \(customPeriodValue) \(customPeriodUnit.displayNameSuffix)", value: $customPeriodValue, in: 0...365)
                         
-                        Picker(".label.empty", selection: $customPeriodUnit) {
+                        Picker(".label.common.empty_value", selection: $customPeriodUnit) {
                             Text(ReminderItem.PeriodUnit.days.displayNameSuffix).tag(ReminderItem.PeriodUnit.days)
                             Text(ReminderItem.PeriodUnit.months.displayNameSuffix).tag(ReminderItem.PeriodUnit.months)
                             Text(ReminderItem.PeriodUnit.years.displayNameSuffix).tag(ReminderItem.PeriodUnit.years)
@@ -120,18 +120,18 @@ struct AddEditReminderSheet: View {
 
             }
             .scrollContentBackground(.hidden)
-            .navigationTitle(isEdit ? ".titleEdit" : ".titleNewReminder")
+            .navigationTitle(isEdit ? ".title.reminder.edit" : ".title.reminder.new")
             .navigationBarTitleDisplayMode(.inline)
             .background(Color(.systemGroupedBackground))
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(".buttonCancel") {
+                    Button(".button.cancel") {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(isEdit ? ".buttonSave" : ".buttonAdd") {
+                    Button(isEdit ? ".button.save" : ".button.add") {
                         saveItem()
                     }
                     .disabled(name.isEmpty)

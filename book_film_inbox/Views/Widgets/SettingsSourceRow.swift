@@ -80,7 +80,7 @@ struct SettingsSourceRow: View {
                 // Current Token Display
                 if hasToken && !isEditing {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(".pageSettings_label_source_currentToken")
+                        Text(".label.settings.source.current_token")
                             .font(.caption)
                             .fontWeight(.medium)
                             .foregroundColor(.secondary)
@@ -109,12 +109,12 @@ struct SettingsSourceRow: View {
                 // Token Input (Editing Mode)
                 if isEditing {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(hasToken ? ".pageSettings_label_source_newToken" : ".pageSettings_label_source_apiToken")
+                        Text(hasToken ? ".label.settings.source.new_token" : ".label.settings.source.api_token")
                             .font(.caption)
                             .fontWeight(.medium)
                             .foregroundColor(.secondary)
 
-                        SecureField(".pageSettings_placeholder_source_enterToken", text: $viewModel.tempToken)
+                        SecureField(".placeholder.settings.source.enter_token", text: $viewModel.tempToken)
                             .textFieldStyle(.roundedBorder)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -125,7 +125,7 @@ struct SettingsSourceRow: View {
                 if let helpURL = searchService.helpURL, let url = URL(string: helpURL) {
                     Link(destination: url) {
                         HStack(spacing: 4) {
-                            Text(".pageSettings_label_source_token_howto")
+                            Text(".label.settings.source.token_howto")
                                 .font(.subheadline)
                             Image(systemName: "arrow.up.right.square")
                                 .font(.caption)
@@ -136,13 +136,13 @@ struct SettingsSourceRow: View {
                 // Action Buttons
                 if isEditing {
                     HStack(spacing: 12) {
-                        Button(".buttonCancel") {
+                        Button(".button.cancel") {
                             viewModel.cancelEditing()
                         }
                         .buttonStyle(.bordered)
                         .frame(maxWidth: .infinity)
                         
-                        Button(".buttonSave") {
+                        Button(".button.save") {
                             viewModel.saveEditing(for: searchService.serviceName)
                         }
                         .buttonStyle(.borderedProminent)
@@ -151,13 +151,13 @@ struct SettingsSourceRow: View {
                     }
                 } else if hasToken {
                     HStack(spacing: 12) {
-                        Button(".buttonUpdate") {
+                        Button(".button.update") {
                             viewModel.startEditing(for: searchService.serviceName)
                         }
                         .buttonStyle(.bordered)
                         .frame(maxWidth: .infinity)
                         
-                        Button(".buttonDelete") {
+                        Button(".button.delete") {
                             viewModel.removeToken(for: searchService.serviceName)
                         }
                         .buttonStyle(.bordered)
@@ -165,7 +165,7 @@ struct SettingsSourceRow: View {
                         .frame(maxWidth: .infinity)
                     }
                 } else {
-                    Button(".buttonAdd") {
+                    Button(".button.add") {
                         viewModel.startEditing(for: searchService.serviceName)
                     }
                     .buttonStyle(.borderedProminent)
