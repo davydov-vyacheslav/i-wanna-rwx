@@ -63,5 +63,6 @@ struct InboxApp: App {
 // swipes between sections
 
 // plurality
+// "static" / non-translating values to be removed from l10n strings: .label.common.empty_value, .placeholder.reminder.price, .type.reminder.renew.na
 
 
