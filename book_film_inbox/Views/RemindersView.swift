@@ -1,0 +1,180 @@
+//
+//  RemindersView.swift
+//  IWannaRWX
+//
+//  Created by Slava Davydov on 28.01.2026.
+//
+import SwiftUI
+
+struct RemindersView: View {
+    @EnvironmentObject var viewModel: ReminderViewModel
+    @State private var showingAddSheet = false
+    @State private var selectedItem: ReminderItem?
+    @State private var searchText: String = ""
+    
+    @State private var selectedFilterType: ReminderItem.ReminderType? = nil
+    @State private var selectedFilterExpired: Bool = false
+
+    var filteredItems: [ReminderItem] {
+        viewModel.filteredItems(typeFilter: selectedFilterType, isExpiring: selectedFilterExpired, text: searchText)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            
+            List {
+                ForEach(filteredItems) { item in
+                    ReminderItemCard(item: item)
+                        .listRowInsets(EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .onTapGesture {
+                            selectedItem = item
+                        }
+                }
+            }
+            .safeAreaInset(edge: .top) {
+                filterSection
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 16)
+                    .background(Color(uiColor: .systemBackground))
+            }
+            .listStyle(.plain)
+            .overlay {
+                if filteredItems.isEmpty {
+                    VStack {
+                        Spacer()
+                        Text(".label_list_empty")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                }
+            }
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
+            .navigationTitle(".titleReminders")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddSheet) {
+                AddEditReminderSheet(viewModel: viewModel, item: nil)
+            }
+            .sheet(item: $selectedItem) { item in
+                ReadonlyReminderSheet(viewModel: viewModel, item: item)
+            }
+        }
+    }
+    
+    // MARK: - Filter Section
+    
+    private var filterSection: some View {
+        HStack(spacing: 8) {
+            
+            FilterButton(
+                iconName: ReminderItem.ReminderType.license.icon,
+                count: viewModel.count(typeFilter: .license, isExpiring: false),
+                isSelected: selectedFilterType == .license
+            ) {
+                selectedFilterType = (selectedFilterType == .license) ? nil : .license
+            }
+            
+            FilterButton(
+                iconName: ReminderItem.ReminderType.subscription.icon,
+                count: viewModel.count(typeFilter: .subscription, isExpiring: false),
+                isSelected: selectedFilterType == .subscription
+            ) {
+                selectedFilterType = (selectedFilterType == .subscription) ? nil : .subscription
+            }
+            
+            Spacer()
+            
+            FilterButton(
+                iconName: "hourglass.bottomhalf.fill",
+                count: viewModel.count(typeFilter: selectedFilterType, isExpiring: true),
+                isSelected: selectedFilterExpired
+            ) {
+                selectedFilterExpired = !selectedFilterExpired
+            }
+            
+        }
+        
+    }
+    
+}
+
+
+extension ReminderItem {
+    var statusColor: Color {
+        if isExpired { return .gray }
+        if isExpiringCriticalSoon { return .orange }
+        if isExpiringSoon { return .yellow }
+        return .green
+    }
+    
+    var formattedRenewalType: String {
+        guard let renewalType = RenewalType(rawValue: self.renewalType) else {
+            return ""
+        }
+        
+        let prefix = String(localized: ".label.reminder.renew_policy_prefix")
+        
+        switch renewalType {
+        case .custom:
+            guard let periodValue = customPeriodValue,
+                  let unitRaw = customPeriodUnit,
+                  let unit = PeriodUnit(rawValue: unitRaw) else {
+                return prefix
+            }
+            
+            let each = String(localized: ".label.reminder.renew_policy_each")
+            let unitName = String.localizedStringWithFormat(
+                NSLocalizedString(unit.displayNameSuffix, comment: ""),
+                periodValue
+            )
+            
+            return "\(prefix) \(each) \(periodValue) \(unitName)"
+            
+        default:
+            return "\(prefix) \(renewalType.displayName)"
+        }
+    }
+}
+
+extension ReminderItem.ReminderType {
+    var displayName: LocalizedStringKey {
+        switch self {
+        case .subscription: return ".badge_reminder_subscription"
+        case .license: return ".badge_reminder_license"
+        }
+    }
+}
+
+
+extension ReminderItem.RenewalType {
+    var displayName: String {
+        switch self {
+        case .monthly: return String(localized: ".type.reminder.renew.month")
+        case .yearly: return String(localized: ".type.reminder.renew.year")
+        case .lifetime: return String(localized: ".type.reminder.renew.lifetime")
+        case .custom: return String(localized: ".type.reminder.renew.custom")
+        case .none: return String(localized: ".type.reminder.renew.na")
+        }
+    }
+}
+
+
+extension ReminderItem.PeriodUnit {
+    var displayNameSuffix: String {
+        switch self {
+        case .days: return String(localized: ".type.reminder.period.day")
+        case .months: return String(localized: ".type.reminder.period.month")
+        case .years: return String(localized: ".type.reminder.period.year")
+        }
+    }
+}

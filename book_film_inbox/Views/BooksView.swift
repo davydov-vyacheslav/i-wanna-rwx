@@ -24,7 +24,7 @@ struct BooksView: View {
                     HStack(spacing: 8) {
                         ForEach(FilterType.allCases, id: \.self) { filter in
                             FilterButton(
-                                filterType: filter,
+                                iconName: filter.iconName,
                                 count: viewModel.count(filter: filter),
                                 isSelected: selectedFilter == filter,
                                 isFavorite: filter == .FAVOURITES

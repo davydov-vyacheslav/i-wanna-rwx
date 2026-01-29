@@ -13,6 +13,7 @@ struct InboxApp: App {
     @StateObject private var booksViewModel = BooksViewModel()
     @StateObject private var moviesViewModel = MoviesViewModel()
     @StateObject private var settingsViewModel = SettingsViewModel()
+    @StateObject private var remindersViewModel = ReminderViewModel()
     @StateObject var appState = AppState()
     
     var body: some Scene {
@@ -21,6 +22,7 @@ struct InboxApp: App {
                 .environmentObject(booksViewModel)
                 .environmentObject(moviesViewModel)
                 .environmentObject(settingsViewModel)
+                .environmentObject(remindersViewModel)
                 .environmentObject(appState)
             
             if appState.showDescription, let description = appState.selectedDescription {
@@ -34,7 +36,7 @@ struct InboxApp: App {
     }
 }
 
-// TODO: Splash screen - some weirds going on, on first app start it doesn't appear :/
+// TODO: Splash screen - some weirds going on, on first app start it doesn't appear :/ can't set it in project's properties
 // TODO: sync database, keychain with iCloud
 
 // -----
@@ -44,8 +46,7 @@ struct InboxApp: App {
 
 // -----
 // TODO: Reminders:
-// can I send push noification from ohone cron? witout 3rd party server
-// - licenses, subscriptions
+// - system notification for expiration dates
 
 // -------
 // TODO: other
@@ -58,5 +59,9 @@ struct InboxApp: App {
 // ?? при поиске книг какакя-то срань что не показываются результаты хотя они есть
 // Бесячая надпись про сеть, когда отменяешь результаты поиска - need to ignore (?)
 // swipes between sections
+
+// move all ItemCard to subfolder
+// merge SearchItemCard with correspond ItemCard
+// use LazyVStack instead of VStack
 
 

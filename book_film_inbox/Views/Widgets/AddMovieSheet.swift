@@ -104,7 +104,7 @@ struct AddMovieSheet: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: "film.stack.fill")
-                .font(.system(size: 60))
+                .font(.largeTitle)
                 .foregroundColor(.secondary)
             Text(".label_addsheet_enter_text")
                 .font(.headline)

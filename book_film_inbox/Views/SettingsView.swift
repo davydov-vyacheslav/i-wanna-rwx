@@ -35,7 +35,7 @@ struct SettingsView: View {
                     HStack {
                         Text(".pageSettings_version")
                         Spacer()
-                        Text("1.0.0")
+                        Text(".version")
                             .foregroundColor(.secondary)
                     }
                 }
@@ -45,26 +45,8 @@ struct SettingsView: View {
                     Text(".pageSettings_support_text")
                         .foregroundColor(.secondary)
 
-                    // Address + Copy
-                    HStack {
-                        Text(walletAddress)
-                            .font(.system(.body, design: .monospaced))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.6)
-
-                        Button(action: {
-                            UIPasteboard.general.string = walletAddress
-                        }) {
-                            Image(systemName: "doc.on.doc")
-                                .font(.title3)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(12)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(12)
-
+                    CopyableText(text: walletAddress)
+                    
                     Button(action: {
                         let urlString = "ethereum:\(walletAddress)"
                         if let url = URL(string: urlString) {

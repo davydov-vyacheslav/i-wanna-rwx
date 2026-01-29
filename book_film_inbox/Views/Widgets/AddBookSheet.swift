@@ -104,7 +104,7 @@ struct AddBookSheet: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: "books.vertical")
-                .font(.system(size: 60))
+                .font(.largeTitle)
                 .foregroundColor(.secondary)
             Text(".label_addsheet_enter_text")
                 .font(.headline)

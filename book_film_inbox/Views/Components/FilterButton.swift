@@ -8,20 +8,20 @@
 import SwiftUI
 
 struct FilterButton: View {
-    let filterType: FilterType
+    let iconName: String
     let count: Int
     let isSelected: Bool
     let isFavorite: Bool
     let action: () -> Void
     
     init(
-        filterType: FilterType,
+        iconName: String,
         count: Int,
         isSelected: Bool,
         isFavorite: Bool = false,
         action: @escaping () -> Void
     ) {
-        self.filterType = filterType
+        self.iconName = iconName
         self.count = count
         self.isSelected = isSelected
         self.isFavorite = isFavorite
@@ -32,7 +32,7 @@ struct FilterButton: View {
         Button(action: action) {
             VStack(spacing: 4) {
                 Image(systemName: iconName)
-                    .font(.system(size: 16))
+                    .font(.callout)
                 Text(verbatim: "\(count)")
                     .font(.caption)
             }
@@ -42,17 +42,6 @@ struct FilterButton: View {
             .background(backgroundColor)
             .foregroundColor(isSelected ? .white : .secondary)
             .cornerRadius(8)
-        }
-    }
-    
-    private var iconName: String {
-        switch filterType {
-        case .ALL:
-            return "list.bullet"
-        case .FAVOURITES:
-            return "heart.fill"
-        case .PLANNED:
-            return "clock"
         }
     }
     
@@ -67,7 +56,7 @@ struct FilterButton: View {
 
 
 #Preview {
-    FilterButton(filterType: .ALL, count: 3, isSelected: false, isFavorite: true) {
+    FilterButton(iconName: FilterType.ALL.iconName, count: 3, isSelected: false, isFavorite: true) {
         
     }
 }

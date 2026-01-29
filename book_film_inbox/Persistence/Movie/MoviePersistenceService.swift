@@ -50,7 +50,7 @@ class MoviePersistenceService {
     }
     
     func count(_ filter: FilterType) -> Int {
-        findByType(filter).count
+        findByType(filter).count // FIXME: can be removed and used count in called method
     }
     
     func add(_ item: MovieItem) {

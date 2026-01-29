@@ -11,4 +11,15 @@ enum FilterType: String, CaseIterable {
     case ALL
     case FAVOURITES
     case PLANNED
+    
+    var iconName: String {
+        switch self {
+        case .ALL:
+            return "list.bullet"
+        case .FAVOURITES:
+            return "heart.fill"
+        case .PLANNED:
+            return "clock"
+        }
+    }
 }

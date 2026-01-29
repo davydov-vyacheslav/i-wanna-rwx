@@ -23,12 +23,18 @@ struct ContentView: View {
                     Label(".titleBooks", systemImage: "book")
                 }
                 .tag(1)
-            
+
+            RemindersView()
+                .tabItem {
+                    Label(".titleReminders", systemImage: "repeat")
+                }
+                .tag(2)
+
             SettingsView()
                 .tabItem {
                     Label(".titleSettings", systemImage: "gear")
                 }
-                .tag(2)
+                .tag(3)
         }
         .tint(.blue)
     }
