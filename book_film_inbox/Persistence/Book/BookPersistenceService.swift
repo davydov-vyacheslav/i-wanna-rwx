@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import os
 
 @MainActor
 class BookPersistenceService {
@@ -43,7 +44,7 @@ class BookPersistenceService {
         do {
             return try modelContext.fetch(descriptor)
         } catch {
-            print("Error fetching books by filter: \(error)")
+            Log.db.error("Error fetching books by filter: \(error)")
             return []
         }
     }
@@ -83,7 +84,7 @@ class BookPersistenceService {
             let results = try modelContext.fetch(descriptor)
             return !results.isEmpty
         } catch {
-            print("Error checking if book exists by isbn: \(error)")
+            Log.db.error("Error checking if book exists by isbn: \(error)")
             return false
         }
     }
@@ -93,7 +94,7 @@ class BookPersistenceService {
         do {
             try modelContext.save()
         } catch {
-            print("Error saving context: \(error)")
+            Log.db.error("Error saving context: \(error)")
         }
     }
 }

@@ -22,7 +22,7 @@ enum BookMigrationPlan: SchemaMigrationPlan {
         toVersion: BookSchemaV101.self,
         willMigrate: { context in
             
-            print(">> Migration from V100 to V101")
+            Log.db.info(">> Migration from V100 to V101")
             
             // Fetch all books from V1
             let books = try context.fetch(FetchDescriptor<BookSchemaV100.BookItem>())
@@ -68,7 +68,7 @@ enum BookMigrationPlan: SchemaMigrationPlan {
         toVersion: BookSchemaV102.self,
         willMigrate: { context in
             
-            print(">> Migration from V101 to V102")
+            Log.db.info(">> Migration from V101 to V102")
             
             // Fetch all books from V1
             let books = try context.fetch(FetchDescriptor<BookSchemaV101.BookItem>())

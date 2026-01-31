@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import os
 
 @MainActor
 class ReminderPersistenceService {
@@ -58,7 +59,7 @@ class ReminderPersistenceService {
             
             return filtered
         } catch {
-            print("Error fetching Reminders by filter: \(error)")
+            Log.db.error("Error fetching Reminders by filter: \(error)")
             return []
         }
     }
@@ -99,7 +100,7 @@ class ReminderPersistenceService {
         do {
             try modelContext.save()
         } catch {
-            print("Error saving context: \(error)")
+            Log.db.error("Error saving context: \(error)")
         }
     }
 

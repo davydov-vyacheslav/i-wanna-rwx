@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import os
 
 @MainActor
 class MoviesViewModel: ObservableObject {
@@ -27,7 +28,7 @@ class MoviesViewModel: ObservableObject {
                 let (data, _) = try await URLSession.shared.data(from: coverUrl)
                 item.coverImageData = data
             } catch {
-                print("Failed to download cover image: \(error)")
+                Log.ui.error("Failed to download cover image: \(error)")
             }
         }
         

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import os
 
 @MainActor
 class MoviePersistenceService {
@@ -44,7 +45,7 @@ class MoviePersistenceService {
         do {
             return try modelContext.fetch(descriptor)
         } catch {
-            print("Error fetching Movies by filter: \(error)")
+            Log.db.error("Error fetching Movies by filter: \(error)")
             return []
         }
     }
@@ -85,7 +86,7 @@ class MoviePersistenceService {
             let results = try modelContext.fetch(descriptor)
             return !results.isEmpty
         } catch {
-            print("Error checking if movie exists by isbn: \(error)")
+            Log.db.error("Error checking if movie exists by isbn: \(error)")
             return false
         }
     }
@@ -95,7 +96,7 @@ class MoviePersistenceService {
         do {
             try modelContext.save()
         } catch {
-            print("Error saving context: \(error)")
+            Log.db.error("Error saving context: \(error)")
         }
     }
 
