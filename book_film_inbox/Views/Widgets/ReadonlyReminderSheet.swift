@@ -15,15 +15,13 @@ struct ReadonlyReminderSheet: View {
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
     
-    let iconGenerator: IconGenerator = IconGenerator.shared
-    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     // Header: Icon + Name + Type Badge
                     HStack(spacing: 16) {
-                        Text(iconGenerator.suggestIcon(for: item.name))
+                        Text(IconGenerator.suggestIcon(for: item.name))
                             .font(.largeTitle)
                             .grayscale(item.isExpired ? 1 : 0)
                         
@@ -33,8 +31,8 @@ struct ReadonlyReminderSheet: View {
                                 .opacity(item.isExpired ? 0.6 : 1)
                             
                             StatusBadge(
-                                icon: ReminderItem.ReminderType(rawValue: item.type)!.icon,
-                                text: ReminderItem.ReminderType(rawValue: item.type)!.displayName,
+                                icon: item.type.icon,
+                                text: item.type.displayName,
                                 color: Color.gray,
                             )
                         }
@@ -54,10 +52,10 @@ struct ReadonlyReminderSheet: View {
                     
                     
                     // Expiry + Periodicity (combined)
-                    if item.renewalType == ReminderItem.RenewalType.lifetime.rawValue {
+                    if item.renewalType == RenewalType.lifetime {
                         HStack(spacing: 8) {
                             Image(systemName: "infinity")
-                            Text(ReminderItem.RenewalType.lifetime.displayName)
+                            Text(RenewalType.lifetime.displayName)
                         }
                         .foregroundColor(Color.green)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -103,7 +101,7 @@ struct ReadonlyReminderSheet: View {
                         
                     }
                     
-                    if item.type == ReminderItem.ReminderType.license.rawValue,
+                    if item.type == ReminderType.license,
                         let licenseKey = item.licenseKey,
                         !licenseKey.isEmpty {
                         
@@ -214,12 +212,12 @@ struct ReminderInfoField<Content: View>: View {
    
 #Preview {
     ReadonlyReminderSheet(viewModel: ReminderViewModel(), item: ReminderItem(
-        type: ReminderItem.ReminderType.license,
+        type: ReminderType.license,
         name: "Item Name",
         description: "Item Description",
-        renewalType: ReminderSchemaV100.ReminderItem.RenewalType.custom,
+        renewalType: RenewalType.custom,
         customPeriodValue: 3,
-        customPeriodUnit: ReminderSchemaV100.ReminderItem.PeriodUnit.days,
+        customPeriodUnit: PeriodUnit.days,
         expiryDate: Date(),
         licenseKey: "asdfghjkl;lkjhgfdsassdsasdsadasdasdasdasddfghjkl",
         reminderDays: 4,

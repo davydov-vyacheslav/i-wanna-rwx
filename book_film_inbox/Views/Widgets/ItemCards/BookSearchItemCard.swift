@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct BookSearchItemCard: View {
     @EnvironmentObject var viewModel: BooksViewModel
@@ -19,33 +20,37 @@ struct BookSearchItemCard: View {
             Task {
                 if !isInLibrary {
                     let detailedItem = try await selectedService?.getDetails(item: item) ?? item
-                    await viewModel.addItem(BookItem(
+                    viewModel.addItem(BookItem(
                         description: detailedItem.itemDescription,
                         isFavorite: detailedItem.isFavorite,
                         rating: detailedItem.rating,
                         sourceUrl: detailedItem.sourceUrl,
-                        status: MediaStatus.planned.rawValue,
+                        coverImageUrl: detailedItem.coverUrl,
+                        status: MediaStatus.planned,
                         title: detailedItem.title,
                         year: detailedItem.year,
                         isbn: detailedItem.isbn,
                         author: detailedItem.author,
                         sourceName: detailedItem.sourceName
-                    ), detailedItem.coverUrl)
+                    ))
                     dismiss()
                 }
             }
         } label: {
             HStack {
-                CachedAsyncImage(
-                    imageData: item.coverImageData,
-                    url: item.coverUrl,
-                    width: 80,
-                    height: 112,
-                    placeholder: "book.fill"
-                )
+                KFImage(item.coverUrl)
+                    .placeholder {
+                        Image(systemName: "book.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.secondary)
+                    }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 116)
+                    .clipped()
                 
                 let yearText = item.year != nil ? String(item.year!) : "—"
-                let ratingText = String(format: "%.1f", item.rating)
                 
                 VStack(alignment: .leading) {
                     Text(item.title)
@@ -56,11 +61,9 @@ struct BookSearchItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        if ratingText != "0.0" {
-                            Text(verbatim: "⭐️ \(ratingText)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+                        Text(verbatim: "⭐️ \(item.ratingText)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                     
                     if let author = item.author {

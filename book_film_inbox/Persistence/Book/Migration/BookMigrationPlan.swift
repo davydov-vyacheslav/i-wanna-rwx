@@ -6,7 +6,7 @@
 //
 
 import SwiftData
-
+import os
 
 enum BookMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
@@ -83,8 +83,8 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                     isFavorite: oldBook.isFavorite,
                     rating: oldBook.rating,
                     sourceUrl: oldBook.sourceUrl,
-                    coverImageData: oldBook.coverImageData,
-                    status: oldBook.status,
+                    coverImageUrl: nil,
+                    status: .planned,
                     title: oldBook.title,
                     year: oldBook.year,
                     isbn: nil,

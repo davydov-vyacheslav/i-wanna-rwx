@@ -21,21 +21,21 @@ class SettingsSourceStore: ObservableObject {
     
     func reloadSources() {
         availableBookSources = [
-            SettingsSourceEntity(instance: OpenLibraryService()),
+            SettingsSourceEntity(id: OpenLibraryService.serviceName, instance: OpenLibraryService()),
             //SettingsSourceEntity(instance: XDummyBookSearchService())
         ]
         
         availableVideoSources = [
-            SettingsSourceEntity(instance: TMDbService()),
+            SettingsSourceEntity(id: TMDbService.serviceName,  instance: TMDbService()),
         ]
     }
 }
 
 struct SettingsSourceEntity: Identifiable, Equatable {
-    let id: UUID = UUID()
+    let id: String
     let instance: any SearchService
     
     static func == (lhs: SettingsSourceEntity, rhs: SettingsSourceEntity) -> Bool {
-        lhs.instance.serviceName == rhs.instance.serviceName
+        type(of: lhs.instance).serviceName == type(of: lhs.instance).serviceName
     }
 }

@@ -6,33 +6,39 @@
 //
 
 import Foundation
-import SwiftData
-
 
 struct ExternalBookItem: ExternalMediaItem {
     
     var id: UUID = UUID()
-    var itemDescription: String?
+    var itemDescription: String? = nil
     var isFavorite: Bool = false
-    var rating: Double = 0.0
+    var rating: Double? = nil
     var sourceUrl: URL
-    var coverUrl: URL?
-    var coverImageData: Data?
+    var coverUrl: URL? = nil
     var status: MediaStatus = MediaStatus.planned
     var title: String
-    var isbn: String?
-    var author: String?
-    var year: Int?
+    var isbn: String? = nil
+    var author: String? = nil
+    var year: Int? = nil
     var sourceName: String
 
     public init(
         title: String,
         sourceUrl: URL,
         sourceName: String,
+    ) {
+        self.title = title
+        self.sourceUrl = sourceUrl
+        self.sourceName = sourceName
+    }
+    
+    public init(
+        title: String,
+        sourceUrl: URL,
+        sourceName: String,
         description: String? = nil,
-        rating: Double? = 0.0,
+        rating: Double? = nil,
         coverUrl: URL? = nil,
-        coverImageData: Data? = nil,
         status: MediaStatus = .planned,
         isbn: String? = nil,
         author: String? = nil,
@@ -40,27 +46,14 @@ struct ExternalBookItem: ExternalMediaItem {
     ) {
         self.title = title
         self.itemDescription = description
-        self.rating = rating ?? 0.0
+        self.rating = rating
         self.sourceUrl = sourceUrl
         self.coverUrl = coverUrl
-        self.coverImageData = coverImageData
         self.status = status
         self.year = year
         self.isbn = isbn
         self.author = author
         self.sourceName = sourceName
-    }
-    
-    static func draft(searchText: String) -> ExternalBookItem {
-        ExternalBookItem(
-            title: searchText,
-            sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
-            sourceName: CommonConstants.draftSourceType,
-        )
-    }
-    
-    func isDraft() -> Bool {
-        return sourceName == CommonConstants.draftSourceType
     }
     
 }

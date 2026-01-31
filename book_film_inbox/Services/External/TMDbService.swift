@@ -12,24 +12,24 @@ class TMDbService: SearchService {
     
     typealias SearchResultItem = ExternalMovieItem
     
-    var serviceName: String = "TMDb"
-    var requiresToken: Bool = true
-    var tokenPlaceholder: String? = "Enter API Key"
-    var helpURL: String? = "https://www.themoviedb.org/settings/api"
+    static var serviceName: String = "TMDb"
+    static var requiresToken: Bool = true
+    static var tokenPlaceholder: String? = "Enter API Key"
+    static var helpURL: String? = "https://www.themoviedb.org/settings/api"
 
-    var tmdbClient: TMDbClient
+    private var tmdbClient: TMDbClient
+    private var cachedImagesConfig: ImagesConfiguration?
     
     init() {
-        let currentToken = SettingsService.shared.getToken(for: serviceName)
+        let currentToken = SettingsService.shared.getToken(for: TMDbService.serviceName)
         tmdbClient = TMDbClient(apiKey: currentToken ?? "foo token")
     }
     
-    func search(query: String, token: String?, limit: Int) async throws -> [ExternalMovieItem] {
+    func search(query: String, limit: Int) async throws -> [ExternalMovieItem] {
 
         // Search across movies, TV shows, and people
         let searchResults = try await tmdbClient.search.searchAll(query: query)
-        
-        let imagesConfig = try await tmdbClient.configurations.apiConfiguration().images
+        let imagesConfig = try await imagesConfig()
         
         let movies: [ExternalMovieItem] = searchResults.results.compactMap { result in
             switch result {
@@ -46,13 +46,15 @@ class TMDbService: SearchService {
     }
     
     func getDetails(item: ExternalMovieItem) async throws -> ExternalMovieItem {
+        guard let sourceId = item.sourceId else { return item }
+
         var creator : String? = nil
         switch item.type {
-        case .MOVIE:
-            let credits = try? await tmdbClient.movies.credits(forMovie: item.sourceId!)
+        case .movie:
+            let credits = try? await tmdbClient.movies.credits(forMovie: sourceId)
             creator = credits?.crew.first(where: { $0.job == "Director" })?.name
-        case .TV_SERIES:
-            let credits = try? await tmdbClient.tvSeries.credits(forTVSeries: item.sourceId!)
+        case .tvSeries:
+            let credits = try? await tmdbClient.tvSeries.credits(forTVSeries: sourceId)
             creator = credits?.crew.first(where: {
                 $0.job == "Executive Producer" || $0.job == "Director" || $0.department == "Production"
             })?.name
@@ -66,7 +68,6 @@ class TMDbService: SearchService {
             description: item.itemDescription,
             rating: item.rating,
             coverUrl: item.coverUrl,
-            coverImageData: item.coverImageData,
             status: item.status,
             author: creator,
             year: item.year,
@@ -77,49 +78,51 @@ class TMDbService: SearchService {
         
     }
     
-    func toExternalMovieItem(movie: MovieListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
+    private func toExternalMovieItem(movie: MovieListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
         let coverUrl = movie.posterPath.map { imagesConfiguration.posterURL(for: $0, idealWidth: 250) } ?? nil
         let releaseYear = movie.releaseDate.map { Calendar.current.component(.year, from: $0) } ?? nil
-        let rating = movie.voteAverage.map {String(format: "%.1f / 10", $0) } ?? nil
         
         return ExternalMovieItem(
             title: movie.title,
             sourceUrl: URL(string: "https://www.themoviedb.org/movie/\(movie.id)")!,
-            sourceName: serviceName,
+            sourceName: TMDbService.serviceName,
             description: movie.overview,
-            rating: rating,
+            rating: movie.voteAverage,
             coverUrl: coverUrl,
-            coverImageData: nil,
             status: .planned,
             author: nil,
             year: releaseYear,
-            type: .MOVIE,
+            type: .movie,
             sourceId: movie.id,
             originalTitle: movie.originalTitle
         )
     }
     
-    func toExternalMovieItem(tvSeries: TVSeriesListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
+    private func toExternalMovieItem(tvSeries: TVSeriesListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
         let coverUrl = tvSeries.posterPath.map { imagesConfiguration.posterURL(for: $0, idealWidth: 250) } ?? nil
         let releaseYear = tvSeries.firstAirDate.map { Calendar.current.component(.year, from: $0) } ?? nil
-        let rating = tvSeries.voteAverage.map {String(format: "%.1f / 10", $0) } ?? nil
 
         return ExternalMovieItem(
             title: tvSeries.name,
-            sourceUrl: URL(string: "https://www.themoviedb.org/movie/\(tvSeries.id)")!,
-            sourceName: serviceName,
+            sourceUrl: URL(string: "https://www.themoviedb.org/tv/\(tvSeries.id)")!,
+            sourceName: TMDbService.serviceName,
             description: tvSeries.overview,
-            rating: rating,
+            rating: tvSeries.voteAverage,
             coverUrl: coverUrl,
-            coverImageData: nil,
             status: .planned,
             author: nil,
             year: releaseYear,
-            type: .TV_SERIES,
+            type: .tvSeries,
             sourceId: tvSeries.id,
             originalTitle: tvSeries.originalName
         )
 
     }
     
+    private func imagesConfig() async throws -> ImagesConfiguration {
+        if let cached = cachedImagesConfig { return cached }
+        let config = try await tmdbClient.configurations.apiConfiguration().images
+        cachedImagesConfig = config
+        return config
+    }
 }

@@ -8,11 +8,12 @@
 import Foundation
 import Combine
 
+@Observable
 class SettingsViewModel: ObservableObject {
-    @Published var expandedSources: Set<String> = []
-    @Published var editingSource: String? = nil
-    @Published var tempToken: String = ""
-    @Published var showToken: Set<String> = []
+    var expandedSources: Set<String> = []
+    var editingSource: String? = nil
+    var tempToken: String = ""
+    var showToken: Set<String> = []
     
     private let service: SettingsService
     
@@ -30,13 +31,11 @@ class SettingsViewModel: ObservableObject {
     
     func saveToken(for source: String, token: String) {
         service.saveToken(for: source, token: token)
-        objectWillChange.send()
         SettingsSourceStore.shared.reloadSources()
     }
     
     func removeToken(for source: String) {
         service.removeToken(for: source)
-        objectWillChange.send()
         SettingsSourceStore.shared.reloadSources()
     }
     

@@ -13,22 +13,28 @@ protocol CommonMediaItem {
     var title: String { get }
     var sourceUrl: URL { get }
     var sourceName: String { get }
-    var status: String { get set }
-    var coverImageData: Data? { get }
+    var statusRaw: String { get set }
+    var coverImageUrl: URL? { get }
     var year: Int? { get }
     var isFavorite: Bool { get set }
+    var rating: Double { get set }
 
 }
 
 extension CommonMediaItem {
 
-    var mediaStatus: MediaStatus {
-        get { MediaStatus(rawValue: status) ?? .planned }
-        set { status = newValue.rawValue }
+    var status: MediaStatus {
+        get { MediaStatus(rawValue: statusRaw) ?? .planned }
+        set { statusRaw = newValue.rawValue }
     }
 
     func isDraft() -> Bool {
         return sourceName == CommonConstants.draftSourceType
     }
+    
+    var ratingText : String {
+        rating == 0 ? "N/A" : String(format: "%.1f", rating)
+    }
+
 }
 

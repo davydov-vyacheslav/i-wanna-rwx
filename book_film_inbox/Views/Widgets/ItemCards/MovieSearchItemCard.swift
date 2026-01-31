@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct MovieSearchItemCard: View {
     @EnvironmentObject var viewModel: MoviesViewModel
@@ -21,11 +22,12 @@ struct MovieSearchItemCard: View {
                 if !isInLibrary {
                     let detailedItem = try await selectedService?.getDetails(item: item) ?? item
                     
-                    await viewModel.addItem(MovieItem(
+                    viewModel.addItem(MovieItem(
                         description: detailedItem.itemDescription,
                         isFavorite: detailedItem.isFavorite,
-                        rating: detailedItem.rating ?? "N/A",
+                        rating: detailedItem.rating ?? 0.0,
                         sourceUrl: detailedItem.sourceUrl,
+                        coverImageUrl: detailedItem.coverUrl,
                         status: .planned,
                         title: detailedItem.title,
                         year: detailedItem.year,
@@ -34,20 +36,24 @@ struct MovieSearchItemCard: View {
                         type: detailedItem.type,
                         sourceId: detailedItem.sourceId,
                         originalTitle: detailedItem.originalTitle
-                    ), detailedItem.coverUrl)
+                    ))
                     dismiss()
 
                 }
             }
         } label: {
             HStack {
-                CachedAsyncImage(
-                    imageData: item.coverImageData,
-                    url: item.coverUrl,
-                    width: 80,
-                    height: 112,
-                    placeholder: "film.fill"
-                )
+                KFImage(item.coverUrl)
+                    .placeholder {
+                        Image(systemName: "film.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.secondary)
+                    }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 116)
+                    .clipped()
                 
                 let yearText = item.year != nil ? String(item.year!) : "—"
                 
@@ -56,7 +62,7 @@ struct MovieSearchItemCard: View {
                         .font(.headline)
 
                     HStack {
-                        if item.type == .TV_SERIES {
+                        if item.type == .tvSeries {
                             Image(systemName: "tv")
                                 .foregroundColor(.secondary)
                         } else {
@@ -68,7 +74,7 @@ struct MovieSearchItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        Text(verbatim: "⭐️ \(item.rating ?? "N/A")")
+                        Text(verbatim: "⭐️ \(item.ratingText)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

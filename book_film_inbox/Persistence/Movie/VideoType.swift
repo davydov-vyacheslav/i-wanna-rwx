@@ -8,6 +8,6 @@
 import Foundation
 
 enum VideoType: String, CaseIterable {
-    case MOVIE = "movie"
-    case TV_SERIES = "tv"
+    case movie = "movie"
+    case tvSeries = "tv"
 }

@@ -18,7 +18,7 @@ class ReminderPersistenceService {
         self.modelContext = context
     }
     
-    func findByTypeAndExpiration(_ typeFilter: ReminderItem.ReminderType?, _ isExpiring: Bool, _ text: String) -> [ReminderItem] {
+    func findByTypeAndExpiration(_ typeFilter: ReminderType?, _ isExpiring: Bool, _ text: String) -> [ReminderItem] {
 
         
         var predicate: Predicate<ReminderItem>? = nil
@@ -26,7 +26,7 @@ class ReminderPersistenceService {
         if let typeFilter, !text.isEmpty {
             let raw = typeFilter.rawValue
             predicate = #Predicate { item in
-                item.type == raw &&
+                item.typeRaw == raw &&
                 (
                     item.name.contains(text) ||
                     item.itemDescription.contains(text)
@@ -35,7 +35,7 @@ class ReminderPersistenceService {
         } else if let typeFilter {
             let raw = typeFilter.rawValue
             predicate = #Predicate { item in
-                item.type == raw
+                item.typeRaw == raw
             }
         } else if !text.isEmpty {
             predicate = #Predicate { item in
@@ -64,25 +64,30 @@ class ReminderPersistenceService {
         }
     }
     
-    func update(_ item: ReminderItem) {
+    func update(_ item: ReminderItem) throws {
         
         let targetID = item.id
-        if let dbItem = try? modelContext.fetch(FetchDescriptor<ReminderItem>(
+        let descriptor = FetchDescriptor<ReminderItem>(
             predicate: #Predicate { $0.id == targetID }
-        )).first {
-            dbItem.name = item.name
-            dbItem.itemDescription = item.itemDescription
-            dbItem.renewalType = item.renewalType
-            dbItem.customPeriodValue = item.customPeriodValue
-            dbItem.customPeriodUnit = item.customPeriodUnit
-            dbItem.expiryDate = item.expiryDate
-            dbItem.licenseKey = item.licenseKey
-            dbItem.reminderDays = item.reminderDays
-            dbItem.cost = item.cost
-            dbItem.notes = item.notes
-            
-            saveContext()
+        )
+        
+        guard let dbItem = try modelContext.fetch(descriptor).first else {
+            Log.db.error("Reminder not found for update")
+            return
         }
+        
+        dbItem.name = item.name
+        dbItem.itemDescription = item.itemDescription
+        dbItem.renewalTypeRaw = item.renewalTypeRaw
+        dbItem.customPeriodValue = item.customPeriodValue
+        dbItem.customPeriodUnitRaw = item.customPeriodUnitRaw
+        dbItem.expiryDate = item.expiryDate
+        dbItem.licenseKey = item.licenseKey
+        dbItem.reminderDays = item.reminderDays
+        dbItem.cost = item.cost
+        dbItem.notes = item.notes
+            
+        saveContext()
         
     }
     func add(_ item: ReminderItem) {

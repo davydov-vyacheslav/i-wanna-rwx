@@ -9,13 +9,12 @@ import SwiftUI
 
 struct ReminderItemCard: View {
     
-    let iconGenerator: IconGenerator = IconGenerator.shared
     let item: ReminderItem
     
     var body: some View {
         HStack(spacing: 14) {
 
-            Text(iconGenerator.suggestIcon(for: item.name))
+            Text(IconGenerator.suggestIcon(for: item.name))
                 .font(.largeTitle)
                 .frame(width: 56, height: 56)
                 .overlay(
@@ -63,8 +62,8 @@ struct ReminderItemCard: View {
                     Spacer()
                     
                     StatusBadge(
-                        icon: ReminderItem.ReminderType(rawValue: item.type)!.icon,
-                        text: ReminderItem.ReminderType(rawValue: item.type)!.displayName,
+                        icon: item.type.icon,
+                        text: item.type.displayName,
                         color: Color.gray,
                     )
                     
@@ -81,12 +80,12 @@ struct ReminderItemCard: View {
 
 #Preview {
     ReminderItemCard(item: ReminderItem(
-        type: ReminderItem.ReminderType.license,
+        type: ReminderType.license,
         name: "Soma name",
         description: "Description",
-        renewalType: ReminderItem.RenewalType.monthly,
+        renewalType: RenewalType.monthly,
         customPeriodValue: 3,
-        customPeriodUnit: ReminderItem.PeriodUnit.days,
+        customPeriodUnit: PeriodUnit.days,
         expiryDate: Calendar.current.date(
             from: DateComponents(year: 2027, month: 1, day: 28)
         ),
@@ -95,12 +94,12 @@ struct ReminderItemCard: View {
         cost: "100500",
         notes: "notes"))
     ReminderItemCard(item: ReminderItem(
-        type: ReminderItem.ReminderType.subscription,
+        type: ReminderType.subscription,
         name: "Soma name",
         description: "Description",
-        renewalType: ReminderItem.RenewalType.lifetime,
+        renewalType: RenewalType.lifetime,
         customPeriodValue: 3,
-        customPeriodUnit: ReminderItem.PeriodUnit.days,
+        customPeriodUnit: PeriodUnit.days,
         expiryDate: Calendar.current.date(
             from: DateComponents(year: 2027, month: 1, day: 28)
         ),
@@ -109,12 +108,12 @@ struct ReminderItemCard: View {
         cost: "100500",
         notes: "notes"))
     ReminderItemCard(item: ReminderItem(
-        type: ReminderItem.ReminderType.subscription,
+        type: ReminderType.subscription,
         name: "Soma name",
         description: "Description",
-        renewalType: ReminderItem.RenewalType.custom,
+        renewalType: RenewalType.custom,
         customPeriodValue: 3,
-        customPeriodUnit: ReminderItem.PeriodUnit.days,
+        customPeriodUnit: PeriodUnit.days,
         expiryDate: Calendar.current.date(
             from: DateComponents(year: 2026, month: 1, day: 31)
         ),

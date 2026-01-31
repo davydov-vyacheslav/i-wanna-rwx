@@ -8,14 +8,15 @@
 import Foundation
 import Combine
 
+@MainActor
 class ReminderViewModel: ObservableObject {
     private let storageService = ReminderPersistenceService(context: ReminderPersistenceController.shared.context)
     
-    func filteredItems(typeFilter: ReminderItem.ReminderType?, isExpiring: Bool, text: String = "") -> [ReminderItem] {
+    func filteredItems(typeFilter: ReminderType?, isExpiring: Bool, text: String = "") -> [ReminderItem] {
         storageService.findByTypeAndExpiration(typeFilter, isExpiring, text)
     }
     
-    func count(typeFilter: ReminderItem.ReminderType?, isExpiring: Bool) -> Int {
+    func count(typeFilter: ReminderType?, isExpiring: Bool) -> Int {
         filteredItems(typeFilter: typeFilter, isExpiring: isExpiring).count
     }
 
@@ -24,8 +25,8 @@ class ReminderViewModel: ObservableObject {
         objectWillChange.send()
     }
     
-    func updateItem(_ item: ReminderItem) {
-        storageService.update(item)
+    func updateItem(_ item: ReminderItem) throws {
+        try storageService.update(item)
         objectWillChange.send()
     }
     

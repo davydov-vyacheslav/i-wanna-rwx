@@ -6,3 +6,8 @@
 //
 
 typealias ReminderItem = ReminderSchemaV100.ReminderItem
+
+typealias ReminderType = ReminderTypeV100
+typealias RenewalType = RenewalTypeV100
+typealias PeriodUnit = PeriodUnitV100
+typealias ExpirationStatus = ExpirationStatusV100

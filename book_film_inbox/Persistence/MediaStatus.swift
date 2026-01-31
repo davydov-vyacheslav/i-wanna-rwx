@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MediaStatus: String, Codable {
+enum MediaStatus: String {
     case planned
     case done
 }

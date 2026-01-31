@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct BookItemCard: View {
     @EnvironmentObject var viewModel: BooksViewModel
@@ -18,16 +19,20 @@ struct BookItemCard: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .top, spacing: 8) {
                 // Poster
-                CachedAsyncImage(
-                    imageData: item.coverImageData,
-                    url: nil,
-                    width: 80,
-                    height: 116,
-                    placeholder: "book.fill"
-                )
-                .onTapGesture {
-                    UIApplication.shared.open(item.sourceUrl)
-                }
+                KFImage(item.coverImageUrl)
+                    .placeholder {
+                        Image(systemName: "book.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.secondary)
+                    }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 116)
+                    .clipped()
+                    .onTapGesture {
+                        UIApplication.shared.open(item.sourceUrl)
+                    }
 
                 // Content
                 VStack(alignment: .leading, spacing: 1) {
@@ -48,13 +53,11 @@ struct BookItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        if item.rating > 0 {
-                            Image(systemName: "star.fill")
-                                .font(.caption)
-                                .foregroundColor(.yellow)
-                            Text(String(format: "%.1f", item.rating))
-                                .font(.caption)
-                        }
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundColor(.yellow)
+                        Text(item.ratingText)
+                            .font(.caption)
                         
                         Spacer()
                         
@@ -68,7 +71,7 @@ struct BookItemCard: View {
                             .buttonStyle(.plain)
                             .frame(width: 16)
                             
-                            if item.mediaStatus == .done {
+                            if item.status == .done {
                                 Button {
                                     viewModel.changeStatus(item, to: .planned)
                                 } label: {
@@ -79,7 +82,7 @@ struct BookItemCard: View {
                                 .frame(width: 16)
                             }
                             
-                            if item.mediaStatus == .planned {
+                            if item.status == .planned {
                                 Button {
                                     viewModel.changeStatus(item, to: .done)
                                 } label: {
@@ -107,9 +110,9 @@ struct BookItemCard: View {
                     
                     // Badges
                     HStack(spacing: 6) {
-                        if item.mediaStatus == .planned {
+                        if item.status == .planned {
                             StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
-                        } else if item.mediaStatus == .done {
+                        } else if item.status == .done {
                             StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
@@ -138,7 +141,7 @@ struct BookItemCard: View {
         isFavorite: true,
         rating: 5.0,
         sourceUrl: URL(string: "https://google.com")!,
-        status: MediaStatus.planned.rawValue,
+        status: MediaStatus.planned,
         title: "title",
         year: 1999,
         isbn: "1234567",
@@ -159,7 +162,7 @@ struct BookItemCard: View {
         isFavorite: false,
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
-        status: MediaStatus.done.rawValue,
+        status: MediaStatus.done,
         title: "title",
         year: nil,
         isbn: "NONE",

@@ -74,10 +74,10 @@ class OpenLibraryService: SearchService {
     
     typealias SearchResultItem = ExternalBookItem
     
-    var serviceName: String = "Open Library"
-    var requiresToken: Bool = false
-    var tokenPlaceholder: String? = nil
-    var helpURL: String? = nil
+    static var serviceName: String = "Open Library"
+    static var requiresToken: Bool = false
+    static var tokenPlaceholder: String? = nil
+    static var helpURL: String? = nil
     
     private let baseURL = "https://openlibrary.org"
     private let session: URLSession
@@ -93,7 +93,7 @@ class OpenLibraryService: SearchService {
     // MARK: - Search Books
     
     // @Override
-    func search(query: String, token: String?, limit: Int) async throws -> [ExternalBookItem] {
+    func search(query: String, limit: Int) async throws -> [ExternalBookItem] {
         var components = URLComponents(string: "\(baseURL)/search.json")
         components?.queryItems = [
             URLQueryItem(name: "q", value: query),
@@ -112,10 +112,6 @@ class OpenLibraryService: SearchService {
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw OLError.invalidResponse
-        }
-        
-        if httpResponse.statusCode == 429 {
-            throw OLError.rateLimitExceeded
         }
         
         guard httpResponse.statusCode == 200 else {
@@ -138,7 +134,7 @@ class OpenLibraryService: SearchService {
                 // Merge search data with detailed data
                 
                 let mergedBook = ExternalBookItem(
-                    title: detailedBook.title,
+                    title: detailedBook.title.isEmpty ? item.title : detailedBook.title,
                     sourceUrl: item.sourceUrl,
                     sourceName: item.sourceName,
                     description: detailedBook.itemDescription,
@@ -159,7 +155,7 @@ class OpenLibraryService: SearchService {
 
     }
         
-    func getBookDetails(workKey: String) async throws -> ExternalBookItem? {
+    private func getBookDetails(workKey: String) async throws -> ExternalBookItem? {
         
         // Clean the work key (remove /works/ if present)
         let cleanKey = workKey.replacingOccurrences(of: "/works/", with: "")
@@ -178,10 +174,6 @@ class OpenLibraryService: SearchService {
             throw OLError.invalidResponse
         }
         
-        if httpResponse.statusCode == 429 {
-            throw OLError.rateLimitExceeded
-        }
-        
         guard httpResponse.statusCode == 200 else {
             return nil
         }
@@ -197,9 +189,9 @@ class OpenLibraryService: SearchService {
         return ExternalBookItem(
             title: workDetail.title ?? "",
             sourceUrl: URL(string: "\(baseURL)/works/\(cleanKey)")!,
-            sourceName: serviceName,
+            sourceName: OpenLibraryService.serviceName,
             description: workDetail.description?.value,
-            coverUrl: URL(string: coverUrl ?? ""),
+            coverUrl: coverUrl.flatMap { URL(string: $0) },
             year: year,
         )
     }
@@ -213,11 +205,11 @@ class OpenLibraryService: SearchService {
         return ExternalBookItem(
             title: doc.title,
             sourceUrl: URL(string: "\(baseURL)\(doc.key)")!,
-            sourceName: serviceName,
+            sourceName: OpenLibraryService.serviceName,
             rating: doc.ratingsAverage,
-            coverUrl: URL(string: coverUrl ?? ""),
-            isbn: doc.isbn?[0] ?? "N/A ?",
-            author: doc.authorName?.joined(separator: ", ") ?? "",
+            coverUrl: coverUrl.flatMap { URL(string: $0) },
+            isbn: doc.isbn?.first,
+            author: doc.authorName?.joined(separator: ", "),
             year: doc.firstPublishYear,
         )
     }
@@ -225,15 +217,12 @@ class OpenLibraryService: SearchService {
     private func extractYear(from dateString: String?) -> Int? {
         guard let dateString = dateString else { return nil }
         
-        // Try to extract 4-digit year
-        let yearPattern = #"(\d{4})"#
-        guard let regex = try? NSRegularExpression(pattern: yearPattern),
-              let match = regex.firstMatch(in: dateString, range: NSRange(dateString.startIndex..., in: dateString)) else {
+        let regex = /(\d{4})/
+        if let match = dateString.firstMatch(of: regex) {
+            return Int(match.1)
+        } else {
             return nil
         }
-        
-        let yearString = (dateString as NSString).substring(with: match.range(at: 1))
-        return Int(yearString)
     }
     
 }
@@ -243,7 +232,6 @@ enum OLError: Error {
     case invalidURL
     case invalidResponse
     case httpError(statusCode: Int)
-    case rateLimitExceeded
     case decodingError
 }
 
@@ -256,8 +244,6 @@ extension OLError: LocalizedError {
             return "Invalid response from server"
         case .httpError(let code):
             return "HTTP error: \(code)"
-        case .rateLimitExceeded:
-            return "Rate limit exceeded. Please wait before making more requests."
         case .decodingError:
             return "Failed to decode response"
         }

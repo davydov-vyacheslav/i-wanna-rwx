@@ -10,7 +10,7 @@ import SwiftData
 import os
 
 @MainActor
-class MoviePersistenceService {
+class MoviePersistenceService: MediaPersistenceService {
 
     private let modelContext: ModelContext
 
@@ -33,7 +33,7 @@ class MoviePersistenceService {
             }
         case .planned:
             predicate = #Predicate<MovieItem> { item in
-                item.status == pendingState
+                item.statusRaw == pendingState
             }
         }
         
@@ -60,7 +60,6 @@ class MoviePersistenceService {
     }
     
     func delete(_ item: MovieItem) {
-        _ = item.coverImageData // lazy data load to avoid 'This backing data was detached from a context without resolving attribute faults'
         modelContext.delete(item)
         saveContext()
     }
@@ -71,7 +70,7 @@ class MoviePersistenceService {
     }
     
     func changeStatus(_ item: MovieItem, to status: MediaStatus) {
-        item.status = status.rawValue
+        item.statusRaw = status.rawValue
         saveContext()
     }
 

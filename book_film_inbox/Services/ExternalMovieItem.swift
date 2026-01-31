@@ -7,50 +7,55 @@
 
 
 import Foundation
-import SwiftData
-
 
 struct ExternalMovieItem: ExternalMediaItem {
     
-    var id: UUID
-    var itemDescription: String?
+    var id: UUID = UUID()
+    var itemDescription: String? = nil
     var isFavorite: Bool = false
-    var rating: String?
+    var rating: Double? = nil
     var sourceUrl: URL
-    var coverUrl: URL?
-    var coverImageData: Data?
+    var coverUrl: URL? = nil
     var status: MediaStatus = MediaStatus.planned
     var title: String
-    var author: String?
-    var year: Int?
-    var type: VideoType
-    var sourceId: Int?
-    var originalTitle: String?
+    var author: String? = nil
+    var year: Int? = nil
+    var type: VideoType = .movie
+    var sourceId: Int? = nil
+    var originalTitle: String? = nil
     var sourceName: String
 
     public init(
-        id: UUID? = UUID(),
+        title: String,
+        sourceUrl: URL,
+        sourceName: String,
+    ) {
+        self.title = title
+        self.sourceUrl = sourceUrl
+        self.sourceName = sourceName
+    }
+    
+    public init(
+        id: UUID = UUID(),
         title: String,
         sourceUrl: URL,
         sourceName: String,
         description: String? = nil,
-        rating: String? = nil,
+        rating: Double? = nil,
         coverUrl: URL? = nil,
-        coverImageData: Data? = nil,
         status: MediaStatus = .planned,
         author: String? = nil,
         year: Int? = nil,
-        type: VideoType = .MOVIE,
+        type: VideoType = .movie,
         sourceId: Int? = nil,
         originalTitle: String? = nil,
     ) {
-        self.id = id!
+        self.id = id
         self.title = title
         self.itemDescription = description
         self.rating = rating
         self.sourceUrl = sourceUrl
         self.coverUrl = coverUrl
-        self.coverImageData = coverImageData
         self.status = status
         self.year = year
         self.author = author
@@ -60,18 +65,7 @@ struct ExternalMovieItem: ExternalMediaItem {
         self.originalTitle = originalTitle
     }
     
-    static func draft(searchText: String) -> ExternalMovieItem {
-        ExternalMovieItem(
-            title: searchText,
-            sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
-            sourceName: CommonConstants.draftSourceType,
-        )
-    }
-    
-    func isDraft() -> Bool {
-        return sourceName == CommonConstants.draftSourceType
-    }
-    
+   
 }
 
 

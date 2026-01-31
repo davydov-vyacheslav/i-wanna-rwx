@@ -29,7 +29,7 @@ struct AddMovieSheet: View {
     
     var availableServices: [SettingsSourceEntity] {
         settingsSearchStore.availableVideoSources.filter { service in
-            !service.instance.requiresToken || settingsViewModel.hasToken(for: service.instance.serviceName)
+            !type(of: service.instance).requiresToken || settingsViewModel.hasToken(for: type(of: service.instance).serviceName)
         }
     }
     
@@ -231,13 +231,9 @@ struct AddMovieSheet: View {
         }
         
         do {
-            let token = service.instance.requiresToken
-            ? settingsViewModel.getToken(for: service.instance.serviceName)
-                : nil
             
             let searchResults = try await service.instance.search(
                 query: query,
-                token: token,
                 limit: 10
             )
             

@@ -12,12 +12,12 @@ struct SettingsSourceRow: View {
     @ObservedObject var viewModel: SettingsViewModel
     
     var body: some View {
-        if searchService.requiresToken {
+        if type(of: searchService).requiresToken {
             // Expandable list for sources with tokens
             DisclosureGroup(
                 isExpanded: Binding(
-                    get: { viewModel.expandedSources.contains(searchService.serviceName) },
-                    set: { _ in viewModel.toggleExpanded(for: searchService.serviceName) }
+                    get: { viewModel.expandedSources.contains(type(of: searchService).serviceName) },
+                    set: { _ in viewModel.toggleExpanded(for: type(of: searchService).serviceName) }
                 )
             ) {
                 DetailView(searchService: searchService, viewModel: viewModel)
@@ -41,13 +41,13 @@ struct SettingsSourceRow: View {
         var body: some View {
             HStack {
                 
-                Text(searchService.serviceName)
+                Text(type(of: searchService).serviceName)
                     .font(.body)
                 
                 Spacer()
                 
-                if searchService.requiresToken {
-                    if viewModel.hasToken(for: searchService.serviceName) {
+                if type(of: searchService).requiresToken {
+                    if viewModel.hasToken(for: type(of: searchService).serviceName) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
                             .imageScale(.medium)
@@ -67,11 +67,11 @@ struct SettingsSourceRow: View {
         @ObservedObject var viewModel: SettingsViewModel
         
         var isEditing: Bool {
-            viewModel.editingSource == searchService.serviceName
+            viewModel.editingSource == type(of: searchService).serviceName
         }
         
         var hasToken: Bool {
-            viewModel.hasToken(for: searchService.serviceName)
+            viewModel.hasToken(for: type(of: searchService).serviceName)
         }
         
         var body: some View {
@@ -86,7 +86,7 @@ struct SettingsSourceRow: View {
                             .foregroundColor(.secondary)
                         
                         HStack {
-                            Text(viewModel.getDisplayToken(for: searchService.serviceName))
+                            Text(viewModel.getDisplayToken(for: type(of: searchService).serviceName))
                                 .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 12)
@@ -96,9 +96,9 @@ struct SettingsSourceRow: View {
                                 .cornerRadius(8)
                             
                             Button {
-                                viewModel.toggleShowToken(for: searchService.serviceName)
+                                viewModel.toggleShowToken(for: type(of: searchService).serviceName)
                             } label: {
-                                Image(systemName: viewModel.showToken.contains(searchService.serviceName) ? "eye.slash.fill" : "eye.fill")
+                                Image(systemName: viewModel.showToken.contains(type(of: searchService).serviceName) ? "eye.slash.fill" : "eye.fill")
                                     .foregroundColor(.secondary)
                             }
                             .buttonStyle(.borderless)
@@ -122,7 +122,7 @@ struct SettingsSourceRow: View {
                 }
                 
                 // Help Link
-                if let helpURL = searchService.helpURL, let url = URL(string: helpURL) {
+                if let helpURL = type(of: searchService).helpURL, let url = URL(string: helpURL) {
                     Link(destination: url) {
                         HStack(spacing: 4) {
                             Text(".label.settings.source.token_howto")
@@ -143,7 +143,7 @@ struct SettingsSourceRow: View {
                         .frame(maxWidth: .infinity)
                         
                         Button(".button.save") {
-                            viewModel.saveEditing(for: searchService.serviceName)
+                            viewModel.saveEditing(for: type(of: searchService).serviceName)
                         }
                         .buttonStyle(.borderedProminent)
                         .frame(maxWidth: .infinity)
@@ -152,13 +152,13 @@ struct SettingsSourceRow: View {
                 } else if hasToken {
                     HStack(spacing: 12) {
                         Button(".button.update") {
-                            viewModel.startEditing(for: searchService.serviceName)
+                            viewModel.startEditing(for: type(of: searchService).serviceName)
                         }
                         .buttonStyle(.bordered)
                         .frame(maxWidth: .infinity)
                         
                         Button(".button.delete") {
-                            viewModel.removeToken(for: searchService.serviceName)
+                            viewModel.removeToken(for: type(of: searchService).serviceName)
                         }
                         .buttonStyle(.bordered)
                         .tint(.red)
@@ -166,7 +166,7 @@ struct SettingsSourceRow: View {
                     }
                 } else {
                     Button(".button.add") {
-                        viewModel.startEditing(for: searchService.serviceName)
+                        viewModel.startEditing(for: type(of: searchService).serviceName)
                     }
                     .buttonStyle(.borderedProminent)
                     .frame(maxWidth: .infinity)

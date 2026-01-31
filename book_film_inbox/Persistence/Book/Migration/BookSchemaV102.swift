@@ -16,13 +16,13 @@ enum BookSchemaV102: VersionedSchema {
     
     @Model class BookItem: CommonMediaItem {
         
-        var id: UUID
+        @Attribute(.unique) var id: UUID
         var itemDescription: String?
         var isFavorite: Bool = false
         var rating: Double = 0.0
         var sourceUrl: URL
-        @Attribute(.externalStorage) var coverImageData: Data?
-        var status: String
+        var coverImageUrl: URL?
+        var statusRaw: String
         var title: String
         var mainAuthor: String?
         var isbn: String?
@@ -35,8 +35,8 @@ enum BookSchemaV102: VersionedSchema {
             isFavorite: Bool? = false,
             rating: Double? = 0.0,
             sourceUrl: URL,
-            coverImageData: Data? = nil,
-            status: String = MediaStatus.planned.rawValue,
+            coverImageUrl: URL? = nil,
+            status: MediaStatus = MediaStatus.planned,
             title: String,
             year: Int? = nil,
             isbn: String?,
@@ -49,8 +49,8 @@ enum BookSchemaV102: VersionedSchema {
             self.isFavorite = isFavorite ?? false
             self.rating = rating ?? 0.0
             self.sourceUrl = sourceUrl
-            self.coverImageData = coverImageData
-            self.status = status
+            self.coverImageUrl = coverImageUrl
+            self.statusRaw = status.rawValue
             self.year = year
             self.isbn = isbn
             self.mainAuthor = author

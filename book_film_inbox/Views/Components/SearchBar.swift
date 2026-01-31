@@ -33,7 +33,7 @@ struct MediaSearchBar: View {
             
             // Current service indicator (if multiple services available)
             if availableServices.count > 1, let service = selectedService {
-                currentServiceIndicator(serviceName: service.instance.serviceName)
+                currentServiceIndicator(serviceName: type(of: service.instance).serviceName)
             }
             
             // No services warning
@@ -84,14 +84,20 @@ struct MediaSearchBar: View {
     
     // MARK: - Service Selector Menu
     private var serviceSelector: some View {
-        Menu {
+
+        var selectedServiceName: String? = nil
+        if let service = selectedService?.instance {
+            selectedServiceName = type(of: service).serviceName
+        }
+        
+        return Menu {
             ForEach(availableServices) { service in
                 Button {
                     selectedService = service
                 } label: {
                     HStack {
-                        Text(service.instance.serviceName)
-                        if selectedService?.instance.serviceName == service.instance.serviceName {
+                        Text(type(of: service.instance).serviceName)
+                        if selectedServiceName == type(of: service.instance).serviceName {
                             Image(systemName: "checkmark")
                         }
                     }
@@ -99,7 +105,7 @@ struct MediaSearchBar: View {
             }
         } label: {
             HStack(spacing: 4) {
-                Text(selectedService?.instance.serviceName ?? "Select")
+                Text(selectedServiceName ?? "Select")
                     .font(.subheadline)
                     .fontWeight(.medium)
                 Image(systemName: "chevron.down")

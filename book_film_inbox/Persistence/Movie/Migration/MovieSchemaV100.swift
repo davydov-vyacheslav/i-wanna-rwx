@@ -16,27 +16,27 @@ enum MovieSchemaV100: VersionedSchema {
     
     @Model class MovieItem: CommonMediaItem {
         
-        var id: UUID = UUID()
+        @Attribute(.unique) var id: UUID = UUID()
         var itemDescription: String?
         var isFavorite: Bool = false
-        var rating: String
+        var rating: Double
         var sourceUrl: URL
-        @Attribute(.externalStorage) var coverImageData: Data?
-        var status: String = MediaStatus.planned.rawValue
+        var coverImageUrl: URL?
+        var statusRaw: String = MediaStatus.planned.rawValue
         var title: String
         var mainAuthor: String?
         var year: Int?
         var sourceName: String
-        var type: String = VideoType.MOVIE.rawValue
+        var typeRaw: String = VideoType.movie.rawValue
         var sourceId: Int?
         var originalTitle: String?
         
         public init(
             description: String? = nil,
             isFavorite: Bool? = false,
-            rating: String,
+            rating: Double,
             sourceUrl: URL,
-            coverImageData: Data? = nil,
+            coverImageUrl: URL? = nil,
             status: MediaStatus = .planned,
             title: String,
             year: Int? = nil,
@@ -51,14 +51,19 @@ enum MovieSchemaV100: VersionedSchema {
             self.isFavorite = isFavorite ?? false
             self.rating = rating
             self.sourceUrl = sourceUrl
-            self.coverImageData = coverImageData
-            self.status = status.rawValue
+            self.coverImageUrl = coverImageUrl
+            self.statusRaw = status.rawValue
             self.year = year
             self.mainAuthor = author
             self.sourceName = sourceName
-            self.type = type.rawValue
+            self.typeRaw = type.rawValue
             self.originalTitle = originalTitle
         }
+     
         
+        var type: VideoType {
+            get { VideoType(rawValue: typeRaw) ?? .movie }
+            set { typeRaw = newValue.rawValue }
+        }
     }
 }

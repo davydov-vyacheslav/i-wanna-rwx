@@ -12,7 +12,7 @@ struct RemindersView: View {
     @State private var selectedItem: ReminderItem?
     @State private var searchText: String = ""
     
-    @State private var selectedFilterType: ReminderItem.ReminderType? = nil
+    @State private var selectedFilterType: ReminderType? = nil
     @State private var selectedFilterExpired: Bool = false
 
     var filteredItems: [ReminderItem] {
@@ -77,7 +77,7 @@ struct RemindersView: View {
         HStack(spacing: 8) {
             
             FilterButton(
-                iconName: ReminderItem.ReminderType.license.icon,
+                iconName: ReminderType.license.icon,
                 count: viewModel.count(typeFilter: .license, isExpiring: false),
                 isSelected: selectedFilterType == .license
             ) {
@@ -85,7 +85,7 @@ struct RemindersView: View {
             }
             
             FilterButton(
-                iconName: ReminderItem.ReminderType.subscription.icon,
+                iconName: ReminderType.subscription.icon,
                 count: viewModel.count(typeFilter: .subscription, isExpiring: false),
                 isSelected: selectedFilterType == .subscription
             ) {
@@ -118,17 +118,12 @@ extension ReminderItem {
     }
     
     var formattedRenewalType: String {
-        guard let renewalType = RenewalType(rawValue: self.renewalType) else {
-            return ""
-        }
-        
         let prefix = String(localized: ".label.reminder.renew_policy_prefix")
         
         switch renewalType {
         case .custom:
             guard let periodValue = customPeriodValue,
-                  let unitRaw = customPeriodUnit,
-                  let unit = PeriodUnit(rawValue: unitRaw) else {
+                  let unit = customPeriodUnit else {
                 return prefix
             }
             
@@ -146,7 +141,7 @@ extension ReminderItem {
     }
 }
 
-extension ReminderItem.ReminderType {
+extension ReminderType {
     var displayName: LocalizedStringKey {
         switch self {
         case .subscription: return ".badge.reminder.subscription"
@@ -156,7 +151,7 @@ extension ReminderItem.ReminderType {
 }
 
 
-extension ReminderItem.RenewalType {
+extension RenewalType {
     var displayName: String {
         switch self {
         case .monthly: return String(localized: ".type.reminder.renew.month")
@@ -169,7 +164,7 @@ extension ReminderItem.RenewalType {
 }
 
 
-extension ReminderItem.PeriodUnit {
+extension PeriodUnit {
     var displayNameSuffix: String {
         switch self {
         case .days: return String(localized: ".type.reminder.period.day")

@@ -19,9 +19,6 @@ struct CopyableText: View {
         Button {
             UIPasteboard.general.string = text
             copiedToClipboard = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                copiedToClipboard = false
-            }
         } label: {
             
             HStack(alignment: .top) {
@@ -48,6 +45,11 @@ struct CopyableText: View {
             .tint(.blue)
         }
         .buttonStyle(.plain)
+        .task(id: copiedToClipboard) {
+            guard copiedToClipboard else { return }
+            try? await Task.sleep(for: .seconds(2))
+            copiedToClipboard = false
+        }
     }
     
 }

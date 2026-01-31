@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct MovieItemCard: View {
     @EnvironmentObject var viewModel: MoviesViewModel
@@ -18,23 +19,27 @@ struct MovieItemCard: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .top, spacing: 8) {
                 // Poster
-                CachedAsyncImage(
-                    imageData: item.coverImageData,
-                    url: nil,
-                    width: 80,
-                    height: 116,
-                    placeholder: "film.fill"
-                )
-                .onTapGesture {
-                    UIApplication.shared.open(item.sourceUrl)
-                }
+                KFImage(item.coverImageUrl)
+                    .placeholder {
+                        Image(systemName: "film.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.secondary)
+                    }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 116)
+                    .clipped()
+                    .onTapGesture {
+                        UIApplication.shared.open(item.sourceUrl)
+                    }
 
                 // Content
                 VStack(alignment: .leading, spacing: 1) {
                     // Title
                     HStack {
                         
-                        Image(systemName: item.type == VideoType.TV_SERIES.rawValue ? "tv" : "film")
+                        Image(systemName: item.type == VideoType.tvSeries ? "tv" : "film")
                             .foregroundColor(item.isDraft() ? .gray : .orange)
                         
                         Text(item.title)
@@ -52,7 +57,7 @@ struct MovieItemCard: View {
                         Image(systemName: "star.fill")
                             .font(.caption)
                             .foregroundColor(.yellow)
-                        Text(verbatim: item.rating)
+                        Text(verbatim: item.ratingText)
                             .font(.caption)
                         
                         Spacer()
@@ -67,7 +72,7 @@ struct MovieItemCard: View {
                             .buttonStyle(.plain)
                             .frame(width: 16)
                             
-                            if item.mediaStatus == .done {
+                            if item.status == .done {
                                 Button {
                                     viewModel.changeStatus(item, to: .planned)
                                 } label: {
@@ -78,7 +83,7 @@ struct MovieItemCard: View {
                                 .frame(width: 16)
                             }
                             
-                            if item.mediaStatus == .planned {
+                            if item.status == .planned {
                                 Button {
                                     viewModel.changeStatus(item, to: .done)
                                 } label: {
@@ -107,9 +112,9 @@ struct MovieItemCard: View {
                     
                     // Badges
                     HStack(spacing: 6) {
-                        if item.mediaStatus == .planned {
+                        if item.status == .planned {
                             StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
-                        } else if item.mediaStatus == .done {
+                        } else if item.status == .done {
                             StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)

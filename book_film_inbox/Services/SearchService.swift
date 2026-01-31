@@ -1,5 +1,5 @@
 //
-//  BooksSearchService.swift
+//  SearchService.swift
 //  IWannaRWX
 //
 //  Created by Slava Davydov on 25.01.2026.
@@ -8,13 +8,13 @@
 protocol SearchService<SearchResultItem> {
     associatedtype SearchResultItem: ExternalMediaItem
     
-    func search(query: String, token: String?, limit: Int) async throws -> [SearchResultItem]
+    func search(query: String, limit: Int) async throws -> [SearchResultItem]
     func getDetails(item: SearchResultItem) async throws -> SearchResultItem
 
-    var serviceName: String { get }
-    var requiresToken: Bool { get }
+    static var serviceName: String { get }
+    static var requiresToken: Bool { get }
     
-    var tokenPlaceholder: String? { get }
-    var helpURL: String? { get }
+    static var tokenPlaceholder: String? { get }
+    static var helpURL: String? { get }
 
 }
