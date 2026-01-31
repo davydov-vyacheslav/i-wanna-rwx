@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BooksView: View {
     @EnvironmentObject var viewModel: BooksViewModel
-    @State private var selectedFilter: FilterType = .ALL
+    @State private var selectedFilter: FilterType = .all
     @State private var showingAddSheet = false
     
     var filteredItems: [BookItem] {
@@ -27,7 +27,7 @@ struct BooksView: View {
                                 iconName: filter.iconName,
                                 count: viewModel.count(filter: filter),
                                 isSelected: selectedFilter == filter,
-                                isFavorite: filter == .FAVOURITES
+                                isFavorite: filter == .favorite
                             ) {
                                 selectedFilter = filter
                             }

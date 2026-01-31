@@ -61,15 +61,15 @@ struct MovieItemCard: View {
                             Button {
                                 viewModel.toggleFavorite(item)
                             } label: {
-                                Image(systemName: item.isFavourite ? "heart.fill" : "heart")
-                                    .foregroundColor(item.isFavourite ? .red : .secondary)
+                                Image(systemName: item.isFavorite ? "heart.fill" : "heart")
+                                    .foregroundColor(item.isFavorite ? .red : .secondary)
                             }
                             .buttonStyle(.plain)
                             .frame(width: 16)
                             
-                            if item.mediaStatus == .DONE {
+                            if item.mediaStatus == .done {
                                 Button {
-                                    viewModel.changeStatus(item, to: .PLANNED)
+                                    viewModel.changeStatus(item, to: .planned)
                                 } label: {
                                     Image(systemName: "clock")
                                         .foregroundColor(.secondary)
@@ -78,9 +78,9 @@ struct MovieItemCard: View {
                                 .frame(width: 16)
                             }
                             
-                            if item.mediaStatus == .PLANNED {
+                            if item.mediaStatus == .planned {
                                 Button {
-                                    viewModel.changeStatus(item, to: .DONE)
+                                    viewModel.changeStatus(item, to: .done)
                                 } label: {
                                     Image(systemName: "checkmark")
                                         .foregroundColor(.green)
@@ -107,9 +107,9 @@ struct MovieItemCard: View {
                     
                     // Badges
                     HStack(spacing: 6) {
-                        if item.mediaStatus == .PLANNED {
+                        if item.mediaStatus == .planned {
                             StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
-                        } else if item.mediaStatus == .DONE {
+                        } else if item.mediaStatus == .done {
                             StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)

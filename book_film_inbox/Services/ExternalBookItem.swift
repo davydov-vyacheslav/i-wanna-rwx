@@ -13,12 +13,12 @@ struct ExternalBookItem: ExternalMediaItem {
     
     var id: UUID = UUID()
     var itemDescription: String?
-    var isFavourite: Bool = false
+    var isFavorite: Bool = false
     var rating: Double = 0.0
     var sourceUrl: URL
     var coverUrl: URL?
     var coverImageData: Data?
-    var status: MediaStatus = MediaStatus.PLANNED
+    var status: MediaStatus = MediaStatus.planned
     var title: String
     var isbn: String?
     var author: String?
@@ -33,7 +33,7 @@ struct ExternalBookItem: ExternalMediaItem {
         rating: Double? = 0.0,
         coverUrl: URL? = nil,
         coverImageData: Data? = nil,
-        status: MediaStatus = .PLANNED,
+        status: MediaStatus = .planned,
         isbn: String? = nil,
         author: String? = nil,
         year: Int? = nil,
@@ -55,12 +55,12 @@ struct ExternalBookItem: ExternalMediaItem {
         ExternalBookItem(
             title: searchText,
             sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
-            sourceName: CommonConstants.DraftSourceType,
+            sourceName: CommonConstants.draftSourceType,
         )
     }
     
     func isDraft() -> Bool {
-        return sourceName == CommonConstants.DraftSourceType
+        return sourceName == CommonConstants.draftSourceType
     }
     
 }

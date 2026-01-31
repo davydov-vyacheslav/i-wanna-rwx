@@ -62,15 +62,15 @@ struct BookItemCard: View {
                             Button {
                                 viewModel.toggleFavorite(item)
                             } label: {
-                                Image(systemName: item.isFavourite ? "heart.fill" : "heart")
-                                    .foregroundColor(item.isFavourite ? .red : .secondary)
+                                Image(systemName: item.isFavorite ? "heart.fill" : "heart")
+                                    .foregroundColor(item.isFavorite ? .red : .secondary)
                             }
                             .buttonStyle(.plain)
                             .frame(width: 16)
                             
-                            if item.mediaStatus == .DONE {
+                            if item.mediaStatus == .done {
                                 Button {
-                                    viewModel.changeStatus(item, to: .PLANNED)
+                                    viewModel.changeStatus(item, to: .planned)
                                 } label: {
                                     Image(systemName: "clock")
                                         .foregroundColor(.secondary)
@@ -79,9 +79,9 @@ struct BookItemCard: View {
                                 .frame(width: 16)
                             }
                             
-                            if item.mediaStatus == .PLANNED {
+                            if item.mediaStatus == .planned {
                                 Button {
-                                    viewModel.changeStatus(item, to: .DONE)
+                                    viewModel.changeStatus(item, to: .done)
                                 } label: {
                                     Image(systemName: "checkmark")
                                         .foregroundColor(.green)
@@ -107,9 +107,9 @@ struct BookItemCard: View {
                     
                     // Badges
                     HStack(spacing: 6) {
-                        if item.mediaStatus == .PLANNED {
+                        if item.mediaStatus == .planned {
                             StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
-                        } else if item.mediaStatus == .DONE {
+                        } else if item.mediaStatus == .done {
                             StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
@@ -135,10 +135,10 @@ struct BookItemCard: View {
 #Preview {
     BookItemCard(item: BookItem(
         description: "Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere",
-        isFavourite: true,
+        isFavorite: true,
         rating: 5.0,
         sourceUrl: URL(string: "https://google.com")!,
-        status: MediaStatus.PLANNED.rawValue,
+        status: MediaStatus.planned.rawValue,
         title: "title",
         year: 1999,
         isbn: "1234567",
@@ -146,20 +146,20 @@ struct BookItemCard: View {
         sourceName: "Test service"))
     BookItemCard(item: BookItem(
         description: nil,
-        isFavourite: false,
+        isFavorite: false,
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
         title: "title",
         year: nil,
         isbn: "NONE",
         author: "N/A",
-        sourceName: CommonConstants.DraftSourceType))
+        sourceName: CommonConstants.draftSourceType))
     BookItemCard(item: BookItem(
         description: nil,
-        isFavourite: false,
+        isFavorite: false,
         rating: nil,
         sourceUrl: URL(string: "https://google.com")!,
-        status: MediaStatus.DONE.rawValue,
+        status: MediaStatus.done.rawValue,
         title: "title",
         year: nil,
         isbn: "NONE",

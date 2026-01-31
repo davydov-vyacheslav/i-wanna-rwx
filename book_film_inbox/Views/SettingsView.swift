@@ -12,7 +12,6 @@ struct SettingsView: View {
     @StateObject private var settingsSearchStore = SettingsSourceStore.shared
     private let walletAddress = "0xB06095188DdCB0e1Acd8fDd16FaC96Fbac3d6882"
     private let projectLink = "https://github.com/davydov-vyacheslav/i-wanna-rwx"
-    private let projectVersion = "1.0.0"
     
     var body: some View {
         NavigationStack {
@@ -37,7 +36,7 @@ struct SettingsView: View {
                     HStack {
                         Text(".label.settings.version")
                         Spacer()
-                        Text(verbatim: projectVersion)
+                        Text(verbatim: SettingsService.version)
                             .foregroundColor(.secondary)
                     }
                     

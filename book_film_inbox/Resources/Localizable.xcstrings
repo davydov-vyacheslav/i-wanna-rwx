@@ -808,13 +808,13 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Напоминание через %lld дн."
+            "value" : "Напоминание за %lld дн."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нагадування через %lld дн."
+            "value" : "Нагадування за %lld дн."
           }
         }
       }

@@ -14,12 +14,12 @@ struct ExternalMovieItem: ExternalMediaItem {
     
     var id: UUID
     var itemDescription: String?
-    var isFavourite: Bool = false
+    var isFavorite: Bool = false
     var rating: String?
     var sourceUrl: URL
     var coverUrl: URL?
     var coverImageData: Data?
-    var status: MediaStatus = MediaStatus.PLANNED
+    var status: MediaStatus = MediaStatus.planned
     var title: String
     var author: String?
     var year: Int?
@@ -37,7 +37,7 @@ struct ExternalMovieItem: ExternalMediaItem {
         rating: String? = nil,
         coverUrl: URL? = nil,
         coverImageData: Data? = nil,
-        status: MediaStatus = .PLANNED,
+        status: MediaStatus = .planned,
         author: String? = nil,
         year: Int? = nil,
         type: VideoType = .MOVIE,
@@ -64,12 +64,12 @@ struct ExternalMovieItem: ExternalMediaItem {
         ExternalMovieItem(
             title: searchText,
             sourceUrl: URL(string: "https://google.com/search?q=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!,
-            sourceName: CommonConstants.DraftSourceType,
+            sourceName: CommonConstants.draftSourceType,
         )
     }
     
     func isDraft() -> Bool {
-        return sourceName == CommonConstants.DraftSourceType
+        return sourceName == CommonConstants.draftSourceType
     }
     
 }

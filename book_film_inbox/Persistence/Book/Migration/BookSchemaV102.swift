@@ -18,7 +18,7 @@ enum BookSchemaV102: VersionedSchema {
         
         var id: UUID
         var itemDescription: String?
-        var isFavourite: Bool = false
+        var isFavorite: Bool = false
         var rating: Double = 0.0
         var sourceUrl: URL
         @Attribute(.externalStorage) var coverImageData: Data?
@@ -32,21 +32,21 @@ enum BookSchemaV102: VersionedSchema {
         public init(
             id: UUID? = UUID(),
             description: String? = nil,
-            isFavourite: Bool? = false,
+            isFavorite: Bool? = false,
             rating: Double? = 0.0,
             sourceUrl: URL,
             coverImageData: Data? = nil,
-            status: String = MediaStatus.PLANNED.rawValue,
+            status: String = MediaStatus.planned.rawValue,
             title: String,
             year: Int? = nil,
             isbn: String?,
             author: String?,
             sourceName: String
         ) {
-            self.id = id!
+            self.id = id ?? UUID()
             self.title = title
             self.itemDescription = description
-            self.isFavourite = isFavourite!
+            self.isFavorite = isFavorite ?? false
             self.rating = rating ?? 0.0
             self.sourceUrl = sourceUrl
             self.coverImageData = coverImageData

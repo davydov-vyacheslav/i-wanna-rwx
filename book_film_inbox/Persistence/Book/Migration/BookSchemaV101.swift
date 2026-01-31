@@ -18,12 +18,12 @@ enum BookSchemaV101: VersionedSchema {
         
         var id: UUID
         var itemDescription: String?
-        var isFavourite: Bool = false
+        var isFavorite: Bool = false
         var rating: Double = 0.0
         var sourceUrl: URL
         var coverUrl: URL?
         @Attribute(.externalStorage) var coverImageData: Data?
-        var status: String = MediaStatus.PLANNED.rawValue
+        var status: String = MediaStatus.planned.rawValue
         var title: String
         var year: Int?
         var type: String = "Book"
@@ -31,25 +31,24 @@ enum BookSchemaV101: VersionedSchema {
         public init(
             id: UUID? = UUID(),
             description: String? = nil,
-            isFavourite: Bool? = false,
+            isFavorite: Bool? = false,
             rating: Double? = 0.0,
             sourceUrl: URL,
             coverUrl: URL? = nil,
             coverImageData: Data? = nil,
-            status: MediaStatus = .PLANNED,
+            status: MediaStatus = .planned,
             title: String,
             year: Int?
         ) {
-            self.id = id!
+            self.id = id ?? UUID()
             self.title = title
             self.itemDescription = description
-            self.isFavourite = isFavourite!
+            self.isFavorite = isFavorite ?? false
             self.rating = rating ?? 0.0
             self.sourceUrl = sourceUrl
             self.coverUrl = coverUrl
             self.coverImageData = coverImageData
             self.status = status.rawValue
-            self.title = title
             self.year = year
         }
         

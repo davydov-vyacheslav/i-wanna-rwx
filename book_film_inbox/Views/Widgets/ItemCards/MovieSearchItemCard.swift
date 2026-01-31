@@ -23,10 +23,10 @@ struct MovieSearchItemCard: View {
                     
                     await viewModel.addItem(MovieItem(
                         description: detailedItem.itemDescription,
-                        isFavourite: detailedItem.isFavourite,
+                        isFavorite: detailedItem.isFavorite,
                         rating: detailedItem.rating ?? "N/A",
                         sourceUrl: detailedItem.sourceUrl,
-                        status: .PLANNED,
+                        status: .planned,
                         title: detailedItem.title,
                         year: detailedItem.year,
                         author: detailedItem.author,

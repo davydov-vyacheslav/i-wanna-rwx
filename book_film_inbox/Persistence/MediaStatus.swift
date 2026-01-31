@@ -8,6 +8,6 @@
 import Foundation
 
 enum MediaStatus: String, Codable {
-    case PLANNED
-    case DONE
+    case planned
+    case done
 }

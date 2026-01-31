@@ -38,7 +38,7 @@ class XDummyBookSearchService: SearchService {
                 rating: Double.random(in: 3.0...5.0),
                 coverUrl: URL(string: "https://picsum.photos/200/300?random=\(index)"),
                 coverImageData: nil,
-                status: MediaStatus.PLANNED,
+                status: MediaStatus.planned,
                 isbn: String(format: "978%010d", Int.random(in: 1000000000...9999999999)),
                 author: ["John Doe", "Jane Smith", "Bob Johnson", "Alice Williams"].randomElement()!,
                 year: Int.random(in: 1990...2024),

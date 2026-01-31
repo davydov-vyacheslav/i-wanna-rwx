@@ -18,11 +18,11 @@ enum MovieSchemaV100: VersionedSchema {
         
         var id: UUID = UUID()
         var itemDescription: String?
-        var isFavourite: Bool = false
+        var isFavorite: Bool = false
         var rating: String
         var sourceUrl: URL
         @Attribute(.externalStorage) var coverImageData: Data?
-        var status: String = MediaStatus.PLANNED.rawValue
+        var status: String = MediaStatus.planned.rawValue
         var title: String
         var mainAuthor: String?
         var year: Int?
@@ -33,11 +33,11 @@ enum MovieSchemaV100: VersionedSchema {
         
         public init(
             description: String? = nil,
-            isFavourite: Bool? = false,
+            isFavorite: Bool? = false,
             rating: String,
             sourceUrl: URL,
             coverImageData: Data? = nil,
-            status: MediaStatus = .PLANNED,
+            status: MediaStatus = .planned,
             title: String,
             year: Int? = nil,
             author: String?,
@@ -48,7 +48,7 @@ enum MovieSchemaV100: VersionedSchema {
         ) {
             self.title = title
             self.itemDescription = description
-            self.isFavourite = isFavourite!
+            self.isFavorite = isFavorite ?? false
             self.rating = rating
             self.sourceUrl = sourceUrl
             self.coverImageData = coverImageData

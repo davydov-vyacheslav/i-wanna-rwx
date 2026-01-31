@@ -26,6 +26,7 @@ struct IconGenerator {
     
     let icons = ["📦", "📁", "🔧", "📎", "🧩", "🗂️", "🔒", "⚙️"]
 
+    private init () { }
     
     func suggestIcon(for name: String) -> String {
         if let icon = categorizedIcon(for: name) {

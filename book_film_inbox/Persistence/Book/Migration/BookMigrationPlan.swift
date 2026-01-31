@@ -34,18 +34,18 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                let newStatus: MediaStatus
                switch oldBook.status {
                case "DONE", "COMPLETED":
-                   newStatus = .DONE
+                   newStatus = .done
                case "PENDING", "IN_PROGRESS":
-                   newStatus = .PLANNED
+                   newStatus = .planned
                default:
-                   newStatus = .PLANNED
+                   newStatus = .planned
                }
                 
                 // Create new book with migrated data
                 let newBook = BookSchemaV101.BookItem(
                     id: oldBook.id,
                     description: oldBook.itemDescription,
-                    isFavourite: oldBook.isFavourite,
+                    isFavorite: oldBook.isFavorite,
                     rating: oldBook.rating,
                     sourceUrl: oldBook.sourceUrl,
                     coverImageData: oldBook.coverImageData,
@@ -55,10 +55,6 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                 )
                 
                 context.insert(newBook)
-            }
-            
-            // Delete old books
-            for oldBook in books {
                 context.delete(oldBook)
             }
             
@@ -84,7 +80,7 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                 let newBook = BookSchemaV102.BookItem(
                     id: oldBook.id,
                     description: oldBook.itemDescription,
-                    isFavourite: oldBook.isFavourite,
+                    isFavorite: oldBook.isFavorite,
                     rating: oldBook.rating,
                     sourceUrl: oldBook.sourceUrl,
                     coverImageData: oldBook.coverImageData,
@@ -93,17 +89,12 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                     year: oldBook.year,
                     isbn: nil,
                     author: nil,
-                    sourceName: CommonConstants.DraftSourceType
+                    sourceName: CommonConstants.draftSourceType
                 )
                 
                 context.insert(newBook)
-            }
-            
-            // Delete old books
-            for oldBook in books {
                 context.delete(oldBook)
             }
-            
             
             try context.save()
         },

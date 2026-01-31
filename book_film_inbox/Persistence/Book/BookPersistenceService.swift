@@ -20,16 +20,16 @@ class BookPersistenceService {
     // MARK: - Main methods
     func findByType(_ filter: FilterType) -> [BookItem] {
         var predicate: Predicate<BookItem>?
-        let pendingState = MediaStatus.PLANNED.rawValue
+        let pendingState = MediaStatus.planned.rawValue
         
         switch filter {
-        case .ALL:
+        case .all:
             predicate = nil // No filter, fetch all
-        case .FAVOURITES:
+        case .favorite:
             predicate = #Predicate<BookItem> { item in
-                item.isFavourite == true
+                item.isFavorite == true
             }
-        case .PLANNED:
+        case .planned:
             predicate = #Predicate<BookItem> { item in
                 item.status == pendingState
             }
@@ -64,7 +64,7 @@ class BookPersistenceService {
     }
     
     func toggleFavorite(_ item: BookItem) {
-        item.isFavourite.toggle()
+        item.isFavorite.toggle()
         saveContext()
     }
     

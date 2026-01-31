@@ -8,17 +8,17 @@
 import Foundation
 
 enum FilterType: String, CaseIterable {
-    case ALL
-    case FAVOURITES
-    case PLANNED
+    case all
+    case favorite
+    case planned
     
     var iconName: String {
         switch self {
-        case .ALL:
+        case .all:
             return "list.bullet"
-        case .FAVOURITES:
+        case .favorite:
             return "heart.fill"
-        case .PLANNED:
+        case .planned:
             return "clock"
         }
     }

@@ -19,7 +19,7 @@ enum BookSchemaV100: VersionedSchema {
     class BookItem {
         @Attribute(.unique) var id: UUID
         var itemDescription: String?
-        var isFavourite: Bool
+        var isFavorite: Bool
         var rating: Double
         var sourceUrl: URL
         var coverUrl: URL?  // Will be removed
@@ -29,13 +29,13 @@ enum BookSchemaV100: VersionedSchema {
         var year: Int?
         var type: String  // Will be removed
         
-        init(id: UUID = UUID(), itemDescription: String? = nil, isFavourite: Bool = false,
+        init(id: UUID = UUID(), itemDescription: String? = nil, isFavorite: Bool = false,
              rating: Double = 0.0, sourceUrl: URL, coverUrl: URL? = nil,
              coverImageData: Data? = nil, status: String = "PENDING",
              title: String, year: Int? = nil, type: String = "Book") {
             self.id = id
             self.itemDescription = itemDescription
-            self.isFavourite = isFavourite
+            self.isFavorite = isFavorite
             self.rating = rating
             self.sourceUrl = sourceUrl
             self.coverUrl = coverUrl

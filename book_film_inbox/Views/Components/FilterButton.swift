@@ -56,7 +56,7 @@ struct FilterButton: View {
 
 
 #Preview {
-    FilterButton(iconName: FilterType.ALL.iconName, count: 3, isSelected: false, isFavorite: true) {
+    FilterButton(iconName: FilterType.all.iconName, count: 3, isSelected: false, isFavorite: true) {
         
     }
 }

@@ -20,7 +20,7 @@ final class ReminderPersistenceController {
         do {
             let configuration = ModelConfiguration(
                 url: URL.applicationSupportDirectory
-                    .appending(path: "reminders2.store") // FIXME
+                    .appending(path: "reminders.store")
             )
 
             container = try ModelContainer(

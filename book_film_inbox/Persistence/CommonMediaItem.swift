@@ -16,19 +16,19 @@ protocol CommonMediaItem {
     var status: String { get set }
     var coverImageData: Data? { get }
     var year: Int? { get }
-    var isFavourite: Bool { get set }
+    var isFavorite: Bool { get set }
 
 }
 
 extension CommonMediaItem {
 
     var mediaStatus: MediaStatus {
-        get { MediaStatus(rawValue: status) ?? .PLANNED }
+        get { MediaStatus(rawValue: status) ?? .planned }
         set { status = newValue.rawValue }
     }
 
     func isDraft() -> Bool {
-        return sourceName == CommonConstants.DraftSourceType
+        return sourceName == CommonConstants.draftSourceType
     }
 }
 

@@ -84,6 +84,40 @@ enum ReminderSchemaV100: VersionedSchema {
             case years = "years"
         }
         
+        enum ExpirationStatus: String, Codable, CaseIterable {
+            case lifetime
+            case active
+            case expiringSoon
+            case expiringCritical
+            case expired
+            
+            static func of(_ item: ReminderItem) -> ExpirationStatus {
+                if item.renewalType == RenewalType.lifetime.rawValue {
+                    return .lifetime
+                }
+                
+                guard let days = item.daysUntilExpiry else {
+                    return .active
+                }
+                
+                if days < 0 {
+                    return .expired
+                }
+                
+                guard let reminderDays = item.reminderDays else {
+                    return .active
+                }
+                
+                if days <= reminderDays {
+                    return .expiringCritical
+                } else if days <= (reminderDays * 2) {
+                    return .expiringSoon
+                }
+                
+                return .active
+            }
+        }
+        
         // MARK: - Computed Properties
         
         var daysUntilExpiry: Int? {
@@ -93,39 +127,24 @@ enum ReminderSchemaV100: VersionedSchema {
             return components.day
         }
         
+        var expirationStatus: ExpirationStatus {
+            ExpirationStatus.of(self)
+        }
+
         var isExpired: Bool {
-            guard let days = daysUntilExpiry else { return false }
-            return days < 0
+            expirationStatus == .expired
         }
         
         var isExpiringSoon: Bool {
-            guard
-                let days = daysUntilExpiry,
-                let reminderDays = reminderDays
-            else {
-                return false
-            }
-            return days > 0 && days <= reminderDays * 2
+            expirationStatus == .expiringSoon
         }
 
         var isExpiringCriticalSoon: Bool {
-            guard
-                let days = daysUntilExpiry,
-                let reminderDays = reminderDays
-            else {
-                return false
-            }
-            return days > 0 && days <= reminderDays
+            expirationStatus == .expiringCritical
         }
         
         var isExpiringOrExpired: Bool {
-            guard
-                let days = daysUntilExpiry,
-                let reminderDays = reminderDays
-            else {
-                return false
-            }
-            return days <= reminderDays * 2
+            expirationStatus == .expired || expirationStatus == .expiringSoon || expirationStatus == .expiringCritical
         }
 
     }

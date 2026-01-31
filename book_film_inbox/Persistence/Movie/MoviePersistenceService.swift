@@ -21,16 +21,16 @@ class MoviePersistenceService {
     // MARK: - Main methods
     func findByType(_ filter: FilterType) -> [MovieItem] {
         var predicate: Predicate<MovieItem>?
-        let pendingState = MediaStatus.PLANNED.rawValue
+        let pendingState = MediaStatus.planned.rawValue
         
         switch filter {
-        case .ALL:
+        case .all:
             predicate = nil // No filter, fetch all
-        case .FAVOURITES:
+        case .favorite:
             predicate = #Predicate<MovieItem> { item in
-                item.isFavourite == true
+                item.isFavorite == true
             }
-        case .PLANNED:
+        case .planned:
             predicate = #Predicate<MovieItem> { item in
                 item.status == pendingState
             }
@@ -65,7 +65,7 @@ class MoviePersistenceService {
     }
     
     func toggleFavorite(_ item: MovieItem) {
-        item.isFavourite.toggle()
+        item.isFavorite.toggle()
         saveContext()
     }
     

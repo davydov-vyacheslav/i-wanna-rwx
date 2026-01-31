@@ -15,7 +15,7 @@ class SettingsSourceStore: ObservableObject {
     @Published var availableBookSources: [SettingsSourceEntity] = [ ]
     @Published var availableVideoSources: [SettingsSourceEntity] = [ ]
 
-    init() {
+    private init() {
         reloadSources()
     }
     
