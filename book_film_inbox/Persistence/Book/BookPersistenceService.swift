@@ -22,6 +22,7 @@ class BookPersistenceService: MediaPersistenceService {
     func findByType(_ filter: FilterType) -> [BookItem] {
         var predicate: Predicate<BookItem>?
         let pendingState = MediaStatus.planned.rawValue
+        let draftServiceName = DraftBookService.serviceName
         
         switch filter {
         case .all:
@@ -33,6 +34,10 @@ class BookPersistenceService: MediaPersistenceService {
         case .planned:
             predicate = #Predicate<BookItem> { item in
                 item.statusRaw == pendingState
+            }
+        case .draft:
+            predicate = #Predicate<BookItem> { item in
+                item.sourceName == draftServiceName
             }
         }
         
@@ -47,10 +52,6 @@ class BookPersistenceService: MediaPersistenceService {
             Log.db.error("Error fetching books by filter: \(error)")
             return []
         }
-    }
-    
-    func count(_ filter: FilterType) -> Int {
-        findByType(filter).count
     }
     
     func add(_ item: BookItem) {

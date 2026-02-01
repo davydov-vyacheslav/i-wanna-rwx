@@ -23,6 +23,7 @@ class MoviePersistenceService: MediaPersistenceService {
     func findByType(_ filter: FilterType) -> [MovieItem] {
         var predicate: Predicate<MovieItem>?
         let pendingState = MediaStatus.planned.rawValue
+        let draftServiceName = DraftMovieService.serviceName
         
         switch filter {
         case .all:
@@ -34,6 +35,10 @@ class MoviePersistenceService: MediaPersistenceService {
         case .planned:
             predicate = #Predicate<MovieItem> { item in
                 item.statusRaw == pendingState
+            }
+        case .draft:
+            predicate = #Predicate<MovieItem> { item in
+                item.sourceName == draftServiceName
             }
         }
         
@@ -48,10 +53,6 @@ class MoviePersistenceService: MediaPersistenceService {
             Log.db.error("Error fetching Movies by filter: \(error)")
             return []
         }
-    }
-    
-    func count(_ filter: FilterType) -> Int {
-        findByType(filter).count // FIXME: can be removed and used count in called method
     }
     
     func add(_ item: MovieItem) {

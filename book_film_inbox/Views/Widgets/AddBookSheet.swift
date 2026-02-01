@@ -17,7 +17,6 @@ struct AddBookSheet: View {
     @State private var results: [ExternalBookItem] = []
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
-    @State private var hasSearched = false
     @State private var selectedService: SettingsSourceEntity? = nil
     
     @StateObject private var settingsSearchStore = SettingsSourceStore.shared
@@ -44,7 +43,6 @@ struct AddBookSheet: View {
                     availableServices: availableServices,
                     onClear: {
                         results = []
-                        hasSearched = false
                     },
                     isSearchFieldFocused: $isSearchFieldFocused
                 )
@@ -85,7 +83,7 @@ struct AddBookSheet: View {
     private var resultsView: some View {
         if isSearching {
             searchingState
-        } else if !hasSearched && searchText.isEmpty {
+        } else if searchText.isEmpty {
             emptyState
         } else {
             resultsList
@@ -141,17 +139,19 @@ struct AddBookSheet: View {
             }
             
             // Manual add section
-            Section {
-                BookSearchItemCard(
-                    item: DraftBookService.shared.single(query: searchText),
-                    isInLibrary: false,
-                    selectedService: nil
-                )
-            } header: {
-                Text(".label.book.cant_find")
-                    .textCase(nil)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+            if !searchText.isEmpty {
+                Section {
+                    BookSearchItemCard(
+                        item: DraftBookService.shared.single(query: searchText),
+                        isInLibrary: false,
+                        selectedService: nil
+                    )
+                } header: {
+                    Text(".label.book.cant_find")
+                        .textCase(nil)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -224,7 +224,6 @@ struct AddBookSheet: View {
             await MainActor.run {
                 results = []
                 isSearching = false
-                hasSearched = true
             }
             showToastMessage("Service not available")
             return
@@ -242,13 +241,11 @@ struct AddBookSheet: View {
             await MainActor.run {
                 results = bookResults
                 isSearching = false
-                hasSearched = true
             }
         } catch {
             await MainActor.run {
                 results = []
                 isSearching = false
-                hasSearched = true
             }
             showToastMessage("Search error: \(error.localizedDescription)")
         }

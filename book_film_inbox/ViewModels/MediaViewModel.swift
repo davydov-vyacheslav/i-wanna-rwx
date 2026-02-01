@@ -24,7 +24,7 @@ where Persistence.Item == Item
     }
 
     func count(filter: FilterType) -> Int {
-        storageService.count(filter)
+        filteredItems(filter: filter).count
     }
 
     func addItem(_ item: Item) {

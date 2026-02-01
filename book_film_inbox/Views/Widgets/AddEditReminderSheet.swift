@@ -64,8 +64,11 @@ struct AddEditReminderSheet: View {
                     }
 
                     TextField(".label.reminder.name", text: $name)
+                        .limitText($name, to: 50)
                     TextField(".label.reminder.description", text: $description)
-
+                        .limitText($description, to: 100)
+                    TextField(".label.reminder.price", text: $cost)
+                        .limitText($cost, to: 10)
                 }
 
                 // Renewal Type
@@ -91,7 +94,7 @@ struct AddEditReminderSheet: View {
                     }
                     
                     if renewalType != .lifetime {
-                        Stepper(".label.reminder.remind_in_days \(reminderDays)", value: $reminderDays, in: 1...90)
+                        Stepper(".label.reminder.remind_in_days \(reminderDays)", value: $reminderDays, in: 1...14)
                         
                         DatePicker(
                             ".label.reminder.renewal_date",
@@ -110,11 +113,6 @@ struct AddEditReminderSheet: View {
                     }
 
                 }
-                
-                Section(header: Text(".label.reminder.price")) {
-                    TextField(".placeholder.reminder.price", text: $cost)
-                }
-
                 
                 Section(header: Text(".label.reminder.notes")) {
                     TextEditor(text: $notes)
@@ -179,4 +177,15 @@ struct AddEditReminderSheet: View {
         dismiss()
     }
 
+}
+
+
+extension View {
+    func limitText(_ text: Binding<String>, to limit: Int) -> some View {
+        self.onChange(of: text.wrappedValue) { oldValue, newValue in
+            if newValue.count > limit {
+                text.wrappedValue = String(newValue.prefix(limit))
+            }
+        }
+    }
 }

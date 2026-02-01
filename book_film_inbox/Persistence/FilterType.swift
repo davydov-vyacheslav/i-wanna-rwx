@@ -11,6 +11,7 @@ enum FilterType: String, CaseIterable {
     case all
     case favorite
     case planned
+    case draft
     
     var iconName: String {
         switch self {
@@ -20,6 +21,8 @@ enum FilterType: String, CaseIterable {
             return "heart.fill"
         case .planned:
             return "clock"
+        case .draft:
+            return "pencil.and.outline"
         }
     }
 }

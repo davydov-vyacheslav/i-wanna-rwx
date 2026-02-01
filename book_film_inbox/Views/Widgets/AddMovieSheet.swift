@@ -17,7 +17,6 @@ struct AddMovieSheet: View {
     @State private var results: [ExternalMovieItem] = []
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
-    @State private var hasSearched = false
     @State private var selectedService: SettingsSourceEntity? = nil
     
     @StateObject private var settingsSearchStore = SettingsSourceStore.shared
@@ -44,7 +43,6 @@ struct AddMovieSheet: View {
                     availableServices: availableServices,
                     onClear: {
                         results = []
-                        hasSearched = false
                     },
                     isSearchFieldFocused: $isSearchFieldFocused
                 )
@@ -85,7 +83,7 @@ struct AddMovieSheet: View {
     private var resultsView: some View {
         if isSearching {
             searchingState
-        } else if !hasSearched && searchText.isEmpty {
+        } else if searchText.isEmpty {
             emptyState
         } else {
             resultsList
@@ -141,17 +139,19 @@ struct AddMovieSheet: View {
             }
             
             // Manual add section
-            Section {
-                MovieSearchItemCard(
-                    item: DraftMovieService.shared.single(query: searchText),
-                    isInLibrary: false,
-                    selectedService: nil
-                )
-            } header: {
-                Text(".label.movie.cant_find")
-                    .textCase(nil)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+            if !searchText.isEmpty {
+                Section {
+                    MovieSearchItemCard(
+                        item: DraftMovieService.shared.single(query: searchText),
+                        isInLibrary: false,
+                        selectedService: nil
+                    )
+                } header: {
+                    Text(".label.movie.cant_find")
+                        .textCase(nil)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -224,7 +224,6 @@ struct AddMovieSheet: View {
             await MainActor.run {
                 results = []
                 isSearching = false
-                hasSearched = true
             }
             showToastMessage("Service not available")
             return
@@ -242,13 +241,11 @@ struct AddMovieSheet: View {
             await MainActor.run {
                 results = moviesResults
                 isSearching = false
-                hasSearched = true
             }
         } catch {
             await MainActor.run {
                 results = []
                 isSearching = false
-                hasSearched = true
             }
             showToastMessage("Search error: \(error.localizedDescription)")
         }

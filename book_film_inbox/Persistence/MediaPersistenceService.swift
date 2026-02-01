@@ -8,7 +8,6 @@
 protocol MediaPersistenceService {
     associatedtype Item
     func findByType(_ filter: FilterType) -> [Item]
-    func count(_ filter: FilterType) -> Int
     func add(_ item: Item)
     func delete(_ item: Item)
     func toggleFavorite(_ item: Item)

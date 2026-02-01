@@ -33,6 +33,7 @@ struct FilterButton: View {
             VStack(spacing: 4) {
                 Image(systemName: iconName)
                     .font(.callout)
+                    .frame(width: 16, height: 16)
                 Text(verbatim: "\(count)")
                     .font(.caption)
             }

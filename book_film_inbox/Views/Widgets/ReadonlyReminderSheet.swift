@@ -30,14 +30,25 @@ struct ReadonlyReminderSheet: View {
                                 .font(.title)
                                 .opacity(item.isExpired ? 0.6 : 1)
                             
-                            StatusBadge(
-                                icon: item.type.icon,
-                                text: item.type.displayName,
-                                color: Color.gray,
-                            )
+                            HStack(spacing: 16) {
+                                StatusBadge(
+                                    icon: item.type.icon,
+                                    text: item.type.displayName,
+                                    color: Color.gray,
+                                )
+                                
+                                Spacer()
+
+                                if !item.cost.isEmpty {
+                                    StatusBadge(
+                                        icon: "dollarsign.circle",
+                                        textVerbatim: item.cost,
+                                        color: Color.green,
+                                    )
+                                }
+                            }
                         }
                         
-                        Spacer()
                     }
                     .padding(.bottom, 8)
                     
@@ -118,7 +129,7 @@ struct ReadonlyReminderSheet: View {
                             showingEditSheet = true
                         } label: {
                             Label(".button.edit", systemImage: "pencil")
-                                .font(.headline)
+                                .font(.subheadline)
                                 .frame(maxWidth: .infinity, minHeight: 32)
                         }
                         .buttonStyle(.bordered)

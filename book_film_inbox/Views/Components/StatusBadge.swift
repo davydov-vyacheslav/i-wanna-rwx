@@ -10,13 +10,30 @@ import SwiftUI
 struct StatusBadge: View {
     let icon: String
     let text: LocalizedStringKey?
+    let textVerbatim: String?
     let color: Color
+
+    init(icon: String, text: LocalizedStringKey?, color: Color) {
+        self.icon = icon
+        self.text = text
+        self.textVerbatim = nil
+        self.color = color
+    }
+
+    init(icon: String, textVerbatim: String?, color: Color) {
+        self.icon = icon
+        self.text = nil
+        self.textVerbatim = textVerbatim
+        self.color = color
+    }
     
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
             
-            if let key = text {
+            if let verbatim = textVerbatim {
+                Text(verbatim: verbatim)
+            } else if let key = text {
                 Text(key)
             }
         }

@@ -51,7 +51,7 @@ struct ReminderItemCard: View {
                             text: item.isExpired ? ".label.reminder.expired" : ".label.reminder.expired_in_days \(days)",
                             color: item.statusColor
                         )
-                    } else { // FIXME
+                    } else {
                         StatusBadge(
                             icon: "infinity",
                             text: nil,
