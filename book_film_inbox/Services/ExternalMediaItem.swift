@@ -9,10 +9,6 @@ import Foundation
 
 protocol ExternalMediaItem: Identifiable {
     
-    // mostly for draft item creation
-    init(title: String, sourceUrl: URL, sourceName: String)
-    func isDraft() -> Bool
-
     var itemDescription: String? { get }
     var title: String { get }
     var sourceUrl: URL { get }
@@ -25,22 +21,9 @@ protocol ExternalMediaItem: Identifiable {
 }
 
 extension ExternalMediaItem {
-    func isDraft() -> Bool {
-        sourceName == CommonConstants.draftSourceType
-    }
-    
+
     var ratingText : String {
         rating.map { String(format: "%.1f", $0) } ?? "N/A"
-    }
-    
-    static func draft(searchText: String) -> Self {
-        let encoded = searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-
-        return Self(
-            title: searchText,
-            sourceUrl: URL(string: "https://google.com/search?q=\(encoded)")!,
-            sourceName: CommonConstants.draftSourceType
-        )
     }
 
 }

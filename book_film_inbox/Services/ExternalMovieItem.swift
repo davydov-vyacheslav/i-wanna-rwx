@@ -26,16 +26,6 @@ struct ExternalMovieItem: ExternalMediaItem {
     var sourceName: String
 
     public init(
-        title: String,
-        sourceUrl: URL,
-        sourceName: String,
-    ) {
-        self.title = title
-        self.sourceUrl = sourceUrl
-        self.sourceName = sourceName
-    }
-    
-    public init(
         id: UUID = UUID(),
         title: String,
         sourceUrl: URL,

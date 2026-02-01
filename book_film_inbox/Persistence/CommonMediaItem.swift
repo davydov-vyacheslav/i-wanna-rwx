@@ -28,10 +28,6 @@ extension CommonMediaItem {
         set { statusRaw = newValue.rawValue }
     }
 
-    func isDraft() -> Bool {
-        return sourceName == CommonConstants.draftSourceType
-    }
-    
     var ratingText : String {
         rating == 0 ? "N/A" : String(format: "%.1f", rating)
     }

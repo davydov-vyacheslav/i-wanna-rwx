@@ -143,7 +143,7 @@ struct AddBookSheet: View {
             // Manual add section
             Section {
                 BookSearchItemCard(
-                    item: ExternalBookItem.draft(searchText: searchText),
+                    item: DraftBookService.shared.single(query: searchText),
                     isInLibrary: false,
                     selectedService: nil
                 )

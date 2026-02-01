@@ -14,8 +14,8 @@ class TMDbService: SearchService {
     
     static var serviceName: String = "TMDb"
     static var requiresToken: Bool = true
-    static var tokenPlaceholder: String? = "Enter API Key"
-    static var helpURL: String? = "https://www.themoviedb.org/settings/api"
+    static var tokenPlaceholder: String? = String(localized: ".placeholder.services.tmdb_token")
+    static var helpURL: String? = "https://developer.themoviedb.org/docs/faq"
 
     private var tmdbClient: TMDbClient
     private var cachedImagesConfig: ImagesConfiguration?

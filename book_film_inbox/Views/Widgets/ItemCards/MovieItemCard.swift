@@ -10,9 +10,7 @@ import Kingfisher
 
 struct MovieItemCard: View {
     @EnvironmentObject var viewModel: MoviesViewModel
-    @EnvironmentObject var appState: AppState
     let item: MovieItem
-    @State private var showingProgressSheet = false
     @State private var showDescription = false
     
     var body: some View {
@@ -40,7 +38,7 @@ struct MovieItemCard: View {
                     HStack {
                         
                         Image(systemName: item.type == VideoType.tvSeries ? "tv" : "film")
-                            .foregroundColor(item.isDraft() ? .gray : .orange)
+                            .foregroundColor(DraftMovieService.shared.isDraft(item: item) ? .gray : .orange)
                         
                         Text(item.title)
                             .font(.headline)
@@ -103,7 +101,7 @@ struct MovieItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text(item.isDraft() ? ".label.common_media.draft.no_author" : ".label.common_media.no_author")
+                        Text(".label.common_media.no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -121,8 +119,18 @@ struct MovieItemCard: View {
                     }
                 }
                 .onLongPressGesture(minimumDuration: 0.5) {
-                    if let description = item.itemDescription {
-                        appState.showDescriptionOverlay(description)
+                    if item.itemDescription != nil {
+                        showDescription = true
+                    }
+                }
+                .sheet(isPresented: $showDescription) {
+                    ScrollView {
+                        Text(item.itemDescription ?? "")
+                            .padding(24)
+                    }
+                    .presentationDetents([.medium, .large])
+                    .onTapGesture {
+                        showDescription = false
                     }
                 }
                 

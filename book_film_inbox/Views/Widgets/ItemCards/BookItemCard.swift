@@ -10,9 +10,7 @@ import Kingfisher
 
 struct BookItemCard: View {
     @EnvironmentObject var viewModel: BooksViewModel
-    @EnvironmentObject var appState: AppState
     let item: BookItem
-    @State private var showingProgressSheet = false
     @State private var showDescription = false
     
     var body: some View {
@@ -39,7 +37,7 @@ struct BookItemCard: View {
                     // Title
                     HStack {
                         Image(systemName: "book")
-                            .foregroundColor(item.isDraft() ? .gray : .orange)
+                            .foregroundColor(DraftBookService.shared.isDraft(item: item) ? .gray : .orange)
                         
                         Text(item.title)
                             .font(.headline)
@@ -101,7 +99,7 @@ struct BookItemCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text(item.isDraft() ? ".label.common_media.draft.no_author" : ".label.common_media.no_author")
+                        Text(".label.common_media.no_author")
                             .foregroundColor(.secondary)
                             .font(.caption)
                     }
@@ -119,8 +117,18 @@ struct BookItemCard: View {
                     }
                 }
                 .onLongPressGesture(minimumDuration: 0.5) {
-                    if let description = item.itemDescription {
-                        appState.showDescriptionOverlay(description)
+                    if item.itemDescription != nil {
+                        showDescription = true
+                    }
+                }
+                .sheet(isPresented: $showDescription) {
+                    ScrollView {
+                        Text(item.itemDescription ?? "")
+                            .padding(24)
+                    }
+                    .presentationDetents([.medium, .large])
+                    .onTapGesture {
+                        showDescription = false
                     }
                 }
                 
@@ -156,7 +164,7 @@ struct BookItemCard: View {
         year: nil,
         isbn: "NONE",
         author: "N/A",
-        sourceName: CommonConstants.draftSourceType))
+        sourceName: DraftBookService.serviceName))
     BookItemCard(item: BookItem(
         description: nil,
         isFavorite: false,

@@ -8,22 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selectedTab = 1
+    @State private var selectedTab = 0
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            MoviesView()
-                .tabItem {
-                    Label(".title.movie.list", systemImage: "film")
-                }
-                .tag(0)
-            
             BooksView()
                 .tabItem {
                     Label(".title.book.list", systemImage: "book")
                 }
-                .tag(1)
+                .tag(0)
 
+            MoviesView()
+                .tabItem {
+                    Label(".title.movie.list", systemImage: "film")
+                }
+                .tag(1)
+            
             RemindersView()
                 .tabItem {
                     Label(".title.reminder.list", systemImage: "repeat")

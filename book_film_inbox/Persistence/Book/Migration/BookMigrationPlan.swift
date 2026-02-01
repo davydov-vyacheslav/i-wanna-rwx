@@ -89,7 +89,7 @@ enum BookMigrationPlan: SchemaMigrationPlan {
                     year: oldBook.year,
                     isbn: nil,
                     author: nil,
-                    sourceName: CommonConstants.draftSourceType
+                    sourceName: DraftBookService.serviceName
                 )
                 
                 context.insert(newBook)

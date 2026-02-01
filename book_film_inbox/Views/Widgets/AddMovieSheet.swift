@@ -143,7 +143,7 @@ struct AddMovieSheet: View {
             // Manual add section
             Section {
                 MovieSearchItemCard(
-                    item: ExternalMovieItem.draft(searchText: searchText),
+                    item: DraftMovieService.shared.single(query: searchText),
                     isInLibrary: false,
                     selectedService: nil
                 )

@@ -26,16 +26,6 @@ struct ExternalBookItem: ExternalMediaItem {
         title: String,
         sourceUrl: URL,
         sourceName: String,
-    ) {
-        self.title = title
-        self.sourceUrl = sourceUrl
-        self.sourceName = sourceName
-    }
-    
-    public init(
-        title: String,
-        sourceUrl: URL,
-        sourceName: String,
         description: String? = nil,
         rating: Double? = nil,
         coverUrl: URL? = nil,
