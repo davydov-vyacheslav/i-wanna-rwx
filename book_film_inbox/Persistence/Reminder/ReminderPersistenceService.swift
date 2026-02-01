@@ -18,6 +18,14 @@ class ReminderPersistenceService {
         self.modelContext = context
     }
     
+    func findById(_ itemId: UUID) -> ReminderItem? {
+        let predicate = #Predicate<ReminderItem> { $0.id == itemId }
+        let descriptor = FetchDescriptor(predicate: predicate)
+        
+        guard let item = try? modelContext.fetch(descriptor).first else { return nil }
+        return item
+    }
+    
     func findByTypeAndExpiration(_ typeFilter: ReminderType?, _ isExpiring: Bool, _ text: String) -> [ReminderItem] {
 
         

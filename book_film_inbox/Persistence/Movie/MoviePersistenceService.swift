@@ -48,7 +48,8 @@ class MoviePersistenceService: MediaPersistenceService {
         )
         
         do {
-            return try modelContext.fetch(descriptor)
+            let results = try modelContext.fetch(descriptor)
+            return results
         } catch {
             Log.db.error("Error fetching Movies by filter: \(error)")
             return []
@@ -76,6 +77,8 @@ class MoviePersistenceService: MediaPersistenceService {
     }
 
     func isInLibrary(sourceId: Int?, sourceName: String) -> Bool {
+        guard let sourceId else { return false }
+        
         let predicate = #Predicate<MovieItem> { movie in
             movie.sourceId == sourceId &&
             movie.sourceName == sourceName

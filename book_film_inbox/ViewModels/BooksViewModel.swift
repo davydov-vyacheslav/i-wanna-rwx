@@ -5,6 +5,7 @@
 //  Created by Slava Davydov on 23.11.2025.
 //
 
+import SwiftData
 import Foundation
 import Combine
 import os
@@ -12,7 +13,7 @@ import os
 final class BooksViewModel: MediaViewModel<BookItem, BookPersistenceService> {
     init() {
         super.init(
-            storageService: BookPersistenceService(context: BookPersistenceController.shared.context)
+            storageService: BookPersistenceService(context: ModelContext(PersistenceController.shared.container))
         )
     }
 

@@ -20,8 +20,7 @@ class KeychainHelper {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
             kSecValueData as String: data,
-// FIXME:           kSecAttrSynchronizable as String: kCFBooleanTrue!,
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked
+            kSecAttrSynchronizable as String: true
         ]
         
         // Delete any existing item
@@ -40,7 +39,8 @@ class KeychainHelper {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
             kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecAttrSynchronizable as String: true
         ]
         
         var result: AnyObject?
@@ -62,7 +62,8 @@ class KeychainHelper {
     func delete(key: String) -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key
+            kSecAttrAccount as String: key,
+            kSecAttrSynchronizable as String: true
         ]
         
         let status = SecItemDelete(query as CFDictionary)

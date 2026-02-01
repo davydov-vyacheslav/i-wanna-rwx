@@ -109,14 +109,14 @@ struct AddEditReminderSheet: View {
                     Section(header: Text(".label.reminder.license_key")) {
                         TextEditor(text: $licenseKey)
                             .font(.system(.body, design: .monospaced))
-                            .frame(minHeight: 100)
+                            .frame(height: 100)
                     }
 
                 }
                 
                 Section(header: Text(".label.reminder.notes")) {
                     TextEditor(text: $notes)
-                        .frame(minHeight: 80)
+                        .frame(height: 80)
                 }
 
             }

@@ -8,6 +8,8 @@
 import SwiftData
 import os
 
+
+// TODO: when time comes - migrate it to common MigrationPlan with all entities
 enum BookMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
         [BookSchemaV100.self, BookSchemaV101.self, BookSchemaV102.self]

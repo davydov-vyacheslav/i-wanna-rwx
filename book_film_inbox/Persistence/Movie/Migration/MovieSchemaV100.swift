@@ -58,6 +58,7 @@ enum MovieSchemaV100: VersionedSchema {
             self.sourceName = sourceName
             self.typeRaw = type.rawValue
             self.originalTitle = originalTitle
+            self.sourceId = sourceId
         }
      
         

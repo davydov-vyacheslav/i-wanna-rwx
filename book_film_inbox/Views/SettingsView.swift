@@ -10,7 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var viewModel: SettingsViewModel
     @StateObject private var settingsSearchStore = SettingsSourceStore.shared
-    private let walletAddress = "0xB06095188DdCB0e1Acd8fDd16FaC96Fbac3d6882"
+    private let walletAddress = "0x32185d5e0ab4def89d5fdfd1ca02e52bddc02b85"
     private let projectLink = "https://github.com/davydov-vyacheslav/i-wanna-rwx"
     
     var body: some View {

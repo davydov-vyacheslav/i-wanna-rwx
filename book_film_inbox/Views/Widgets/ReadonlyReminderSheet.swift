@@ -124,17 +124,18 @@ struct ReadonlyReminderSheet: View {
                     ReminderSimpleInfoField(title: ".label.reminder.notes", text: item.notes)
                     
                     // Action Buttons
-                    HStack(spacing: 12) {
+                    HStack(spacing: 8) {
                         Button {
                             showingEditSheet = true
                         } label: {
                             Label(".button.edit", systemImage: "pencil")
-                                .font(.subheadline)
+                                .font(.headline)
                                 .frame(maxWidth: .infinity, minHeight: 32)
                         }
                         .buttonStyle(.bordered)
                         .tint(.blue)
                         .controlSize(.large)
+                        .lineLimit(1)
                         
                         Button(role: .destructive) {
                             showingDeleteAlert = true

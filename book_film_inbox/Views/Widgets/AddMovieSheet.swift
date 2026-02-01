@@ -185,7 +185,9 @@ struct AddMovieSheet: View {
         isSearching = true
         
         searchTask = Task {
-            try? await Task.sleep(nanoseconds: 500_000_000)
+            if selectedService != nil {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+            }
             
             if !Task.isCancelled {
                 await performSearch(query: newValue)
@@ -225,7 +227,6 @@ struct AddMovieSheet: View {
                 results = []
                 isSearching = false
             }
-            showToastMessage("Service not available")
             return
         }
         

@@ -58,6 +58,40 @@ enum ReminderSchemaV100: VersionedSchema {
 
         // MARK: - Computed Properties
         
+        var nextExpiryDate : Date? {
+            
+            let calendar: Calendar = .current
+            let renewedExpirationDate: Date?
+            guard let expiryDate = expiryDate else { return nil }
+            
+            switch renewalType {
+            case .monthly:
+                renewedExpirationDate = calendar.date(
+                    byAdding: .month,
+                    value: 1,
+                    to: expiryDate
+                )
+
+            case .yearly:
+                renewedExpirationDate = calendar.date(
+                    byAdding: .year,
+                    value: 1,
+                    to: expiryDate
+                )
+
+            case .custom:
+                renewedExpirationDate = calendar.date(
+                    byAdding: customPeriodUnit?.asCalendarUnit ?? .day,
+                    value: customPeriodValue ?? 0,
+                    to: expiryDate
+                )
+            
+            default: renewedExpirationDate = expiryDate
+            }
+
+            return renewedExpirationDate
+        }
+        
         var daysUntilExpiry: Int? {
             guard renewalType != RenewalTypeV100.lifetime, let expiryDate = expiryDate else { return nil }
             let calendar = Calendar.current
@@ -129,6 +163,19 @@ enum PeriodUnitV100: String, CaseIterable {
     case days = "days"
     case months = "months"
     case years = "years"
+    
+    var asCalendarUnit: Calendar.Component {
+        let calendarUnit : Calendar.Component
+        switch self {
+        case .days:
+            calendarUnit = .day
+        case .months:
+            calendarUnit = .month
+        case .years:
+            calendarUnit = .year
+        }
+        return calendarUnit
+    }
 }
 
 enum ExpirationStatusV100: String, CaseIterable {

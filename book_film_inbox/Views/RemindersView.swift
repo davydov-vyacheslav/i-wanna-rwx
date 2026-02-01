@@ -12,6 +12,9 @@ struct RemindersView: View {
     @State private var selectedItem: ReminderItem?
     @State private var searchText: String = ""
     
+    @State private var errorMessage: String = ""
+    @State private var showError: Bool = false
+    
     @State private var selectedFilterType: ReminderType? = nil
     @State private var selectedFilterExpired: Bool = false
 
@@ -30,6 +33,26 @@ struct RemindersView: View {
                         .listRowBackground(Color.clear)
                         .onTapGesture {
                             selectedItem = item
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            if item.renewalType != .lifetime && item.renewalType != .none {
+                                Button() {
+                                    do {
+                                        try viewModel.prolongate(item)
+                                    } catch {
+                                        errorMessage = error.localizedDescription
+                                        showError = true
+                                    }
+                                } label: {
+                                    Label(".button.prolongate", systemImage: "repeat.circle")
+                                }
+                                .tint(.yellow)
+                            }
+                        }
+                        .alert(".title.error", isPresented: $showError) {
+                            Button(".button.ok", role: .cancel) {}
+                        } message: {
+                            Text(errorMessage)
                         }
                 }
             }
