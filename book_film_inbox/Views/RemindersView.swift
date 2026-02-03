@@ -8,6 +8,10 @@ import SwiftUI
 
 struct RemindersView: View {
     @EnvironmentObject var viewModel: ReminderViewModel
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var notificationService = NotificationService.shared
+    @State private var pendingItemIdToOpen: UUID?
+
     @State private var showingAddSheet = false
     @State private var selectedItem: ReminderItem?
     @State private var searchText: String = ""
@@ -44,7 +48,7 @@ struct RemindersView: View {
                                         showError = true
                                     }
                                 } label: {
-                                    Label(".button.prolongate", systemImage: "repeat.circle")
+                                    Label(".button.renewed", systemImage: "repeat.circle")
                                 }
                                 .tint(.yellow)
                             }
@@ -57,10 +61,17 @@ struct RemindersView: View {
                 }
             }
             .safeAreaInset(edge: .top) {
-                filterSection
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 16)
-                    .background(Color(uiColor: .systemBackground))
+                VStack(spacing: 0) {
+                    filterSection
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 16)
+                        .background(Color(uiColor: .systemBackground))
+                    
+                    if notificationService.authorizationStatus == .denied {
+                        notificationWarningBanner
+                            .padding(.horizontal, 16)
+                    }
+                }
             }
             .listStyle(.plain)
             .overlay {
@@ -90,6 +101,34 @@ struct RemindersView: View {
             }
             .sheet(item: $selectedItem) { item in
                 ReadonlyReminderSheet(viewModel: viewModel, item: item)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .openReminderDetails)) { notification in
+                guard let itemId = notification.userInfo?["itemId"] as? UUID else { return }
+                if let item = viewModel.findById(itemId) {
+                    selectedItem = item
+                } else {
+                    pendingItemIdToOpen = itemId
+                }
+            }
+            .onAppear {
+                // if there pinding id - open it
+                if let pendingId = pendingItemIdToOpen,
+                   let item = viewModel.findById(pendingId) {
+                    selectedItem = item
+                    pendingItemIdToOpen = nil
+                }
+            }
+            .task {
+                // check notification status on screen open
+                await notificationService.checkAuthorizationStatus()
+            }
+            .onChange(of: scenePhase) { oldPhase, newPhase in
+                // check whether applicaion become active (e.g., from being foregrounded)
+                if newPhase == .active {
+                    Task {
+                        await notificationService.checkAuthorizationStatus()
+                    }
+                }
             }
         }
     }
@@ -127,6 +166,34 @@ struct RemindersView: View {
             
         }
         
+    }
+    
+    private var notificationWarningBanner: some View {
+        Button {
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url)
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "bell.slash.fill")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+                
+                Text(".label.reminder.notifications_disabled")
+                    .font(.caption)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Image(systemName: "arrow.right")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.orange.opacity(0.15))
+        }
+        .buttonStyle(.plain)
     }
     
 }
@@ -173,7 +240,6 @@ extension ReminderType {
     }
 }
 
-
 extension RenewalType {
     var displayName: String {
         switch self {
@@ -185,7 +251,6 @@ extension RenewalType {
         }
     }
 }
-
 
 extension PeriodUnit {
     var displayNameSuffix: String {

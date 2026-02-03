@@ -17,20 +17,11 @@ struct MovieItemCard: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .top, spacing: 8) {
                 // Poster
-                KFImage(item.coverImageUrl)
-                    .placeholder {
-                        Image(systemName: "film.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle(.secondary)
-                    }
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 80, height: 116)
-                    .clipped()
-                    .onTapGesture {
-                        UIApplication.shared.open(item.sourceUrl)
-                    }
+                MediaCover(
+                    imageUrl: item.coverImageUrl,
+                    placeholderIcon: "film.fill",
+                    sourceUrl: item.sourceUrl
+                )
 
                 // Content
                 VStack(alignment: .leading, spacing: 1) {

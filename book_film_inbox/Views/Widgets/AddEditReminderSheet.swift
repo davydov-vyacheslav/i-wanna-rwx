@@ -96,11 +96,19 @@ struct AddEditReminderSheet: View {
                     if renewalType != .lifetime {
                         Stepper(".label.reminder.remind_in_days \(reminderDays)", value: $reminderDays, in: 1...14)
                         
-                        DatePicker(
-                            ".label.reminder.renewal_date",
-                            selection: $expiryDate,
-                            displayedComponents: .date
-                        )
+                        VStack(alignment: .leading, spacing: 4) {
+                            DatePicker(
+                                ".label.reminder.renewal_date",
+                                selection: $expiryDate,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.compact)
+                            
+                            Text(".label.reminder.renewal_date.note")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+
                     }
 
                 }

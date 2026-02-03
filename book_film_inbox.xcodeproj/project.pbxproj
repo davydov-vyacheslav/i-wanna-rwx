@@ -11,11 +11,27 @@
 		5E6669302F2E3B0800E1C2C6 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 5E66692F2F2E3B0800E1C2C6 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		5E6669532F31519500E1C2C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5EED6B082ED3A490008F96FF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5EED6B0F2ED3A490008F96FF;
+			remoteInfo = IWannaRWX;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		5E66694F2F31519500E1C2C6 /* IWannaRWXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IWannaRWXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EED6B102ED3A490008F96FF /* IWannaRWX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IWannaRWX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		5E6669502F31519500E1C2C6 /* IWannaRWXTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = IWannaRWXTests;
+			sourceTree = "<group>";
+		};
 		5EED6B122ED3A490008F96FF /* book_film_inbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = book_film_inbox;
@@ -24,6 +40,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5E66694C2F31519500E1C2C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5EED6B0D2ED3A490008F96FF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -40,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				5EED6B122ED3A490008F96FF /* book_film_inbox */,
+				5E6669502F31519500E1C2C6 /* IWannaRWXTests */,
 				5EED6B112ED3A490008F96FF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				5EED6B102ED3A490008F96FF /* IWannaRWX.app */,
+				5E66694F2F31519500E1C2C6 /* IWannaRWXTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,6 +80,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		5E66694E2F31519500E1C2C6 /* IWannaRWXTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5E6669552F31519500E1C2C6 /* Build configuration list for PBXNativeTarget "IWannaRWXTests" */;
+			buildPhases = (
+				5E66694B2F31519500E1C2C6 /* Sources */,
+				5E66694C2F31519500E1C2C6 /* Frameworks */,
+				5E66694D2F31519500E1C2C6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5E6669542F31519500E1C2C6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5E6669502F31519500E1C2C6 /* IWannaRWXTests */,
+			);
+			name = IWannaRWXTests;
+			packageProductDependencies = (
+			);
+			productName = IWannaRWXTests;
+			productReference = 5E66694F2F31519500E1C2C6 /* IWannaRWXTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		5EED6B0F2ED3A490008F96FF /* IWannaRWX */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5EED6B1B2ED3A492008F96FF /* Build configuration list for PBXNativeTarget "IWannaRWX" */;
@@ -86,9 +134,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2610;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					5E66694E2F31519500E1C2C6 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 5EED6B0F2ED3A490008F96FF;
+					};
 					5EED6B0F2ED3A490008F96FF = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -115,11 +167,19 @@
 			projectRoot = "";
 			targets = (
 				5EED6B0F2ED3A490008F96FF /* IWannaRWX */,
+				5E66694E2F31519500E1C2C6 /* IWannaRWXTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		5E66694D2F31519500E1C2C6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5EED6B0E2ED3A490008F96FF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -130,6 +190,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		5E66694B2F31519500E1C2C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5EED6B0C2ED3A490008F96FF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,7 +206,59 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		5E6669542F31519500E1C2C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5EED6B0F2ED3A490008F96FF /* IWannaRWX */;
+			targetProxy = 5E6669532F31519500E1C2C6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		5E6669562F31519500E1C2C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R3KFM8RU75;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.javanix.IWannaRWXTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IWannaRWX.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IWannaRWX";
+			};
+			name = Debug;
+		};
+		5E6669572F31519500E1C2C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R3KFM8RU75;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.javanix.IWannaRWXTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IWannaRWX.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IWannaRWX";
+			};
+			name = Release;
+		};
 		5EED6B192ED3A492008F96FF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -346,6 +465,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5E6669552F31519500E1C2C6 /* Build configuration list for PBXNativeTarget "IWannaRWXTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5E6669562F31519500E1C2C6 /* Debug */,
+				5E6669572F31519500E1C2C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5EED6B0B2ED3A490008F96FF /* Build configuration list for PBXProject "book_film_inbox" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

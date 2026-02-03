@@ -106,26 +106,5 @@ struct BookSearchItemCard: View {
         author: "Xxxx M.D.",
         year: 1999,
     ), isInLibrary: false, selectedService: XDummyBookSearchService())
-    BookSearchItemCard(item: ExternalBookItem(
-        title: "title",
-        sourceUrl: URL(string: "https://google.com")!,
-        sourceName: "Test service",
-        description: nil,
-        rating: nil,
-        isbn: "12333333333",
-        author: "Xxxx M.D.",
-        year: nil,
-    ), isInLibrary: false, selectedService: XDummyBookSearchService())
-    BookSearchItemCard(item: ExternalBookItem(
-        title: "title",
-        sourceUrl: URL(string: "https://google.com")!,
-        sourceName: "Test service",
-        description: nil,
-        rating: nil,
-        status: MediaStatus.done,
-        isbn: "12333333333",
-        author: "Xxxx M.D.",
-        year: nil,
-    ), isInLibrary: true, selectedService: XDummyBookSearchService())
 
 }

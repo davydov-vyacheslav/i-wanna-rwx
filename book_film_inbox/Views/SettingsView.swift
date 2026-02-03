@@ -50,6 +50,7 @@ struct SettingsView: View {
                             }
                         }
                 }
+
                 // Support Us Section
                 Section(".label.settings.support_us") {
 

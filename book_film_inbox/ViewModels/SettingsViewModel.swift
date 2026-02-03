@@ -57,11 +57,19 @@ class SettingsViewModel: ObservableObject {
         tempToken = ""
     }
     
-    func saveEditing(for source: String) {
-        guard !tempToken.isEmpty else { return }
-        saveToken(for: source, token: tempToken)
+    func saveEditing(for searchService: any SearchService) async -> Bool {
+        guard !tempToken.isEmpty else { return false }
+        
+        if await searchService.isTokenValid(token: tempToken) == false {
+            return false
+        }
+        let serviceName = type(of: searchService).serviceName
+        
+        saveToken(for: serviceName, token: tempToken)
         editingSource = nil
         tempToken = ""
+        toggleExpanded(for: serviceName)
+        return true
     }
     
     func toggleShowToken(for source: String) {

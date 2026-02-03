@@ -93,32 +93,4 @@ struct ReminderItemCard: View {
         reminderDays: 3,
         cost: "100500",
         notes: "notes"))
-    ReminderItemCard(item: ReminderItem(
-        type: ReminderType.subscription,
-        name: "Soma name",
-        description: "Description",
-        renewalType: RenewalType.lifetime,
-        customPeriodValue: 3,
-        customPeriodUnit: PeriodUnit.days,
-        expiryDate: Calendar.current.date(
-            from: DateComponents(year: 2027, month: 1, day: 28)
-        ),
-        licenseKey: "secret one",
-        reminderDays: 3,
-        cost: "100500",
-        notes: "notes"))
-    ReminderItemCard(item: ReminderItem(
-        type: ReminderType.subscription,
-        name: "Soma name",
-        description: "Description",
-        renewalType: RenewalType.custom,
-        customPeriodValue: 3,
-        customPeriodUnit: PeriodUnit.days,
-        expiryDate: Calendar.current.date(
-            from: DateComponents(year: 2026, month: 1, day: 31)
-        ),
-        licenseKey: "secret one",
-        reminderDays: 3,
-        cost: "100500",
-        notes: "notes"))
 }

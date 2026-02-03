@@ -17,20 +17,11 @@ struct BookItemCard: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .top, spacing: 8) {
                 // Poster
-                KFImage(item.coverImageUrl)
-                    .placeholder {
-                        Image(systemName: "book.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle(.secondary)
-                    }
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 80, height: 116)
-                    .clipped()
-                    .onTapGesture {
-                        UIApplication.shared.open(item.sourceUrl)
-                    }
+                MediaCover(
+                    imageUrl: item.coverImageUrl,
+                    placeholderIcon: "book.fill",
+                    sourceUrl: item.sourceUrl
+                )
 
                 // Content
                 VStack(alignment: .leading, spacing: 1) {
@@ -154,27 +145,6 @@ struct BookItemCard: View {
         year: 1999,
         isbn: "1234567",
         author: "Auhor M.V.",
-        sourceName: "Test service"))
-    BookItemCard(item: BookItem(
-        description: nil,
-        isFavorite: false,
-        rating: nil,
-        sourceUrl: URL(string: "https://google.com")!,
-        title: "title",
-        year: nil,
-        isbn: "NONE",
-        author: "N/A",
-        sourceName: DraftBookService.serviceName))
-    BookItemCard(item: BookItem(
-        description: nil,
-        isFavorite: false,
-        rating: nil,
-        sourceUrl: URL(string: "https://google.com")!,
-        status: MediaStatus.done,
-        title: "title",
-        year: nil,
-        isbn: "NONE",
-        author: "N/A",
         sourceName: "Test service"))
 
 }

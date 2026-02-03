@@ -8,6 +8,7 @@
 protocol SearchService<SearchResultItem> {
     associatedtype SearchResultItem: ExternalMediaItem
     
+    func isTokenValid(token: String) async -> Bool
     func search(query: String, limit: Int) async throws -> [SearchResultItem]
     func getDetails(item: SearchResultItem) async throws -> SearchResultItem
 
@@ -17,4 +18,10 @@ protocol SearchService<SearchResultItem> {
     static var tokenPlaceholder: String? { get }
     static var helpURL: String? { get }
 
+}
+
+extension SearchService {
+    func isTokenValid(token: String) async -> Bool {
+        return true
+    }
 }

@@ -37,5 +37,8 @@ struct ContentView: View {
                 .tag(3)
         }
         .tint(.blue)
+        .onReceive(NotificationCenter.default.publisher(for: .switchToRemindersTab)) { _ in
+            selectedTab = 2
+        }
     }
 }

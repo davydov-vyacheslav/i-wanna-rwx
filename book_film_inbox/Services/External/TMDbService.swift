@@ -25,6 +25,14 @@ class TMDbService: SearchService {
         tmdbClient = TMDbClient(apiKey: currentToken ?? "foo token")
     }
     
+    func isTokenValid(token: String) async -> Bool {
+        do {
+            return try await TMDbClient(apiKey: token).authentication.validateKey()
+        } catch {
+            return false
+        }
+    }
+    
     func search(query: String, limit: Int) async throws -> [ExternalMovieItem] {
 
         // Search across movies, TV shows, and people

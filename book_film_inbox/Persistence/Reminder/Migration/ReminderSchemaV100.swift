@@ -95,8 +95,9 @@ enum ReminderSchemaV100: VersionedSchema {
         var daysUntilExpiry: Int? {
             guard renewalType != RenewalTypeV100.lifetime, let expiryDate = expiryDate else { return nil }
             let calendar = Calendar.current
-            let components = calendar.dateComponents([.day], from: Date(), to: expiryDate)
-            return components.day
+            let today = calendar.startOfDay(for: Date())
+            let expiryDay = calendar.startOfDay(for: expiryDate)
+            return calendar.dateComponents([.day], from: today, to: expiryDay).day
         }
         
         var expirationStatus: ExpirationStatusV100 {

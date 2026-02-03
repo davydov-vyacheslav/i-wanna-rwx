@@ -248,7 +248,9 @@ struct AddMovieSheet: View {
                 results = []
                 isSearching = false
             }
-            showToastMessage("Search error: \(error.localizedDescription)")
+            if error.localizedDescription != "cancelled" {
+                showToastMessage("Search error: \(error.localizedDescription)")
+            }
         }
     }
     

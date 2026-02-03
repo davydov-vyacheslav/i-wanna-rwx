@@ -10,7 +10,7 @@ import SwiftUI
 struct SettingsSourceRow: View {
     let searchService: any SearchService
     @ObservedObject var viewModel: SettingsViewModel
-    
+
     var body: some View {
         if type(of: searchService).requiresToken {
             // Expandable list for sources with tokens
@@ -65,6 +65,8 @@ struct SettingsSourceRow: View {
     private struct DetailView: View {
         let searchService: any SearchService
         @ObservedObject var viewModel: SettingsViewModel
+        @State private var errorMessage: String = ""
+        @State private var showError: Bool = false
         
         var isEditing: Bool {
             viewModel.editingSource == type(of: searchService).serviceName
@@ -143,7 +145,12 @@ struct SettingsSourceRow: View {
                         .frame(maxWidth: .infinity)
                         
                         Button(".button.save") {
-                            viewModel.saveEditing(for: type(of: searchService).serviceName)
+                            Task {
+                                if await viewModel.saveEditing(for: searchService) == false {
+                                    errorMessage = String(localized: ".error.wrong_api_key")
+                                    showError = true
+                                }
+                            }
                         }
                         .buttonStyle(.borderedProminent)
                         .frame(maxWidth: .infinity)
@@ -173,6 +180,11 @@ struct SettingsSourceRow: View {
                 }
             }
             .padding(.vertical, 8)
+            .alert(".title.error", isPresented: $showError) {
+                Button(".button.ok", role: .cancel) {}
+            } message: {
+                Text(errorMessage)
+            }
         }
     }
 }
