@@ -11,7 +11,8 @@ import os
 
 @MainActor
 class MoviePersistenceService: MediaPersistenceService {
-
+    typealias Item = MovieItem
+    
     private let modelContext: ModelContext
 
     init(context: ModelContext) {

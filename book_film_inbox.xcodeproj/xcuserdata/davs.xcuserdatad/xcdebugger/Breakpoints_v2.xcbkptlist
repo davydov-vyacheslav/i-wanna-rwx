@@ -46,8 +46,8 @@
             filePath = "book_film_inbox/Views/Widgets/AddBookSheet.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "252"
-            endingLineNumber = "252"
+            startingLineNumber = "258"
+            endingLineNumber = "258"
             landmarkName = "performSearch(query:)"
             landmarkType = "7">
          </BreakpointContent>

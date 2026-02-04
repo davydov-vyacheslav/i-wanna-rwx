@@ -1,33 +1,45 @@
 //
-//  AddMovieSheet.swift
-//  IWannaRWX
+//  xxxxAddMediaSheet.swift
+//  book_film_inbox
 //
-//  Created by Slava Davydov on 27.01.2026.
+//  Created by Slava Davydov on 04.02.2026.
 //
 
 import SwiftUI
 
 
-struct AddMovieSheet: View {
-    @EnvironmentObject var viewModel: MoviesViewModel
+struct AddMediaSheet<Item: ExternalMediaItem, ViewModel: MediaViewModelProtocol>: View
+where ViewModel.Item == Item.MediaItem
+{
+    @EnvironmentObject var viewModel: ViewModel
     @EnvironmentObject var settingsViewModel: SettingsViewModel
     @Environment(\.dismiss) var dismiss
     
     @State private var searchText = ""
-    @State private var results: [ExternalMovieItem] = []
+    @State private var results: [Item] = []
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
     @State private var selectedService: SettingsSourceEntity? = nil
     
-    @StateObject private var settingsSearchStore = SettingsSourceStore.shared
+    @ObservedObject private var settingsSearchStore = SettingsSourceStore.shared
     
     @FocusState private var isSearchFieldFocused: Bool
     
     @State private var showToast = false
     @State private var toastMessage = ""
     
+    let title: LocalizedStringKey
+    let cantFindMessage: LocalizedStringKey
+    let emptyStateIcon: String //books.vertical | film.stack.fill
+    let placeholderIcon: String // book.fill | film.fill
+    let getItemDetailedTypeIcon: (Item?) -> String // tv | film | book
+    let isItemInLibrary: (Item) -> Bool
+    let getAuthorInfo: (Item) -> String?
+    let getDraftItem: (String) -> Item
+    let sourcesKeyPath: KeyPath<SettingsSourceStore, [SettingsSourceEntity]>
+    
     var availableServices: [SettingsSourceEntity] {
-        settingsSearchStore.availableVideoSources.filter { service in
+        settingsSearchStore[keyPath: sourcesKeyPath].filter { service in
             !type(of: service.instance).requiresToken || settingsViewModel.hasToken(for: type(of: service.instance).serviceName)
         }
     }
@@ -52,7 +64,7 @@ struct AddMovieSheet: View {
                 // Results Area
                 resultsView
             }
-            .navigationTitle(".title.movie.add")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -82,7 +94,11 @@ struct AddMovieSheet: View {
     @ViewBuilder
     private var resultsView: some View {
         if isSearching {
-            searchingState
+            VStack {
+                Spacer()
+                ProgressView(".placeholder.common.search")
+                Spacer()
+            }
         } else if searchText.isEmpty {
             emptyState
         } else {
@@ -90,18 +106,10 @@ struct AddMovieSheet: View {
         }
     }
     
-    private var searchingState: some View {
-        VStack {
-            Spacer()
-            ProgressView(".placeholder.common.search")
-            Spacer()
-        }
-    }
-    
     private var emptyState: some View {
         VStack(spacing: 12) {
             Spacer()
-            Image(systemName: "film.stack.fill")
+            Image(systemName: emptyStateIcon)
                 .font(.largeTitle)
                 .foregroundColor(.secondary)
             Text(".label.common.search.enter_text")
@@ -124,10 +132,13 @@ struct AddMovieSheet: View {
             if !results.isEmpty {
                 Section {
                     ForEach(results) { item in
-                        MovieSearchItemCard(
+                        MediaSearchItemCard<Item, ViewModel>(
                             item: item,
-                            isInLibrary: viewModel.isInLibrary(sourceId: item.sourceId, sourceName: item.sourceName),
-                            selectedService: selectedService?.instance as? any SearchService<ExternalMovieItem>
+                            isInLibrary: isItemInLibrary(item),
+                            selectedService: selectedService?.instance as? any SearchService<Item>,
+                            placeholderIcon: placeholderIcon,
+                            itemDetailedTypeIcon: getItemDetailedTypeIcon(item),
+                            authorInfo: getAuthorInfo(item)
                         )
                     }
                 } header: {
@@ -141,13 +152,16 @@ struct AddMovieSheet: View {
             // Manual add section
             if !searchText.isEmpty {
                 Section {
-                    MovieSearchItemCard(
-                        item: DraftMovieService.shared.single(query: searchText),
+                    MediaSearchItemCard<Item, ViewModel>(
+                        item: getDraftItem(searchText),
                         isInLibrary: false,
-                        selectedService: nil
+                        selectedService: nil,
+                        placeholderIcon: placeholderIcon,
+                        itemDetailedTypeIcon: getItemDetailedTypeIcon(nil),
+                        authorInfo: nil
                     )
                 } header: {
-                    Text(".label.movie.cant_find")
+                    Text(cantFindMessage)
                         .textCase(nil)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -237,10 +251,10 @@ struct AddMovieSheet: View {
                 limit: 10
             )
             
-            let moviesResults = searchResults.compactMap { $0 as? ExternalMovieItem }
+            let itemsResults = searchResults.compactMap { $0 as? Item }
             
             await MainActor.run {
-                results = moviesResults
+                results = itemsResults
                 isSearching = false
             }
         } catch {

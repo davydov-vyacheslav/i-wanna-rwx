@@ -18,6 +18,7 @@ protocol CommonMediaItem {
     var year: Int? { get }
     var isFavorite: Bool { get set }
     var rating: Double { get set }
+    var mainAuthor: String? { get set }
 
 }
 

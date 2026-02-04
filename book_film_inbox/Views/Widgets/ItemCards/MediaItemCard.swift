@@ -1,35 +1,49 @@
 //
-//  MovieItemCard.swift
-//  IWannaRWX
+//  MediaItemCard.swift
+//  book_film_inbox
 //
-//  Created by Slava Davydov on 27.01.2026.
+//  Created by Slava Davydov on 04.02.2026.
 //
 
 import SwiftUI
 import Kingfisher
 
-struct MovieItemCard: View {
-    @EnvironmentObject var viewModel: MoviesViewModel
-    let item: MovieItem
-    @State private var showDescription = false
+struct MediaItemCard<Item: CommonMediaItem, ViewModel: MediaViewModelProtocol>: View
+where ViewModel.Item == Item {
     
+    @EnvironmentObject var viewModel: ViewModel
+    @State private var showDescription = false
+    let item: Item
+    let placeholderIcon: String // book.fill | film.fill
+    let itemDetailedTypeIcon: String // tv | film | book
+    let isDraft: (_ item: Item) -> Bool
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .top, spacing: 8) {
                 // Poster
-                MediaCover(
-                    imageUrl: item.coverImageUrl,
-                    placeholderIcon: "film.fill",
-                    sourceUrl: item.sourceUrl
-                )
-
+                KFImage(item.coverImageUrl)
+                    .placeholder {
+                        Image(systemName: placeholderIcon)
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.secondary)
+                    }
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 116)
+                    .clipped()
+                    .onTapGesture {
+                        UIApplication.shared.open(item.sourceUrl)
+                    }
+                
                 // Content
                 VStack(alignment: .leading, spacing: 1) {
                     // Title
                     HStack {
                         
-                        Image(systemName: item.type == VideoType.tvSeries ? "tv" : "film")
-                            .foregroundColor(DraftMovieService.shared.isDraft(item: item) ? .gray : .orange)
+                        Image(systemName: itemDetailedTypeIcon)
+                            .foregroundColor(isDraft(item) ? .gray : .orange)
                         
                         Text(item.title)
                             .font(.headline)
@@ -46,7 +60,7 @@ struct MovieItemCard: View {
                         Image(systemName: "star.fill")
                             .font(.caption)
                             .foregroundColor(.yellow)
-                        Text(verbatim: item.ratingText)
+                        Text(item.ratingText)
                             .font(.caption)
                         
                         Spacer()

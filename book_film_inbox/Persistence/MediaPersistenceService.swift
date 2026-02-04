@@ -6,7 +6,7 @@
 //
 
 protocol MediaPersistenceService {
-    associatedtype Item
+    associatedtype Item: CommonMediaItem
     func findByType(_ filter: FilterType) -> [Item]
     func add(_ item: Item)
     func delete(_ item: Item)

@@ -47,7 +47,12 @@ struct BooksView: View {
                 } else {
                     List {
                         ForEach(filteredItems) { item in
-                            BookItemCard(item: item)
+                            MediaItemCard<BookItem, BooksViewModel>(
+                                    item: item,
+                                    placeholderIcon: "book.fill",
+                                    itemDetailedTypeIcon: "book",
+                                    isDraft: { DraftBookService.shared.isDraft(item: $0) }
+                            )
                                 .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
@@ -78,7 +83,18 @@ struct BooksView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                AddBookSheet()
+                AddMediaSheet<ExternalBookItem, BooksViewModel>(
+                    title: ".title.book.add",
+                    cantFindMessage: ".label.book.cant_find",
+                    emptyStateIcon: "books.vertical",
+                    placeholderIcon: "book.fill",
+                    getItemDetailedTypeIcon: { item in "book" },
+                    isItemInLibrary: { viewModel.isInLibrary(isbn: $0.isbn ?? "NoISBN") },
+                    getAuthorInfo: { $0.author ?? String(localized: ".label.common_media.no_author") },
+                    getDraftItem: { DraftBookService.shared.single(query: $0) },
+                    sourcesKeyPath: \.availableBookSources
+                )
+                
             }
         }
     }

@@ -8,6 +8,7 @@
 import Foundation
 
 protocol ExternalMediaItem: Identifiable {
+    associatedtype MediaItem: CommonMediaItem
     
     var itemDescription: String? { get }
     var title: String { get }
@@ -17,6 +18,8 @@ protocol ExternalMediaItem: Identifiable {
     var coverUrl: URL? { get }
     var year: Int? { get }
     var rating: Double? { get }
+    
+    func toCommonMediaItem() -> MediaItem
   
 }
 

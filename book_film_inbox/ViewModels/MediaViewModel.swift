@@ -10,7 +10,7 @@ import Combine
 import os
 
 @MainActor
-class MediaViewModel<Item, Persistence: MediaPersistenceService>: ObservableObject
+class MediaViewModel<Item: CommonMediaItem, Persistence: MediaPersistenceService>: MediaViewModelProtocol
 where Persistence.Item == Item
 {
     let storageService: Persistence

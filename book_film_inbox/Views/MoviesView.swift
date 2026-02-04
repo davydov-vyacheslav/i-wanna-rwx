@@ -47,7 +47,12 @@ struct MoviesView: View {
                 } else {
                     List {
                         ForEach(filteredItems) { item in
-                            MovieItemCard(item: item)
+                            MediaItemCard<MovieItem, MoviesViewModel>(
+                                    item: item,
+                                    placeholderIcon: "film.fill",
+                                    itemDetailedTypeIcon: item.type == VideoType.tvSeries ? "tv" : "film",
+                                    isDraft: { DraftMovieService.shared.isDraft(item: $0) }
+                            )
                                 .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
@@ -78,7 +83,18 @@ struct MoviesView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                AddMovieSheet()
+                AddMediaSheet<ExternalMovieItem, MoviesViewModel>(
+                    title: ".title.movie.add",
+                    cantFindMessage: ".label.movie.cant_find",
+                    emptyStateIcon: "film.stack.fill",
+                    placeholderIcon: "film.fill",
+                    getItemDetailedTypeIcon: { $0?.type == .tvSeries ? "tv" : "film" },
+                    isItemInLibrary: { viewModel.isInLibrary(sourceId: $0.sourceId, sourceName: $0.sourceName) },
+                    getAuthorInfo: { item in nil },
+                    getDraftItem: { DraftMovieService.shared.single(query: $0) },
+                    sourcesKeyPath: \.availableVideoSources
+                )
+
             }
         }
     }

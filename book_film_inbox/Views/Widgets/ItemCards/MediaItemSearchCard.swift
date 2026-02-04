@@ -1,38 +1,31 @@
 //
-//  MediaItemCard.swift
+//  xxxMediaItemSearchCard.swift
 //  book_film_inbox
 //
-//  Created by Slava Davydov on 23.11.2025.
+//  Created by Slava Davydov on 04.02.2026.
 //
 
 import SwiftUI
 import Kingfisher
 
-struct BookSearchItemCard: View {
-    @EnvironmentObject var viewModel: BooksViewModel
+struct MediaSearchItemCard<Item: ExternalMediaItem, ViewModel: MediaViewModelProtocol>: View
+where ViewModel.Item == Item.MediaItem {
+    
+    @EnvironmentObject var viewModel: ViewModel
     @Environment(\.dismiss) var dismiss
-    let item: ExternalBookItem
+    let item: Item
     let isInLibrary: Bool
-    let selectedService: (any SearchService<ExternalBookItem>)?
-
+    let selectedService: (any SearchService<Item>)?
+    let placeholderIcon: String // book.fill | film.fill
+    let itemDetailedTypeIcon: String // tv | film | book
+    let authorInfo: String?
+    
     var body: some View {
         Button {
             Task {
                 if !isInLibrary {
                     let detailedItem = try await selectedService?.getDetails(item: item) ?? item
-                    viewModel.addItem(BookItem(
-                        description: detailedItem.itemDescription,
-                        isFavorite: detailedItem.isFavorite,
-                        rating: detailedItem.rating,
-                        sourceUrl: detailedItem.sourceUrl,
-                        coverImageUrl: detailedItem.coverUrl,
-                        status: MediaStatus.planned,
-                        title: detailedItem.title,
-                        year: detailedItem.year,
-                        isbn: detailedItem.isbn,
-                        author: detailedItem.author,
-                        sourceName: detailedItem.sourceName
-                    ))
+                    viewModel.addItem(detailedItem.toCommonMediaItem())
                     dismiss()
                 }
             }
@@ -40,7 +33,7 @@ struct BookSearchItemCard: View {
             HStack {
                 KFImage(item.coverUrl)
                     .placeholder {
-                        Image(systemName: "book.fill")
+                        Image(systemName: placeholderIcon)
                             .resizable()
                             .scaledToFit()
                             .foregroundStyle(.secondary)
@@ -57,6 +50,9 @@ struct BookSearchItemCard: View {
                         .font(.headline)
 
                     HStack {
+                        Image(systemName: itemDetailedTypeIcon)
+                            .foregroundColor(.secondary)
+                        
                         Text(verbatim: yearText)
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -66,14 +62,10 @@ struct BookSearchItemCard: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    if let author = item.author {
+                    if let author = authorInfo {
                         Text(author)
                             .font(.caption)
                             .foregroundColor(.secondary)
-                    } else {
-                        Text(".label.common_media.no_author")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
                     }
                     
                 }
@@ -88,23 +80,4 @@ struct BookSearchItemCard: View {
         }
         .disabled(isInLibrary)
     }
-}
-
-
-
-
-
-#Preview {
-    BookSearchItemCard(item: ExternalBookItem(
-        title: "title",
-        sourceUrl: URL(string: "https://google.com")!,
-        sourceName: "Test service",
-        description: "Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere Some long long long descirptooin to be done hrere",
-        rating: 5.0,
-        status: MediaStatus.planned,
-        isbn: "12333333333",
-        author: "Xxxx M.D.",
-        year: 1999,
-    ), isInLibrary: false, selectedService: XDummyBookSearchService())
-
 }

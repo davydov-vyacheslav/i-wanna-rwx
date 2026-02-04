@@ -11,6 +11,7 @@ import os
 
 @MainActor
 class BookPersistenceService: MediaPersistenceService {
+    typealias Item = BookItem
     
     private let modelContext: ModelContext
 

@@ -9,6 +9,7 @@
 import Foundation
 
 struct ExternalMovieItem: ExternalMediaItem {
+    typealias MediaItem = MovieItem
     
     var id: UUID = UUID()
     var itemDescription: String? = nil
@@ -54,7 +55,24 @@ struct ExternalMovieItem: ExternalMediaItem {
         self.sourceId = sourceId
         self.originalTitle = originalTitle
     }
-    
+   
+    func toCommonMediaItem() -> MovieItem {
+        return MovieItem(
+            description: self.itemDescription,
+            isFavorite: self.isFavorite,
+            rating: self.rating ?? 0.0,
+            sourceUrl: self.sourceUrl,
+            coverImageUrl: self.coverUrl,
+            status: .planned,
+            title: self.title,
+            year: self.year,
+            author: self.author,
+            sourceName: self.sourceName,
+            type: self.type,
+            sourceId: self.sourceId,
+            originalTitle: self.originalTitle
+        )
+    }
    
 }
 

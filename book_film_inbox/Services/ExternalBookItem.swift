@@ -8,6 +8,7 @@
 import Foundation
 
 struct ExternalBookItem: ExternalMediaItem {
+    typealias MediaItem = BookItem
     
     var id: UUID = UUID()
     var itemDescription: String? = nil
@@ -45,6 +46,23 @@ struct ExternalBookItem: ExternalMediaItem {
         self.author = author
         self.sourceName = sourceName
     }
+    
+    func toCommonMediaItem() -> BookItem {
+        return BookItem(
+            description: self.itemDescription,
+            isFavorite: self.isFavorite,
+            rating: self.rating,
+            sourceUrl: self.sourceUrl,
+            coverImageUrl: self.coverUrl,
+            status: MediaStatus.planned,
+            title: self.title,
+            year: self.year,
+            isbn: self.isbn,
+            author: self.author,
+            sourceName: self.sourceName
+        )
+    }
+
     
 }
 
