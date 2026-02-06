@@ -39,8 +39,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             return
         }
         
-        
-        Task {
+        Task { [weak self] in
+            guard self != nil else { return }
             switch response.actionIdentifier {
                 
             case NotificationAction.prolongate.rawValue:

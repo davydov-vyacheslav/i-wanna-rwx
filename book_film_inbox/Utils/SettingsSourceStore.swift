@@ -8,12 +8,13 @@
 import Foundation
 import Combine
 
-class SettingsSourceStore: ObservableObject {
+@Observable
+class SettingsSourceStore {
     
     static let shared = SettingsSourceStore()
     
-    @Published var availableBookSources: [SettingsSourceEntity] = [ ]
-    @Published var availableVideoSources: [SettingsSourceEntity] = [ ]
+    var availableBookSources: [SettingsSourceEntity] = [ ]
+    var availableVideoSources: [SettingsSourceEntity] = [ ]
 
     private init() {
         reloadSources()

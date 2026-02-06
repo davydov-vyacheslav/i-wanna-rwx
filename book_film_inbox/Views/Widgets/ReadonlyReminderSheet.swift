@@ -9,8 +9,9 @@ import SwiftUI
 
 struct ReadonlyReminderSheet: View {
     
-    @ObservedObject var viewModel: ReminderViewModel
+    let persistenceService: ReminderPersistenceService
     let item: ReminderItem
+    
     @Environment(\.dismiss) private var dismiss
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
@@ -159,12 +160,12 @@ struct ReadonlyReminderSheet: View {
                 }
             }
             .sheet(isPresented: $showingEditSheet) {
-                AddEditReminderSheet(viewModel: viewModel, item: item)
+                AddEditReminderSheet(persistenceService: persistenceService, item: item)
             }
             .alert(".label.common.remove \(item.name)", isPresented: $showingDeleteAlert) {
                 Button(".button.cancel", role: .cancel) { }
                 Button(".button.delete", role: .destructive) {
-                    viewModel.deleteItem(item)
+                    persistenceService.delete(item)
                     dismiss()
                 }
             }
@@ -221,30 +222,4 @@ struct ReminderInfoField<Content: View>: View {
     }
 }
 
-   
-#Preview {
-    ReadonlyReminderSheet(viewModel: ReminderViewModel(), item: ReminderItem(
-        type: ReminderType.license,
-        name: "Item Name",
-        description: "Item Description",
-        renewalType: RenewalType.custom,
-        customPeriodValue: 3,
-        customPeriodUnit: PeriodUnit.days,
-        expiryDate: Date(),
-        licenseKey: "asdfghjkl;lkjhgfdsassdsasdsadasdasdasdasddfghjkl",
-        reminderDays: 4,
-        cost: "$100",
-        notes: "Some Notes"
-    ))
-    
-//    ReadonlyReminderSheet(viewModel: ReminderViewModel(), item: ReminderItem(
-//        type: ReminderItem.ReminderType.license,
-//        name: "Item Name",
-//        description: "",
-//        renewalType: ReminderSchemaV100.ReminderItem.RenewalType.lifetime,
-//        reminderDays: 0,
-//        cost: "",
-//        notes: ""
-//    ))
-    
-}
+

@@ -10,12 +10,54 @@ import SwiftData
 import os
 
 @MainActor
+@Observable
 class ReminderPersistenceService {
 
     private let modelContext: ModelContext
+    private let notificationService = NotificationService.shared
 
     init(context: ModelContext) {
         self.modelContext = context
+        
+        // Обрабатываем prolongate запросы напрямую в сервисе
+        NotificationCenter.default.addObserver(
+            forName: .prolongateReminder,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let itemId = notification.userInfo?["itemId"] as? UUID else { return }
+            
+            Task { @MainActor [weak self] in
+                guard let self = self,
+                      let item = self.findById(itemId) else { return }
+                
+                do {
+                    try self.prolongate(item)
+                } catch {
+                    Log.db.error("Error prolongating reminder: \(error)")
+                }
+            }
+        }
+    }
+    
+    func makeFilterPredicate(typeFilter: ReminderType?, text: String) -> Predicate<ReminderItem>? {
+        if let typeFilter, !text.isEmpty {
+            let raw = typeFilter.rawValue
+            return #Predicate { item in
+                item.typeRaw == raw &&
+                (item.name.contains(text) || item.itemDescription.contains(text))
+            }
+        } else if let typeFilter {
+            let raw = typeFilter.rawValue
+            return #Predicate { item in
+                item.typeRaw == raw
+            }
+        } else if !text.isEmpty {
+            return #Predicate { item in
+                item.name.contains(text) || item.itemDescription.contains(text)
+            }
+        }
+        return nil
     }
     
     func findById(_ itemId: UUID) -> ReminderItem? {
@@ -28,35 +70,19 @@ class ReminderPersistenceService {
     
     func findByTypeAndExpiration(_ typeFilter: ReminderType?, _ isExpiring: Bool, _ text: String) -> [ReminderItem] {
 
+        let predicate = makeFilterPredicate(typeFilter: typeFilter, text: text)
         
-        var predicate: Predicate<ReminderItem>? = nil
-
-        if let typeFilter, !text.isEmpty {
-            let raw = typeFilter.rawValue
-            predicate = #Predicate { item in
-                item.typeRaw == raw &&
-                (
-                    item.name.contains(text) ||
-                    item.itemDescription.contains(text)
-                )
-            }
-        } else if let typeFilter {
-            let raw = typeFilter.rawValue
-            predicate = #Predicate { item in
-                item.typeRaw == raw
-            }
-        } else if !text.isEmpty {
-            predicate = #Predicate { item in
-                item.name.contains(text) ||
-                item.itemDescription.contains(text)
-            }
+        let descriptor: FetchDescriptor<ReminderItem>
+        if let predicate = predicate {
+            descriptor = FetchDescriptor<ReminderItem>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.name)]
+            )
+        } else {
+            descriptor = FetchDescriptor<ReminderItem>(
+                sortBy: [SortDescriptor(\.name)]
+            )
         }
-
-        
-        let descriptor = FetchDescriptor<ReminderItem>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.name)]
-        )
         
         do {
             let items = try modelContext.fetch(descriptor)
@@ -95,26 +121,34 @@ class ReminderPersistenceService {
         dbItem.cost = item.cost
         dbItem.notes = item.notes
             
-        saveContext()
+        try? modelContext.save()
+        Task {
+            await notificationService.scheduleNotification(for: item)
+        }
         
     }
     func add(_ item: ReminderItem) {
         modelContext.insert(item)
-        saveContext()
+        try? modelContext.save()
+        Task {
+            await notificationService.scheduleNotification(for: item)
+        }
     }
     
     func delete(_ item: ReminderItem) {
         modelContext.delete(item)
-        saveContext()
-    }
-    
-    // MARK: - Private Helper
-    private func saveContext() {
-        do {
-            try modelContext.save()
-        } catch {
-            Log.db.error("Error saving context: \(error)")
+        try? modelContext.save()
+        Task {
+            await notificationService.cancelNotification(for: item.id)
         }
     }
-
+    
+    func prolongate(_ item: ReminderItem) throws {
+        item.expiryDate = item.nextExpiryDate
+        try update(item)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 }

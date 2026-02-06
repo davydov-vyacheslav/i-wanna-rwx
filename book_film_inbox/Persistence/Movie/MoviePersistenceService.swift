@@ -10,6 +10,7 @@ import SwiftData
 import os
 
 @MainActor
+@Observable
 class MoviePersistenceService: MediaPersistenceService {
     typealias Item = MovieItem
     
@@ -22,26 +23,7 @@ class MoviePersistenceService: MediaPersistenceService {
     
     // MARK: - Main methods
     func findByType(_ filter: FilterType) -> [MovieItem] {
-        var predicate: Predicate<MovieItem>?
-        let pendingState = MediaStatus.planned.rawValue
-        let draftServiceName = DraftMovieService.serviceName
-        
-        switch filter {
-        case .all:
-            predicate = nil // No filter, fetch all
-        case .favorite:
-            predicate = #Predicate<MovieItem> { item in
-                item.isFavorite == true
-            }
-        case .planned:
-            predicate = #Predicate<MovieItem> { item in
-                item.statusRaw == pendingState
-            }
-        case .draft:
-            predicate = #Predicate<MovieItem> { item in
-                item.sourceName == draftServiceName
-            }
-        }
+        let predicate: Predicate<MovieItem>? = makeFilterPredicate(for: filter)
         
         let descriptor = FetchDescriptor<MovieItem>(
             predicate: predicate,
@@ -57,24 +39,51 @@ class MoviePersistenceService: MediaPersistenceService {
         }
     }
     
+    func makeFilterPredicate(for filter: FilterType) -> Predicate<MovieItem>? {
+        let pendingState = MediaStatus.planned.rawValue
+        let draftServiceName = DraftMovieService.serviceName
+        
+        switch filter {
+        case .all:
+            return nil // No filter, fetch all
+        case .favorite:
+            return #Predicate<MovieItem> { item in
+                item.isFavorite == true
+            }
+        case .planned:
+            return #Predicate<MovieItem> { item in
+                item.statusRaw == pendingState
+            }
+        case .draft:
+            return #Predicate<MovieItem> { item in
+                item.sourceName == draftServiceName
+            }
+        }
+
+    }
+    
+    func count(filter: FilterType) -> Int {
+        findByType(filter).count
+    }
+    
     func add(_ item: MovieItem) {
         modelContext.insert(item)
-        saveContext()
+        try? modelContext.save()
     }
     
     func delete(_ item: MovieItem) {
         modelContext.delete(item)
-        saveContext()
+        try? modelContext.save()
     }
     
     func toggleFavorite(_ item: MovieItem) {
         item.isFavorite.toggle()
-        saveContext()
+        try? modelContext.save()
     }
     
     func changeStatus(_ item: MovieItem, to status: MediaStatus) {
         item.statusRaw = status.rawValue
-        saveContext()
+        try? modelContext.save()
     }
 
     func isInLibrary(sourceId: Int?, sourceName: String) -> Bool {
@@ -92,15 +101,6 @@ class MoviePersistenceService: MediaPersistenceService {
         } catch {
             Log.db.error("Error checking if movie exists by isbn: \(error)")
             return false
-        }
-    }
-    
-    // MARK: Private Helper
-    private func saveContext() {
-        do {
-            try modelContext.save()
-        } catch {
-            Log.db.error("Error saving context: \(error)")
         }
     }
 

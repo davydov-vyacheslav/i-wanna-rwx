@@ -10,20 +10,21 @@ import Foundation
 import Combine
 import os
 
-class NotificationService : ObservableObject {
+@Observable
+class NotificationService {
     
     static let shared = NotificationService()
 
     private let notificationCenter = UNUserNotificationCenter.current()
     private let notificationHour = 9 // notify at 9:00 AM
     
-    @Published var isAuthorized = false
-    @Published var authorizationStatus: UNAuthorizationStatus = .notDetermined
-        
+    var isAuthorized = false
+    var authorizationStatus: UNAuthorizationStatus = .notDetermined
     
     private init() {
         setupNotificationCategories()
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             await checkAuthorizationStatus()
         }
     }
@@ -160,14 +161,13 @@ class NotificationService : ObservableObject {
             trigger: trigger
         )
 
-        do {
+        Task { [weak self] in
+            guard let self else { return }
             try await notificationCenter.add(request)
 
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd HH:mm"
             Log.notification.info("📅 Scheduled notification for \(item.name) at \(formatter.string(from: scheduledDate))")
-        } catch {
-            Log.notification.error("❌ Failed to schedule notification: \(error)")
         }
         
     }

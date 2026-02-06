@@ -81,8 +81,6 @@ class OpenLibraryService: SearchService {
     
     private let baseURL = "https://openlibrary.org"
     private let session: URLSession
-    private var lastRequestTime: Date?
-    private let minimumDelay: TimeInterval = 1.0 // 1 second between requests
     
     init() {
         let config = URLSessionConfiguration.default

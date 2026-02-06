@@ -5,61 +5,41 @@
 //  Created by Slava Davydov on 28.01.2026.
 //
 import SwiftUI
+import SwiftData
 
 struct RemindersView: View {
-    @EnvironmentObject var viewModel: ReminderViewModel
+    
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var notificationService = NotificationService.shared
+    @Environment(ReminderPersistenceService.self) private var persistenceService
+    
+    private var notificationService = NotificationService.shared
+    
     @State private var pendingItemIdToOpen: UUID?
-
     @State private var showingAddSheet = false
     @State private var selectedItem: ReminderItem?
     @State private var searchText: String = ""
-    
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
-    
     @State private var selectedFilterType: ReminderType? = nil
     @State private var selectedFilterExpired: Bool = false
-
-    var filteredItems: [ReminderItem] {
-        viewModel.filteredItems(typeFilter: selectedFilterType, isExpiring: selectedFilterExpired, text: searchText)
-    }
     
     var body: some View {
         NavigationStack {
-            
-            List {
-                ForEach(filteredItems) { item in
-                    ReminderItemCard(item: item)
-                        .listRowInsets(EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                        .onTapGesture {
-                            selectedItem = item
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            if item.renewalType != .lifetime && item.renewalType != .none {
-                                Button() {
-                                    do {
-                                        try viewModel.prolongate(item)
-                                    } catch {
-                                        errorMessage = error.localizedDescription
-                                        showError = true
-                                    }
-                                } label: {
-                                    Label(".button.renewed", systemImage: "repeat.circle")
-                                }
-                                .tint(.yellow)
-                            }
-                        }
-                        .alert(".title.error", isPresented: $showError) {
-                            Button(".button.ok", role: .cancel) {}
-                        } message: {
-                            Text(errorMessage)
-                        }
+            RemindersListContent(
+                filterType: selectedFilterType,
+                isExpiring: selectedFilterExpired,
+                searchText: searchText,
+                persistenceService: persistenceService,
+                onTap: { item in selectedItem = item },
+                onProlongate: { item in
+                    do {
+                        try persistenceService.prolongate(item)
+                    } catch {
+                        errorMessage = error.localizedDescription
+                        showError = true
+                    }
                 }
-            }
+            )
             .safeAreaInset(edge: .top) {
                 VStack(spacing: 0) {
                     filterSection
@@ -70,17 +50,6 @@ struct RemindersView: View {
                     if notificationService.authorizationStatus == .denied {
                         notificationWarningBanner
                             .padding(.horizontal, 16)
-                    }
-                }
-            }
-            .listStyle(.plain)
-            .overlay {
-                if filteredItems.isEmpty {
-                    VStack {
-                        Spacer()
-                        Text(".label.common.list_empty")
-                            .foregroundColor(.secondary)
-                        Spacer()
                     }
                 }
             }
@@ -97,33 +66,35 @@ struct RemindersView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                AddEditReminderSheet(viewModel: viewModel, item: nil)
+                AddEditReminderSheet(persistenceService: persistenceService, item: nil)
             }
             .sheet(item: $selectedItem) { item in
-                ReadonlyReminderSheet(viewModel: viewModel, item: item)
+                ReadonlyReminderSheet(persistenceService: persistenceService, item: item)
+            }
+            .alert(".title.error", isPresented: $showError) {
+                Button(".button.ok", role: .cancel) {}
+            } message: {
+                Text(errorMessage)
             }
             .onReceive(NotificationCenter.default.publisher(for: .openReminderDetails)) { notification in
                 guard let itemId = notification.userInfo?["itemId"] as? UUID else { return }
-                if let item = viewModel.findById(itemId) {
+                if let item = persistenceService.findById(itemId) {
                     selectedItem = item
                 } else {
                     pendingItemIdToOpen = itemId
                 }
             }
             .onAppear {
-                // if there pinding id - open it
                 if let pendingId = pendingItemIdToOpen,
-                   let item = viewModel.findById(pendingId) {
+                   let item = persistenceService.findById(pendingId) {
                     selectedItem = item
                     pendingItemIdToOpen = nil
                 }
             }
             .task {
-                // check notification status on screen open
                 await notificationService.checkAuthorizationStatus()
             }
             .onChange(of: scenePhase) { oldPhase, newPhase in
-                // check whether applicaion become active (e.g., from being foregrounded)
                 if newPhase == .active {
                     Task {
                         await notificationService.checkAuthorizationStatus()
@@ -137,18 +108,21 @@ struct RemindersView: View {
     
     private var filterSection: some View {
         HStack(spacing: 8) {
-            
-            FilterButton(
-                iconName: ReminderType.license.icon,
-                count: viewModel.count(typeFilter: .license, isExpiring: false),
+            ReminderFilterButton(
+                persistenceService: persistenceService,
+                type: .license,
+                isExpiring: false,
+                searchText: searchText,
                 isSelected: selectedFilterType == .license
             ) {
                 selectedFilterType = (selectedFilterType == .license) ? nil : .license
             }
             
-            FilterButton(
-                iconName: ReminderType.subscription.icon,
-                count: viewModel.count(typeFilter: .subscription, isExpiring: false),
+            ReminderFilterButton(
+                persistenceService: persistenceService,
+                type: .subscription,
+                isExpiring: false,
+                searchText: searchText,
                 isSelected: selectedFilterType == .subscription
             ) {
                 selectedFilterType = (selectedFilterType == .subscription) ? nil : .subscription
@@ -156,16 +130,17 @@ struct RemindersView: View {
             
             Spacer()
             
-            FilterButton(
-                iconName: "hourglass.bottomhalf.fill",
-                count: viewModel.count(typeFilter: selectedFilterType, isExpiring: true),
-                isSelected: selectedFilterExpired
+            ReminderFilterButton(
+                persistenceService: persistenceService,
+                type: selectedFilterType,
+                isExpiring: true,
+                searchText: searchText,
+                isSelected: selectedFilterExpired,
+                customIcon: "hourglass.bottomhalf.fill"
             ) {
                 selectedFilterExpired = !selectedFilterExpired
             }
-            
         }
-        
     }
     
     private var notificationWarningBanner: some View {
@@ -195,9 +170,143 @@ struct RemindersView: View {
         }
         .buttonStyle(.plain)
     }
-    
 }
 
+ // MARK: - List Content with @Query
+
+struct RemindersListContent: View {
+    let filterType: ReminderType?
+    let isExpiring: Bool
+    let searchText: String
+    let persistenceService: ReminderPersistenceService
+    let onTap: (ReminderItem) -> Void
+    let onProlongate: (ReminderItem) -> Void
+    
+    @Query private var allReminders: [ReminderItem]
+    
+    init(
+        filterType: ReminderType?,
+        isExpiring: Bool,
+        searchText: String,
+        persistenceService: ReminderPersistenceService,
+        onTap: @escaping (ReminderItem) -> Void,
+        onProlongate: @escaping (ReminderItem) -> Void
+    ) {
+        self.filterType = filterType
+        self.isExpiring = isExpiring
+        self.searchText = searchText
+        self.persistenceService = persistenceService
+        self.onTap = onTap
+        self.onProlongate = onProlongate
+        
+        let predicate = persistenceService.makeFilterPredicate(typeFilter: filterType, text: searchText)
+        
+        if let predicate = predicate {
+            _allReminders = Query(
+                filter: predicate,
+                sort: [SortDescriptor(\.name)]
+            )
+        } else {
+            _allReminders = Query(
+                sort: [SortDescriptor(\.name)]
+            )
+        }
+    }
+    
+    private var filteredReminders: [ReminderItem] {
+        allReminders.filter { !isExpiring || $0.isExpiringOrExpired }
+    }
+    
+    var body: some View {
+        List {
+            ForEach(filteredReminders) { item in
+                ReminderItemCard(item: item)
+                    .listRowInsets(EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .onTapGesture {
+                        onTap(item)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        if item.renewalType != .lifetime && item.renewalType != .none {
+                            Button {
+                                onProlongate(item)
+                            } label: {
+                                Label(".button.renewed", systemImage: "repeat.circle")
+                            }
+                            .tint(.yellow)
+                        }
+                    }
+            }
+        }
+        .listStyle(.plain)
+        .overlay {
+            if filteredReminders.isEmpty {
+                VStack {
+                    Spacer()
+                    Text(".label.common.list_empty")
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+        }
+    }
+}
+
+ // MARK: - Filter Button with Count
+
+struct ReminderFilterButton: View {
+    let persistenceService: ReminderPersistenceService
+    let type: ReminderType?
+    let isExpiring: Bool
+    let searchText: String
+    let isSelected: Bool
+    let customIcon: String?
+    let onTap: () -> Void
+    
+    @Query private var reminders: [ReminderItem]
+    
+    init(
+        persistenceService: ReminderPersistenceService,
+        type: ReminderType?,
+        isExpiring: Bool,
+        searchText: String,
+        isSelected: Bool,
+        customIcon: String? = nil,
+        onTap: @escaping () -> Void
+    ) {
+        self.persistenceService = persistenceService
+        self.type = type
+        self.isExpiring = isExpiring
+        self.searchText = searchText
+        self.isSelected = isSelected
+        self.customIcon = customIcon
+        self.onTap = onTap
+        
+        let predicate = persistenceService.makeFilterPredicate(typeFilter: type, text: searchText)
+        
+        if let predicate = predicate {
+            _reminders = Query(filter: predicate)
+        } else {
+            _reminders = Query()
+        }
+    }
+    
+    private var count: Int {
+        reminders.filter { !isExpiring || $0.isExpiringOrExpired }.count
+    }
+    
+    var body: some View {
+        FilterButton(
+            iconName: customIcon ?? type?.icon ?? "",
+            count: count,
+            isSelected: isSelected,
+            action: onTap
+        )
+    }
+}
+
+ // MARK: - Extensions
 
 extension ReminderItem {
     var statusColor: Color {

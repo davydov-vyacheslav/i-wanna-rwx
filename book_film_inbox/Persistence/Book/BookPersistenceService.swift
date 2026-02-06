@@ -10,6 +10,7 @@ import SwiftData
 import os
 
 @MainActor
+@Observable
 class BookPersistenceService: MediaPersistenceService {
     typealias Item = BookItem
     
@@ -20,32 +21,23 @@ class BookPersistenceService: MediaPersistenceService {
     }
     
     // MARK: - Main methods
+    
+    // Этот метод теперь используется только для count()
+    // Основная выборка данных происходит через @Query в view
     func findByType(_ filter: FilterType) -> [BookItem] {
-        var predicate: Predicate<BookItem>?
-        let pendingState = MediaStatus.planned.rawValue
-        let draftServiceName = DraftBookService.serviceName
+        let predicate = makeFilterPredicate(for: filter)
         
-        switch filter {
-        case .all:
-            predicate = nil // No filter, fetch all
-        case .favorite:
-            predicate = #Predicate<BookItem> { item in
-                item.isFavorite == true
-            }
-        case .planned:
-            predicate = #Predicate<BookItem> { item in
-                item.statusRaw == pendingState
-            }
-        case .draft:
-            predicate = #Predicate<BookItem> { item in
-                item.sourceName == draftServiceName
-            }
+        let descriptor: FetchDescriptor<BookItem>
+        if let predicate = predicate {
+            descriptor = FetchDescriptor<BookItem>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.title)]
+            )
+        } else {
+            descriptor = FetchDescriptor<BookItem>(
+                sortBy: [SortDescriptor(\.title)]
+            )
         }
-        
-        let descriptor = FetchDescriptor<BookItem>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.title)]
-        )
         
         do {
             return try modelContext.fetch(descriptor)
@@ -54,25 +46,51 @@ class BookPersistenceService: MediaPersistenceService {
             return []
         }
     }
+     
+    func makeFilterPredicate(for filter: FilterType) -> Predicate<BookItem>? {
+        let pendingState = MediaStatus.planned.rawValue
+        let draftServiceName = DraftBookService.serviceName
+        
+        switch filter {
+        case .all:
+            return nil
+        case .favorite:
+            return #Predicate<BookItem> { item in
+                item.isFavorite == true
+            }
+        case .planned:
+            return #Predicate<BookItem> { item in
+                item.statusRaw == pendingState
+            }
+        case .draft:
+            return #Predicate<BookItem> { item in
+                item.sourceName == draftServiceName
+            }
+        }
+    }
+    
+    func count(filter: FilterType) -> Int {
+        findByType(filter).count
+    }
     
     func add(_ item: BookItem) {
         modelContext.insert(item)
-        saveContext()
+        try? modelContext.save()
     }
     
     func delete(_ item: BookItem) {
         modelContext.delete(item)
-        saveContext()
+        try? modelContext.save()
     }
     
     func toggleFavorite(_ item: BookItem) {
         item.isFavorite.toggle()
-        saveContext()
+        try? modelContext.save()
     }
     
     func changeStatus(_ item: BookItem, to status: MediaStatus) {
         item.statusRaw = status.rawValue
-        saveContext()
+        try? modelContext.save()
     }
     
     func isInLibrary(_ isbn: String) -> Bool {
@@ -89,13 +107,5 @@ class BookPersistenceService: MediaPersistenceService {
             return false
         }
     }
-    
-    // MARK: - Private Helper
-    private func saveContext() {
-        do {
-            try modelContext.save()
-        } catch {
-            Log.db.error("Error saving context: \(error)")
-        }
-    }
+
 }

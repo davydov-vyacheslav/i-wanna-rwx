@@ -17,6 +17,8 @@ class XDummyBookSearchService: SearchService {
     static var tokenPlaceholder: String? = "Dummy token info placeholder"
     static var helpURL: String? = "https://dummy.url"
 
+    private static let networkLatency = 0.5
+    
     var currentToken: String?
     var settingsService = SettingsService.shared
     
@@ -26,7 +28,7 @@ class XDummyBookSearchService: SearchService {
     
     func search(query: String, limit: Int) async throws -> [ExternalBookItem] {
         // network latency emulation
-        try await Task.sleep(nanoseconds: 500_000_000) // 0.5 sec
+        try await Task.sleep(for: .seconds(XDummyBookSearchService.networkLatency))
 
         let randomCount = Int.random(in: 0...3)
         return (0..<randomCount).map { index in

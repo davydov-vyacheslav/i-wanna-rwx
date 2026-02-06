@@ -8,10 +8,12 @@
 import SwiftUI
 import Kingfisher
 
-struct MediaItemCard<Item: CommonMediaItem, ViewModel: MediaViewModelProtocol>: View
-where ViewModel.Item == Item {
+struct MediaItemCard<Item: CommonMediaItem, PersistenceService: MediaPersistenceService>: View
+where PersistenceService.Item == Item {
     
-    @EnvironmentObject var viewModel: ViewModel
+    @Environment(\.modelContext) private var modelContext
+    let persistenceService: PersistenceService
+
     @State private var showDescription = false
     let item: Item
     let placeholderIcon: String // book.fill | film.fill
@@ -29,6 +31,9 @@ where ViewModel.Item == Item {
                             .scaledToFit()
                             .foregroundStyle(.secondary)
                     }
+                    .retry(maxCount: 3, interval: .seconds(0.5))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height: 116)
@@ -67,7 +72,7 @@ where ViewModel.Item == Item {
                         
                         HStack(spacing: 16) {
                             Button {
-                                viewModel.toggleFavorite(item)
+                                persistenceService.toggleFavorite(item)
                             } label: {
                                 Image(systemName: item.isFavorite ? "heart.fill" : "heart")
                                     .foregroundColor(item.isFavorite ? .red : .secondary)
@@ -77,7 +82,7 @@ where ViewModel.Item == Item {
                             
                             if item.status == .done {
                                 Button {
-                                    viewModel.changeStatus(item, to: .planned)
+                                    persistenceService.changeStatus(item, to: .planned)
                                 } label: {
                                     Image(systemName: "clock")
                                         .foregroundColor(.secondary)
@@ -88,7 +93,7 @@ where ViewModel.Item == Item {
                             
                             if item.status == .planned {
                                 Button {
-                                    viewModel.changeStatus(item, to: .done)
+                                    persistenceService.changeStatus(item, to: .done)
                                 } label: {
                                     Image(systemName: "checkmark")
                                         .foregroundColor(.green)
@@ -123,7 +128,7 @@ where ViewModel.Item == Item {
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
                     }
                 }
-                .onLongPressGesture(minimumDuration: 0.5) {
+                .onTapGesture {
                     if item.itemDescription != nil {
                         showDescription = true
                     }

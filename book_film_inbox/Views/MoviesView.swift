@@ -8,68 +8,31 @@
 import SwiftUI
 
 struct MoviesView: View {
-    @EnvironmentObject var viewModel: MoviesViewModel
+    @Environment(MoviePersistenceService.self) private var persistenceService
+    
     @State private var selectedFilter: FilterType = .all
     @State private var showingAddSheet = false
-    
-    var filteredItems: [MovieItem] {
-        viewModel.filteredItems(filter: selectedFilter)
-    }
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+
                 // Filters
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(FilterType.allCases, id: \.self) { filter in
-                            FilterButton(
-                                iconName: filter.iconName,
-                                count: viewModel.count(filter: filter),
-                                isSelected: selectedFilter == filter,
-                                isFavorite: filter == .favorite
-                            ) {
-                                selectedFilter = filter
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                .padding(.vertical, 12)
-                .background(Color(uiColor: .systemBackground))
+                MediaFilterBar<MoviePersistenceService, MovieItem>(
+                    persistenceService: persistenceService,
+                    selectedFilter: $selectedFilter
+                )
                 
-                // List
-                if filteredItems.isEmpty {
-                    Spacer()
-                    Text(".label.common.list_empty")
-                        .foregroundColor(.secondary)
-                    Spacer()
-                } else {
-                    List {
-                        ForEach(filteredItems) { item in
-                            MediaItemCard<MovieItem, MoviesViewModel>(
-                                    item: item,
-                                    placeholderIcon: "film.fill",
-                                    itemDetailedTypeIcon: item.type == VideoType.tvSeries ? "tv" : "film",
-                                    isDraft: { DraftMovieService.shared.isDraft(item: $0) }
-                            )
-                                .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
-                                        viewModel.deleteItem(item)
-                                    } label: {
-                                        Label(".button.delete", systemImage: "trash")
-                                    }
-                                    .tint(.red)
-                                }
-                        }
-                        
-                    }
-                    .listStyle(.plain)
-                    .padding(.horizontal)
-                }
+                // List with dynamic filtering
+                MediaListContent<MovieItem, MoviePersistenceService>(
+                    filter: selectedFilter,
+                    persistenceService: persistenceService,
+                    placeholderIcon: "film.fill",
+                    itemDetailedTypeIconFunc: { $0.type == VideoType.tvSeries ? "tv" : "film" },
+                    isDraft: { DraftMovieService.shared.isDraft(item: $0) },
+                    onDelete: { persistenceService.delete($0) },
+                )
+                
             }
             .navigationTitle(".title.movie.list")
             .navigationBarTitleDisplayMode(.inline)
@@ -83,16 +46,17 @@ struct MoviesView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                AddMediaSheet<ExternalMovieItem, MoviesViewModel>(
+                AddMediaSheet<ExternalMovieItem, MoviePersistenceService>(
                     title: ".title.movie.add",
                     cantFindMessage: ".label.movie.cant_find",
                     emptyStateIcon: "film.stack.fill",
                     placeholderIcon: "film.fill",
                     getItemDetailedTypeIcon: { $0?.type == .tvSeries ? "tv" : "film" },
-                    isItemInLibrary: { viewModel.isInLibrary(sourceId: $0.sourceId, sourceName: $0.sourceName) },
+                    isItemInLibrary: { persistenceService.isInLibrary(sourceId: $0.sourceId, sourceName: $0.sourceName) },
                     getAuthorInfo: { item in nil },
                     getDraftItem: { DraftMovieService.shared.single(query: $0) },
-                    sourcesKeyPath: \.availableVideoSources
+                    sourcesKeyPath: \.availableVideoSources,
+                    persistenceService: persistenceService
                 )
 
             }

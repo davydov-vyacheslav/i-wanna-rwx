@@ -1,5 +1,5 @@
 //
-//  xxxxAddMediaSheet.swift
+//  AddMediaSheet.swift
 //  book_film_inbox
 //
 //  Created by Slava Davydov on 04.02.2026.
@@ -8,11 +8,10 @@
 import SwiftUI
 
 
-struct AddMediaSheet<Item: ExternalMediaItem, ViewModel: MediaViewModelProtocol>: View
-where ViewModel.Item == Item.MediaItem
+struct AddMediaSheet<Item: ExternalMediaItem, PersistenceService: MediaPersistenceService>: View
+where PersistenceService.Item == Item.MediaItem
 {
-    @EnvironmentObject var viewModel: ViewModel
-    @EnvironmentObject var settingsViewModel: SettingsViewModel
+    @Environment(SettingsService.self) var settingsService: SettingsService
     @Environment(\.dismiss) var dismiss
     
     @State private var searchText = ""
@@ -21,7 +20,7 @@ where ViewModel.Item == Item.MediaItem
     @State private var searchTask: Task<Void, Never>?
     @State private var selectedService: SettingsSourceEntity? = nil
     
-    @ObservedObject private var settingsSearchStore = SettingsSourceStore.shared
+    @Bindable private var settingsSearchStore = SettingsSourceStore.shared
     
     @FocusState private var isSearchFieldFocused: Bool
     
@@ -37,10 +36,11 @@ where ViewModel.Item == Item.MediaItem
     let getAuthorInfo: (Item) -> String?
     let getDraftItem: (String) -> Item
     let sourcesKeyPath: KeyPath<SettingsSourceStore, [SettingsSourceEntity]>
+    let persistenceService: PersistenceService
     
     var availableServices: [SettingsSourceEntity] {
         settingsSearchStore[keyPath: sourcesKeyPath].filter { service in
-            !type(of: service.instance).requiresToken || settingsViewModel.hasToken(for: type(of: service.instance).serviceName)
+            !type(of: service.instance).requiresToken || settingsService.hasToken(for: type(of: service.instance).serviceName)
         }
     }
     
@@ -71,14 +71,14 @@ where ViewModel.Item == Item.MediaItem
                     Button(".button.close") { dismiss() }
                 }
             }
+            .task {
+                await initializeView()
+            }
             .onChange(of: searchText) { oldValue, newValue in
                 handleSearchTextChange(newValue)
             }
             .onChange(of: selectedService) { oldValue, newValue in
                 handleServiceChange()
-            }
-            .task {
-                await initializeView()
             }
         }
         .sensoryFeedback(.error, trigger: showToast)
@@ -91,17 +91,19 @@ where ViewModel.Item == Item.MediaItem
     }
     
     // MARK: - Results View
+
     @ViewBuilder
     private var resultsView: some View {
-        if isSearching {
+        switch (isSearching, searchText.isEmpty) {
+        case (true, _):
             VStack {
                 Spacer()
                 ProgressView(".placeholder.common.search")
                 Spacer()
             }
-        } else if searchText.isEmpty {
+        case (false, true):
             emptyState
-        } else {
+        case (false, false):
             resultsList
         }
     }
@@ -132,7 +134,8 @@ where ViewModel.Item == Item.MediaItem
             if !results.isEmpty {
                 Section {
                     ForEach(results) { item in
-                        MediaSearchItemCard<Item, ViewModel>(
+                        MediaSearchItemCard<Item, PersistenceService>(
+                            persistenceService: persistenceService,
                             item: item,
                             isInLibrary: isItemInLibrary(item),
                             selectedService: selectedService?.instance as? any SearchService<Item>,
@@ -152,7 +155,8 @@ where ViewModel.Item == Item.MediaItem
             // Manual add section
             if !searchText.isEmpty {
                 Section {
-                    MediaSearchItemCard<Item, ViewModel>(
+                    MediaSearchItemCard<Item, PersistenceService>(
+                        persistenceService: persistenceService,
                         item: getDraftItem(searchText),
                         isInLibrary: false,
                         selectedService: nil,
@@ -198,9 +202,9 @@ where ViewModel.Item == Item.MediaItem
         
         isSearching = true
         
-        searchTask = Task {
+        searchTask = Task { 
             if selectedService != nil {
-                try? await Task.sleep(nanoseconds: 500_000_000)
+                try? await Task.sleep(for: .seconds(UiConstants.searchDebounceInterval))
             }
             
             if !Task.isCancelled {
@@ -224,7 +228,7 @@ where ViewModel.Item == Item.MediaItem
         }
         
         // Autofocus on screen appear
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        try? await Task.sleep(for: .seconds(UiConstants.autoFocusDelay))
         isSearchFieldFocused = true
     }
     
@@ -273,7 +277,7 @@ where ViewModel.Item == Item.MediaItem
         showToast = true
         
         Task {
-            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            try? await Task.sleep(for: .seconds(UiConstants.toastDuration))
             showToast = false
         }
     }

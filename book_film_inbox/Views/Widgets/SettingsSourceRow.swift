@@ -9,34 +9,81 @@ import SwiftUI
 
 struct SettingsSourceRow: View {
     let searchService: any SearchService
-    @ObservedObject var viewModel: SettingsViewModel
+    
+    @State private var isExpanded: Bool = false
+    @State private var isEditing: Bool = false
+    @State private var tempToken: String = ""
+    @State private var showToken: Bool = false
+    @State private var showError: Bool = false
+    @State private var errorMessage: String = ""
+    
+    @Environment(SettingsService.self) private var settingsService
 
+    private var serviceName: String {
+        type(of: searchService).serviceName
+    }
+    
+    private var hasToken: Bool {
+        settingsService.hasToken(for: serviceName)
+    }
+    
     var body: some View {
         if type(of: searchService).requiresToken {
             // Expandable list for sources with tokens
-            DisclosureGroup(
-                isExpanded: Binding(
-                    get: { viewModel.expandedSources.contains(type(of: searchService).serviceName) },
-                    set: { _ in viewModel.toggleExpanded(for: type(of: searchService).serviceName) }
+            DisclosureGroup(isExpanded: $isExpanded) {
+                DetailView(
+                    searchService: searchService,
+                    isEditing: $isEditing,
+                    tempToken: $tempToken,
+                    showToken: $showToken,
+                    showError: $showError,
+                    errorMessage: $errorMessage,
+                    hasToken: hasToken,
+                    onSave: handleSave,
+                    onDelete: handleDelete,
+                    onCancel: handleCancel
                 )
-            ) {
-                DetailView(searchService: searchService, viewModel: viewModel)
             } label: {
-                HeaderView(searchService: searchService, viewModel: viewModel)
+                HeaderView(searchService: searchService, hasToken: hasToken)
             }
         } else {
             // Simple, non-expandable list item
             HStack {
-                HeaderView(searchService: searchService, viewModel: viewModel)
+                HeaderView(searchService: searchService, hasToken: hasToken)
             }
             .padding(.vertical, 4)
         }
     }
     
+    private func handleSave() async {
+        guard !tempToken.isEmpty else { return }
+        
+        let isValid = await searchService.isTokenValid(token: tempToken)
+        
+        if isValid {
+            settingsService.saveToken(for: serviceName, token: tempToken)
+            isEditing = false
+            tempToken = ""
+            isExpanded = false
+        } else {
+            errorMessage = String(localized: ".error.wrong_api_key")
+            showError = true
+        }
+    }
+    
+    private func handleDelete() {
+        settingsService.removeToken(for: serviceName)
+    }
+    
+    private func handleCancel() {
+        isEditing = false
+        tempToken = ""
+    }
+    
     // MARK: - Header View
     private struct HeaderView: View {
         let searchService: any SearchService
-        @ObservedObject var viewModel: SettingsViewModel
+        let hasToken: Bool
         
         var body: some View {
             HStack {
@@ -47,7 +94,7 @@ struct SettingsSourceRow: View {
                 Spacer()
                 
                 if type(of: searchService).requiresToken {
-                    if viewModel.hasToken(for: type(of: searchService).serviceName) {
+                    if hasToken {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
                             .imageScale(.medium)
@@ -64,16 +111,30 @@ struct SettingsSourceRow: View {
     // MARK: - Detail View
     private struct DetailView: View {
         let searchService: any SearchService
-        @ObservedObject var viewModel: SettingsViewModel
-        @State private var errorMessage: String = ""
-        @State private var showError: Bool = false
+        @Binding var isEditing: Bool
+        @Binding var tempToken: String
+        @Binding var showToken: Bool
+        @Binding var showError: Bool
+        @Binding var errorMessage: String
+        let hasToken: Bool
+        let onSave: () async -> Void
+        let onDelete: () -> Void
+        let onCancel: () -> Void
         
-        var isEditing: Bool {
-            viewModel.editingSource == type(of: searchService).serviceName
+        @Environment(SettingsService.self) private var settingsService
+        
+        private var serviceName: String {
+            type(of: searchService).serviceName
         }
         
-        var hasToken: Bool {
-            viewModel.hasToken(for: type(of: searchService).serviceName)
+        private var displayToken: String {
+            guard let token = settingsService.getToken(for: serviceName) else { return "" }
+            
+            if showToken {
+                return token
+            } else {
+                return String(repeating: "•", count: min(token.count, 20))
+            }
         }
         
         var body: some View {
@@ -88,7 +149,7 @@ struct SettingsSourceRow: View {
                             .foregroundColor(.secondary)
                         
                         HStack {
-                            Text(viewModel.getDisplayToken(for: type(of: searchService).serviceName))
+                            Text(displayToken)
                                 .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 12)
@@ -98,9 +159,9 @@ struct SettingsSourceRow: View {
                                 .cornerRadius(8)
                             
                             Button {
-                                viewModel.toggleShowToken(for: type(of: searchService).serviceName)
+                                showToken.toggle()
                             } label: {
-                                Image(systemName: viewModel.showToken.contains(type(of: searchService).serviceName) ? "eye.slash.fill" : "eye.fill")
+                                Image(systemName: showToken ? "eye.slash.fill" : "eye.fill")
                                     .foregroundColor(.secondary)
                             }
                             .buttonStyle(.borderless)
@@ -115,8 +176,8 @@ struct SettingsSourceRow: View {
                             .font(.caption)
                             .fontWeight(.medium)
                             .foregroundColor(.secondary)
-
-                        SecureField(".placeholder.settings.source.enter_token", text: $viewModel.tempToken)
+                        
+                        SecureField(".placeholder.settings.source.enter_token", text: $tempToken)
                             .textFieldStyle(.roundedBorder)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -139,33 +200,30 @@ struct SettingsSourceRow: View {
                 if isEditing {
                     HStack(spacing: 12) {
                         Button(".button.cancel") {
-                            viewModel.cancelEditing()
+                            onCancel()
                         }
                         .buttonStyle(.bordered)
                         .frame(maxWidth: .infinity)
                         
                         Button(".button.save") {
                             Task {
-                                if await viewModel.saveEditing(for: searchService) == false {
-                                    errorMessage = String(localized: ".error.wrong_api_key")
-                                    showError = true
-                                }
+                                await onSave()
                             }
                         }
                         .buttonStyle(.borderedProminent)
                         .frame(maxWidth: .infinity)
-                        .disabled(viewModel.tempToken.isEmpty)
+                        .disabled(tempToken.isEmpty)
                     }
                 } else if hasToken {
                     HStack(spacing: 12) {
                         Button(".button.update") {
-                            viewModel.startEditing(for: type(of: searchService).serviceName)
+                            isEditing = true
                         }
                         .buttonStyle(.bordered)
                         .frame(maxWidth: .infinity)
                         
                         Button(".button.delete") {
-                            viewModel.removeToken(for: type(of: searchService).serviceName)
+                            onDelete()
                         }
                         .buttonStyle(.bordered)
                         .tint(.red)
@@ -173,7 +231,7 @@ struct SettingsSourceRow: View {
                     }
                 } else {
                     Button(".button.add") {
-                        viewModel.startEditing(for: type(of: searchService).serviceName)
+                        isEditing = true
                     }
                     .buttonStyle(.borderedProminent)
                     .frame(maxWidth: .infinity)

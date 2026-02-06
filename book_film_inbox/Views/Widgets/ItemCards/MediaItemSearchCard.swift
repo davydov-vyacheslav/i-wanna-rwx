@@ -8,10 +8,13 @@
 import SwiftUI
 import Kingfisher
 
-struct MediaSearchItemCard<Item: ExternalMediaItem, ViewModel: MediaViewModelProtocol>: View
-where ViewModel.Item == Item.MediaItem {
+
+struct MediaSearchItemCard<Item: ExternalMediaItem, PersistenceService: MediaPersistenceService>: View
+where PersistenceService.Item == Item.MediaItem {
     
-    @EnvironmentObject var viewModel: ViewModel
+    @Environment(\.modelContext) private var modelContext
+    let persistenceService: PersistenceService
+
     @Environment(\.dismiss) var dismiss
     let item: Item
     let isInLibrary: Bool
@@ -25,7 +28,7 @@ where ViewModel.Item == Item.MediaItem {
             Task {
                 if !isInLibrary {
                     let detailedItem = try await selectedService?.getDetails(item: item) ?? item
-                    viewModel.addItem(detailedItem.toCommonMediaItem())
+                    persistenceService.add(detailedItem.toCommonMediaItem())
                     dismiss()
                 }
             }
@@ -38,11 +41,14 @@ where ViewModel.Item == Item.MediaItem {
                             .scaledToFit()
                             .foregroundStyle(.secondary)
                     }
+                    .retry(maxCount: 3, interval: .seconds(0.5))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height: 116)
                     .clipped()
-                
+
                 let yearText = item.year != nil ? String(item.year!) : "—"
                 
                 VStack(alignment: .leading) {

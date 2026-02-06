@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import SwiftData
 
-protocol CommonMediaItem {
+protocol CommonMediaItem: PersistentModel {
     
     var itemDescription: String? { get }
     var title: String { get }

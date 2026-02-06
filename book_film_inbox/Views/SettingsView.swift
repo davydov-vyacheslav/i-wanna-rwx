@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var viewModel: SettingsViewModel
-    @StateObject private var settingsSearchStore = SettingsSourceStore.shared
+    @Environment(SettingsService.self) private var settingsService
+    @State private var settingsSearchStore = SettingsSourceStore.shared
     private let walletAddress = "0x32185d5e0ab4def89d5fdfd1ca02e52bddc02b85"
     private let projectLink = "https://github.com/davydov-vyacheslav/i-wanna-rwx"
     
@@ -20,14 +20,16 @@ struct SettingsView: View {
                 // Movie Sources Section
                 Section(".label.settings.source.movies") {
                     ForEach(settingsSearchStore.availableVideoSources) { source in
-                        SettingsSourceRow(searchService: source.instance, viewModel: viewModel)
+                        SettingsSourceRow(searchService: source.instance)
+                            .id("\(source.id)-\(settingsService.tokenChangeTrigger)")
                     }
                 }
                 
                 // Book Sources Section
                 Section(".label.settings.source.books") {
                     ForEach(settingsSearchStore.availableBookSources) { source in
-                        SettingsSourceRow(searchService: source.instance, viewModel: viewModel)
+                        SettingsSourceRow(searchService: source.instance)
+                            .id("\(source.id)-\(settingsService.tokenChangeTrigger)")
                     }
                 }
                 
@@ -75,10 +77,4 @@ struct SettingsView: View {
             .navigationTitle(".title.settings")
         }
     }
-}
-
-
-
-#Preview {
-    SettingsView()
 }

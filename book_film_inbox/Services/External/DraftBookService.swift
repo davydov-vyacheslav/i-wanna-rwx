@@ -38,7 +38,7 @@ class DraftBookService: SearchService {
         )
     }
     
-    func isDraft(item: CommonMediaItem) -> Bool {
+    func isDraft(item: any CommonMediaItem) -> Bool {
         return item.sourceName == DraftBookService.serviceName
     }
 

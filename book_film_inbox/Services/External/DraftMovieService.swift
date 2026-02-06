@@ -38,7 +38,7 @@ class DraftMovieService: SearchService {
         )
     }
     
-    func isDraft(item: CommonMediaItem) -> Bool {
+    func isDraft(item: any CommonMediaItem) -> Bool {
         return item.sourceName == DraftMovieService.serviceName
     }
 
