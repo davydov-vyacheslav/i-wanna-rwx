@@ -20,7 +20,7 @@ where PersistenceService.Item == Item {
 
     @Query private var items: [Item]
     
-    init(filter: FilterType, persistenceService: PersistenceService, placeholderIcon: String,
+    init(filter: FilterType, persistenceService: PersistenceService, sortDescriptors: [SortDescriptor<Item>], placeholderIcon: String,
          itemDetailedTypeIconFunc: @escaping (Item) -> String, isDraft: @escaping (Item) -> Bool, onDelete: @escaping (Item) -> Void) {
         self.filter = filter
         self.persistenceService = persistenceService
@@ -31,16 +31,10 @@ where PersistenceService.Item == Item {
         
         let predicate: Predicate<Item>? = persistenceService.makeFilterPredicate(for: filter)
         
-        if let predicate = predicate {
-            _items = Query(
-                filter: predicate,
-                sort: [SortDescriptor(\.title)]
-            )
-        } else {
-            _items = Query(
-                sort: [SortDescriptor(\.title)]
-            )
-        }
+        _items = Query(
+            filter: predicate ?? #Predicate { _ in true },
+            sort: sortDescriptors
+        )
     }
     
     var body: some View {

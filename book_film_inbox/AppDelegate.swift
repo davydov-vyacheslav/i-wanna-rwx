@@ -10,14 +10,17 @@ import UserNotifications
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     
+    @MainActor
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         
+        Log.setup()
+        Log.info("🚀 Application launched")
         UNUserNotificationCenter.current().delegate = self
         
-        Task {
+        Task { @MainActor in
             await NotificationService.shared.requestAuthorization()
         }
         

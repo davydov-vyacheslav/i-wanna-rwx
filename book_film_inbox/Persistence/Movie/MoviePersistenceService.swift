@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftData
-import os
 
 @MainActor
 @Observable
@@ -34,7 +33,9 @@ class MoviePersistenceService: MediaPersistenceService {
             let results = try modelContext.fetch(descriptor)
             return results
         } catch {
-            Log.db.error("Error fetching Movies by filter: \(error)")
+            Log.error("Error fetching Movies by filter", error: error, context: [
+                "filter": filter
+            ])
             return []
         }
     }
@@ -99,7 +100,10 @@ class MoviePersistenceService: MediaPersistenceService {
             let results = try modelContext.fetch(descriptor)
             return !results.isEmpty
         } catch {
-            Log.db.error("Error checking if movie exists by isbn: \(error)")
+            Log.error("Error checking if movie exists by source id / name", error: error, context: [
+                "sourceId": sourceId,
+                "sourceName": sourceName
+            ])
             return false
         }
     }

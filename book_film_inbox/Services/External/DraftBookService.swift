@@ -7,10 +7,9 @@
 
 import Foundation
 
-class DraftBookService: SearchService {
+class DraftBookService: BookSearchService {
     
     static let shared = DraftBookService()
-    typealias SearchResultItem = ExternalBookItem
     
     static var serviceName: String = "Draft"
     static var requiresToken: Bool = false

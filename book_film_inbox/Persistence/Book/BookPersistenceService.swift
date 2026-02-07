@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftData
-import os
 
 @MainActor
 @Observable
@@ -27,22 +26,17 @@ class BookPersistenceService: MediaPersistenceService {
     func findByType(_ filter: FilterType) -> [BookItem] {
         let predicate = makeFilterPredicate(for: filter)
         
-        let descriptor: FetchDescriptor<BookItem>
-        if let predicate = predicate {
-            descriptor = FetchDescriptor<BookItem>(
-                predicate: predicate,
-                sortBy: [SortDescriptor(\.title)]
-            )
-        } else {
-            descriptor = FetchDescriptor<BookItem>(
-                sortBy: [SortDescriptor(\.title)]
-            )
-        }
+        let descriptor = FetchDescriptor<BookItem>(
+            predicate: predicate ?? #Predicate { _ in true },
+            sortBy: [SortDescriptor(\.title)]
+        )
         
         do {
             return try modelContext.fetch(descriptor)
         } catch {
-            Log.db.error("Error fetching books by filter: \(error)")
+            Log.error("Error fetching books by filter", error: error, context: [
+                "filter": filter
+            ])
             return []
         }
     }
@@ -103,7 +97,9 @@ class BookPersistenceService: MediaPersistenceService {
             let results = try modelContext.fetch(descriptor)
             return !results.isEmpty
         } catch {
-            Log.db.error("Error checking if book exists by isbn: \(error)")
+            Log.error("Error checking if book exists by isbn", error: error, context: [
+                "isbn": isbn
+            ])
             return false
         }
     }

@@ -105,7 +105,7 @@ struct ReadonlyReminderSheet: View {
                                             : days == 0
                                                 ? ".label.reminder.expire_today"
                                                 : ".label.reminder.expire_left_days \(days)",
-                                            color: item.statusColor)
+                                            color: ReminderItemHelper.getColor(item))
                             }
                                 
                             

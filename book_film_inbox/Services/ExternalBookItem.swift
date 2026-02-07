@@ -49,7 +49,7 @@ struct ExternalBookItem: ExternalMediaItem {
     
     func toCommonMediaItem() -> BookItem {
         return BookItem(
-            description: self.itemDescription,
+            itemDescription: self.itemDescription,
             isFavorite: self.isFavorite,
             rating: self.rating,
             sourceUrl: self.sourceUrl,
@@ -58,7 +58,7 @@ struct ExternalBookItem: ExternalMediaItem {
             title: self.title,
             year: self.year,
             isbn: self.isbn,
-            author: self.author,
+            mainAuthor: self.author,
             sourceName: self.sourceName
         )
     }

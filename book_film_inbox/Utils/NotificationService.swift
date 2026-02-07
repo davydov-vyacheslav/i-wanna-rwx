@@ -50,7 +50,7 @@ class NotificationService {
                 }
                 return granted
             } catch {
-                Log.notification.error("❌ Authorization error: \(error)")
+                Log.error("Authorization error", error: error)
                 await MainActor.run {
                     self.isAuthorized = false
                 }
@@ -102,7 +102,9 @@ class NotificationService {
         }
         
         guard isAuthorized else {
-            Log.notification.warning("⚠️ Notifications not authorized, skipping schedule for \(item.name)")
+            Log.warning("Notifications not authorized, skipping schedule", context: [
+                "name": item.name
+            ])
             return
         }
         
@@ -118,7 +120,9 @@ class NotificationService {
             reminderDays: reminderDays,
             notificationHour: notificationHour
         ) else {
-            Log.notification.info("⏭️ No valid notification time for \(item.name), skipping")
+            Log.info("No valid notification time, skipping", context: [
+                "name": item.name
+            ])
             return
         }
         
@@ -167,7 +171,10 @@ class NotificationService {
 
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd HH:mm"
-            Log.notification.info("📅 Scheduled notification for \(item.name) at \(formatter.string(from: scheduledDate))")
+            Log.info("📅 Scheduled notification", context: [
+                "name": item.name,
+                "date": formatter.string(from: scheduledDate)
+            ])
         }
         
     }
@@ -177,7 +184,9 @@ class NotificationService {
     func cancelNotification(for itemId: UUID) async {
         notificationCenter.removePendingNotificationRequests(withIdentifiers: [itemId.uuidString])
         notificationCenter.removeDeliveredNotifications(withIdentifiers: [itemId.uuidString])
-        Log.notification.info("🗑️ Cancelled notification for \(itemId)")
+        Log.info("🗑️ Cancelled notification", context: [
+            "id": itemId
+        ])
     }
     
     

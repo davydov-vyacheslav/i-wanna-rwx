@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5E46751A2F267F9E0006C548 /* TMDb in Frameworks */ = {isa = PBXBuildFile; productRef = 5E4675192F267F9E0006C548 /* TMDb */; };
+		5E56C6602F3777DC00CA8995 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 5E56C65F2F3777DC00CA8995 /* SwiftyBeaver */; };
 		5E6669302F2E3B0800E1C2C6 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 5E66692F2F2E3B0800E1C2C6 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
@@ -53,6 +54,7 @@
 			files = (
 				5E6669302F2E3B0800E1C2C6 /* Kingfisher in Frameworks */,
 				5E46751A2F267F9E0006C548 /* TMDb in Frameworks */,
+				5E56C6602F3777DC00CA8995 /* SwiftyBeaver in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,6 +124,7 @@
 			packageProductDependencies = (
 				5E4675192F267F9E0006C548 /* TMDb */,
 				5E66692F2F2E3B0800E1C2C6 /* Kingfisher */,
+				5E56C65F2F3777DC00CA8995 /* SwiftyBeaver */,
 			);
 			productName = book_film_inbox;
 			productReference = 5EED6B102ED3A490008F96FF /* IWannaRWX.app */;
@@ -160,6 +163,7 @@
 			packageReferences = (
 				5E4675182F267F9E0006C548 /* XCRemoteSwiftPackageReference "TMDb" */,
 				5E66692E2F2E3B0800E1C2C6 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				5E56C65E2F3777DC00CA8995 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5EED6B112ED3A490008F96FF /* Products */;
@@ -503,6 +507,14 @@
 				minimumVersion = 15.0.1;
 			};
 		};
+		5E56C65E2F3777DC00CA8995 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
+			};
+		};
 		5E66692E2F2E3B0800E1C2C6 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -518,6 +530,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5E4675182F267F9E0006C548 /* XCRemoteSwiftPackageReference "TMDb" */;
 			productName = TMDb;
+		};
+		5E56C65F2F3777DC00CA8995 /* SwiftyBeaver */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E56C65E2F3777DC00CA8995 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			productName = SwiftyBeaver;
 		};
 		5E66692F2F2E3B0800E1C2C6 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -61,10 +61,5 @@ enum MovieSchemaV100: VersionedSchema {
             self.sourceId = sourceId
         }
      
-        
-        var type: VideoType {
-            get { VideoType(rawValue: typeRaw) ?? .movie }
-            set { typeRaw = newValue.rawValue }
-        }
     }
 }

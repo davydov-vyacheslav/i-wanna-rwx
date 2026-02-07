@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftData
-import os
 
 @MainActor
 @Observable
@@ -34,7 +33,7 @@ class ReminderPersistenceService {
                 do {
                     try self.prolongate(item)
                 } catch {
-                    Log.db.error("Error prolongating reminder: \(error)")
+                    Log.error("Error prolongating reminder", error: error)
                 }
             }
         }
@@ -93,7 +92,7 @@ class ReminderPersistenceService {
             
             return filtered
         } catch {
-            Log.db.error("Error fetching Reminders by filter: \(error)")
+            Log.error("Error fetching Reminders by filter", error: error)
             return []
         }
     }
@@ -106,7 +105,7 @@ class ReminderPersistenceService {
         )
         
         guard let dbItem = try modelContext.fetch(descriptor).first else {
-            Log.db.error("Reminder not found for update")
+            Log.error("Reminder not found for update")
             return
         }
         

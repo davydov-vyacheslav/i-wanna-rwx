@@ -27,6 +27,7 @@ struct BooksView: View {
                  MediaListContent<BookItem, BookPersistenceService>(
                      filter: selectedFilter,
                      persistenceService: persistenceService,
+                     sortDescriptors: [SortDescriptor(\BookItem.title)],
                      placeholderIcon: "book.fill",
                      itemDetailedTypeIconFunc: { item in "book" },
                      isDraft: { DraftBookService.shared.isDraft(item: $0) },

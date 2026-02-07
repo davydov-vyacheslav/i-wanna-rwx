@@ -20,6 +20,17 @@ protocol SearchService<SearchResultItem> {
 
 }
 
+protocol MovieSearchService: SearchService where SearchResultItem == ExternalMovieItem {
+    func search(query: String, limit: Int) async throws -> [ExternalMovieItem]
+    func getDetails(item: ExternalMovieItem) async throws -> ExternalMovieItem
+}
+
+protocol BookSearchService: SearchService where SearchResultItem == ExternalBookItem {
+    func search(query: String, limit: Int) async throws -> [ExternalBookItem]
+    func getDetails(item: ExternalBookItem) async throws -> ExternalBookItem
+}
+
+
 extension SearchService {
     func isTokenValid(token: String) async -> Bool {
         return true

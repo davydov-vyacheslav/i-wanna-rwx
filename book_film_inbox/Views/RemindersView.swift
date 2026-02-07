@@ -201,16 +201,10 @@ struct RemindersListContent: View {
         
         let predicate = persistenceService.makeFilterPredicate(typeFilter: filterType, text: searchText)
         
-        if let predicate = predicate {
-            _allReminders = Query(
-                filter: predicate,
-                sort: [SortDescriptor(\.name)]
-            )
-        } else {
-            _allReminders = Query(
-                sort: [SortDescriptor(\.name)]
-            )
-        }
+        _allReminders = Query(
+            filter: predicate ?? #Predicate { _ in true },
+            sort: [SortDescriptor(\.name)]
+        )
     }
     
     private var filteredReminders: [ReminderItem] {
@@ -284,12 +278,7 @@ struct ReminderFilterButton: View {
         self.onTap = onTap
         
         let predicate = persistenceService.makeFilterPredicate(typeFilter: type, text: searchText)
-        
-        if let predicate = predicate {
-            _reminders = Query(filter: predicate)
-        } else {
-            _reminders = Query()
-        }
+        _reminders = Query(filter: predicate ?? #Predicate { _ in true })
     }
     
     private var count: Int {
@@ -308,37 +297,42 @@ struct ReminderFilterButton: View {
 
  // MARK: - Extensions
 
-extension ReminderItem {
-    var statusColor: Color {
-        if isExpired { return .gray }
-        if isExpiringCriticalSoon { return .orange }
-        if isExpiringSoon { return .yellow }
+struct ReminderItemHelper {
+    static func getColor(_ item: ReminderItem) -> Color {
+        if item.isExpired { return .gray }
+        if item.isExpiringCriticalSoon { return .orange }
+        if item.isExpiringSoon { return .yellow }
         return .green
     }
     
-    var formattedRenewalType: String {
-        let prefix = String(localized: ".label.reminder.renew_policy_prefix")
-        
-        switch renewalType {
-        case .custom:
-            guard let periodValue = customPeriodValue,
-                  let unit = customPeriodUnit else {
-                return prefix
-            }
-            
-            let each = String(localized: ".label.reminder.renew_policy_each")
-            let unitName = String.localizedStringWithFormat(
-                NSLocalizedString(unit.displayNameSuffix, comment: ""),
-                periodValue
-            )
-            
-            return "\(prefix) \(each) \(periodValue) \(unitName)"
-            
-        default:
-            return "\(prefix) \(renewalType.displayName)"
-        }
-    }
 }
+
+//extension ReminderItem {
+//    
+//    @Transient
+//    var formattedRenewalType: String {
+//        let prefix = String(localized: ".label.reminder.renew_policy_prefix")
+//        
+//        switch renewalType {
+//        case .custom:
+//            guard let periodValue = customPeriodValue,
+//                  let unit = customPeriodUnit else {
+//                return prefix
+//            }
+//            
+//            let each = String(localized: ".label.reminder.renew_policy_each")
+//            let unitName = String.localizedStringWithFormat(
+//                NSLocalizedString(unit.displayNameSuffix, comment: ""),
+//                periodValue
+//            )
+//            
+//            return "\(prefix) \(each) \(periodValue) \(unitName)"
+//            
+//        default:
+//            return "\(prefix) \(renewalType.displayName)"
+//        }
+//    }
+//}
 
 extension ReminderType {
     var displayName: LocalizedStringKey {

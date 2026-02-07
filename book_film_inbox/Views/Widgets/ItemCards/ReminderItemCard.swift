@@ -19,7 +19,7 @@ struct ReminderItemCard: View {
                 .frame(width: 56, height: 56)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(item.statusColor.opacity(0.3), lineWidth: 1)
+                        .stroke(ReminderItemHelper.getColor(item).opacity(0.3), lineWidth: 1)
                 )
                 .cornerRadius(16)
                 .grayscale(item.isExpired ? 1 : 0)
@@ -49,7 +49,7 @@ struct ReminderItemCard: View {
                         StatusBadge(
                             icon: "calendar",
                             text: item.isExpired ? ".label.reminder.expired" : ".label.reminder.expired_in_days \(days)",
-                            color: item.statusColor
+                            color: ReminderItemHelper.getColor(item)
                         )
                     } else {
                         StatusBadge(

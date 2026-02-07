@@ -8,9 +8,7 @@
 import TMDb
 import Foundation
 
-class TMDbService: SearchService {
-    
-    typealias SearchResultItem = ExternalMovieItem
+class TMDbService: MovieSearchService {
     
     static var serviceName: String = "TMDb"
     static var requiresToken: Bool = true
@@ -22,7 +20,7 @@ class TMDbService: SearchService {
     
     init() {
         let currentToken = SettingsService.shared.getToken(for: TMDbService.serviceName)
-        tmdbClient = TMDbClient(apiKey: currentToken ?? "foo token")
+        tmdbClient = TMDbClient(apiKey: currentToken ?? "")
     }
     
     func isTokenValid(token: String) async -> Bool {

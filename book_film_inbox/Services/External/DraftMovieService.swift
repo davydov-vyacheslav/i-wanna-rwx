@@ -7,10 +7,9 @@
 
 import Foundation
 
-class DraftMovieService: SearchService {
+class DraftMovieService: MovieSearchService {
     
     static let shared = DraftMovieService()
-    typealias SearchResultItem = ExternalMovieItem
     
     static var serviceName: String = "Draft"
     static var requiresToken: Bool = false

@@ -58,6 +58,7 @@ enum ReminderSchemaV100: VersionedSchema {
 
         // MARK: - Computed Properties
         
+        @Transient
         var nextExpiryDate : Date? {
             
             let calendar: Calendar = .current
@@ -92,6 +93,7 @@ enum ReminderSchemaV100: VersionedSchema {
             return renewedExpirationDate
         }
         
+        @Transient
         var daysUntilExpiry: Int? {
             guard renewalType != RenewalTypeV100.lifetime, let expiryDate = expiryDate else { return nil }
             let calendar = Calendar.current
@@ -100,38 +102,72 @@ enum ReminderSchemaV100: VersionedSchema {
             return calendar.dateComponents([.day], from: today, to: expiryDay).day
         }
         
+        @Transient
         var expirationStatus: ExpirationStatusV100 {
             ExpirationStatus.of(self)
         }
 
+        @Transient
         var isExpired: Bool {
             expirationStatus == .expired
         }
         
+        @Transient
         var isExpiringSoon: Bool {
             expirationStatus == .expiringSoon
         }
 
+        @Transient
         var isExpiringCriticalSoon: Bool {
             expirationStatus == .expiringCritical
         }
         
+        @Transient
         var isExpiringOrExpired: Bool {
             expirationStatus == .expired || expirationStatus == .expiringSoon || expirationStatus == .expiringCritical
         }
 
+        @Transient
         var type: ReminderTypeV100 {
             get { ReminderTypeV100(rawValue: typeRaw) ?? .license }
             set { typeRaw = newValue.rawValue }
         }
+        
+        @Transient
         var renewalType: RenewalTypeV100 {
             get { RenewalTypeV100(rawValue: renewalTypeRaw) ?? .none }
             set { renewalTypeRaw = newValue.rawValue }
         }
+        
+        @Transient
         var customPeriodUnit: PeriodUnitV100? {
             get { guard let customPeriodUnitValue = customPeriodUnitRaw else { return nil }
                 return PeriodUnitV100(rawValue: customPeriodUnitValue) }
             set { customPeriodUnitRaw = newValue?.rawValue }
+        }
+        
+        @Transient
+        var formattedRenewalType: String {
+            let prefix = String(localized: ".label.reminder.renew_policy_prefix")
+            
+            switch renewalType {
+            case .custom:
+                guard let periodValue = customPeriodValue,
+                      let unit = customPeriodUnit else {
+                    return prefix
+                }
+                
+                let each = String(localized: ".label.reminder.renew_policy_each")
+                let unitName = String.localizedStringWithFormat(
+                    NSLocalizedString(unit.displayNameSuffix, comment: ""),
+                    periodValue
+                )
+                
+                return "\(prefix) \(each) \(periodValue) \(unitName)"
+                
+            default:
+                return "\(prefix) \(renewalType.displayName)"
+            }
         }
     }
     

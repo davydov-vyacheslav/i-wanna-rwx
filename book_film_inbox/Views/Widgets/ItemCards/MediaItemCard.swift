@@ -32,7 +32,8 @@ where PersistenceService.Item == Item {
                             .foregroundStyle(.secondary)
                     }
                     .retry(maxCount: 3, interval: .seconds(0.5))
-                    .cacheMemoryOnly()
+                    .cacheOriginalImage()
+                    .diskCacheExpiration(.days(7))
                     .fade(duration: 0.25)
                     .resizable()
                     .scaledToFill()
@@ -44,6 +45,7 @@ where PersistenceService.Item == Item {
                 
                 // Content
                 VStack(alignment: .leading, spacing: 1) {
+                    let itemStatus = MediaItemHelper.getStatus(from: item)
                     // Title
                     HStack {
                         
@@ -65,7 +67,7 @@ where PersistenceService.Item == Item {
                         Image(systemName: "star.fill")
                             .font(.caption)
                             .foregroundColor(.yellow)
-                        Text(item.ratingText)
+                        Text(MediaItemHelper.getRatingText(from: item))
                             .font(.caption)
                         
                         Spacer()
@@ -80,7 +82,7 @@ where PersistenceService.Item == Item {
                             .buttonStyle(.plain)
                             .frame(width: 16)
                             
-                            if item.status == .done {
+                            if itemStatus == .done {
                                 Button {
                                     persistenceService.changeStatus(item, to: .planned)
                                 } label: {
@@ -91,7 +93,7 @@ where PersistenceService.Item == Item {
                                 .frame(width: 16)
                             }
                             
-                            if item.status == .planned {
+                            if itemStatus == .planned {
                                 Button {
                                     persistenceService.changeStatus(item, to: .done)
                                 } label: {
@@ -105,24 +107,18 @@ where PersistenceService.Item == Item {
                         }
                     }
                     .frame(height: 16)
-                    
-                    if let author = item.mainAuthor {
-                        Text(author)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text(".label.common_media.no_author")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                    }
-                    
+
+                    Text(item.mainAuthor ?? String(localized: ".label.common_media.no_author") )
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
                     Spacer()
                     
                     // Badges
                     HStack(spacing: 6) {
-                        if item.status == .planned {
+                        if itemStatus == .planned {
                             StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
-                        } else if item.status == .done {
+                        } else if itemStatus == .done {
                             StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)

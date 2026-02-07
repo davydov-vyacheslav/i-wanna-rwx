@@ -23,16 +23,17 @@ protocol CommonMediaItem: PersistentModel {
 
 }
 
-extension CommonMediaItem {
-
-    var status: MediaStatus {
-        get { MediaStatus(rawValue: statusRaw) ?? .planned }
-        set { statusRaw = newValue.rawValue }
+struct MediaItemHelper {
+    static func getStatus(from item: any CommonMediaItem) -> MediaStatus {
+        MediaStatus(rawValue: item.statusRaw) ?? .planned
     }
 
-    var ratingText : String {
-        rating == 0 ? "N/A" : String(format: "%.1f", rating)
+    static func getRatingText(from item: any CommonMediaItem) -> String {
+        item.rating == 0 ? "N/A" : String(format: "%.1f", item.rating)
+    }
+    
+    static func getVideoType(from item: MovieItem) -> VideoType {
+        VideoType(rawValue: item.typeRaw) ?? .movie
     }
 
 }
-

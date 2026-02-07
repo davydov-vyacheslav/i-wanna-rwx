@@ -50,12 +50,7 @@ where PersistenceService.Item == Item
         self.onTap = onTap
         
         let predicate: Predicate<Item>? = persistenceService.makeFilterPredicate(for: filter)
-        
-        if let predicate = predicate {
-            _items = Query(filter: predicate)
-        } else {
-            _items = Query()
-        }
+        _items = Query(filter: predicate ?? #Predicate { _ in true })
     }
     
     var body: some View {

@@ -37,7 +37,7 @@ where PersistenceService.Item == Item.MediaItem
     let getDraftItem: (String) -> Item
     let sourcesKeyPath: KeyPath<SettingsSourceStore, [SettingsSourceEntity]>
     let persistenceService: PersistenceService
-    
+
     var availableServices: [SettingsSourceEntity] {
         settingsSearchStore[keyPath: sourcesKeyPath].filter { service in
             !type(of: service.instance).requiresToken || settingsService.hasToken(for: type(of: service.instance).serviceName)

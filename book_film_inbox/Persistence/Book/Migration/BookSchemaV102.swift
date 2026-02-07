@@ -31,7 +31,7 @@ enum BookSchemaV102: VersionedSchema {
         
         public init(
             id: UUID? = UUID(),
-            description: String? = nil,
+            itemDescription: String? = nil,
             isFavorite: Bool? = false,
             rating: Double? = 0.0,
             sourceUrl: URL,
@@ -40,12 +40,12 @@ enum BookSchemaV102: VersionedSchema {
             title: String,
             year: Int? = nil,
             isbn: String?,
-            author: String?,
+            mainAuthor: String?,
             sourceName: String
         ) {
             self.id = id ?? UUID()
             self.title = title
-            self.itemDescription = description
+            self.itemDescription = itemDescription
             self.isFavorite = isFavorite ?? false
             self.rating = rating ?? 0.0
             self.sourceUrl = sourceUrl
@@ -53,7 +53,7 @@ enum BookSchemaV102: VersionedSchema {
             self.statusRaw = status.rawValue
             self.year = year
             self.isbn = isbn
-            self.mainAuthor = author
+            self.mainAuthor = mainAuthor
             self.sourceName = sourceName
         }
         

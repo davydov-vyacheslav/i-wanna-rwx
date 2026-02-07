@@ -7,7 +7,6 @@
 
 import Security
 import Foundation
-import os
 
 class KeychainHelper {
     static let shared = KeychainHelper()
@@ -29,7 +28,10 @@ class KeychainHelper {
         // Add new item
         let status = SecItemAdd(query as CFDictionary, nil)
         if status != errSecSuccess {
-            Log.db.error("Keychain save failed for key '\(key)', status: \(status)")
+            Log.error("Keychain save failed", context: [
+                "key": key,
+                "status": status
+            ])
         }
         return status == errSecSuccess
     }
@@ -47,7 +49,10 @@ class KeychainHelper {
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         
         if status != errSecSuccess {
-            Log.db.error("Keychain load failed for key '\(key)', status: \(status)")
+            Log.error("Keychain load failed", context: [
+                "key": key,
+                "status": status
+            ])
         }
 
         guard status == errSecSuccess,
@@ -68,7 +73,10 @@ class KeychainHelper {
         
         let status = SecItemDelete(query as CFDictionary)
         if status != errSecSuccess {
-            Log.db.error("Keychain delete failed for key '\(key)', status: \(status)")
+            Log.error("Keychain delete failed", context: [
+                "key": key,
+                "status": status
+            ])
         }
         return status == errSecSuccess
     }

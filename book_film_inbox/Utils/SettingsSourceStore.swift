@@ -13,6 +13,7 @@ class SettingsSourceStore {
     
     static let shared = SettingsSourceStore()
     
+    // FIXME: of specific type
     var availableBookSources: [SettingsSourceEntity] = [ ]
     var availableVideoSources: [SettingsSourceEntity] = [ ]
 

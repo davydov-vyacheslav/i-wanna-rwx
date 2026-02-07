@@ -7,119 +7,25 @@
 
 import Foundation
 
-struct OLSearchResponse: Codable {
-    let numFound: Int
-    let start: Int
-    let docs: [OLSearchDoc]
-    
-    enum CodingKeys: String, CodingKey {
-        case numFound = "numFound"
-        case start
-        case docs
-    }
-}
-
-struct OLSearchDoc: Codable {
-    let key: String
-    let title: String
-    let authorName: [String]?
-    let firstPublishYear: Int?
-    let coverI: Int?
-    let ratingsAverage: Double?
-    let isbn: [String]?
-    
-    enum CodingKeys: String, CodingKey {
-        case key
-        case title
-        case authorName = "author_name"
-        case firstPublishYear = "first_publish_year"
-        case coverI = "cover_i"
-        case ratingsAverage = "ratings_average"
-        case isbn
-    }
-}
-
-struct OLWorkDetail: Codable {
-    let description: OLDescription?
-    let title: String?
-    let covers: [Int]?
-    let firstPublishDate: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case description
-        case title
-        case covers
-        case firstPublishDate = "first_publish_date"
-    }
-}
-
-struct OLDescription: Codable {
-    let value: String?
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let stringValue = try? container.decode(String.self) {
-            self.value = stringValue
-        } else if let dictValue = try? container.decode([String: String].self) {
-            self.value = dictValue["value"]
-        } else {
-            self.value = nil
-        }
-    }
-}
-
-// MARK: - Open Library Service
-
-class OpenLibraryService: SearchService {
-    
-    typealias SearchResultItem = ExternalBookItem
+class OpenLibraryService: BookSearchService {
     
     static var serviceName: String = "Open Library"
     static var requiresToken: Bool = false
     static var tokenPlaceholder: String? = nil
     static var helpURL: String? = nil
-    
-    private let baseURL = "https://openlibrary.org"
-    private let session: URLSession
+
+    let client: OpenLibraryClient
     
     init() {
-        let config = URLSessionConfiguration.default
-        self.session = URLSession(configuration: config)
+        client = OpenLibraryClient()
     }
-    
     
     // MARK: - Search Books
     
-    // @Override
     func search(query: String, limit: Int) async throws -> [ExternalBookItem] {
-        var components = URLComponents(string: "\(baseURL)/search.json")
-        components?.queryItems = [
-            URLQueryItem(name: "q", value: query),
-            URLQueryItem(name: "limit", value: String(limit)),
-            URLQueryItem(name: "fields", value: "key,cover_i,title,subtitle,author_name,editions,name,ratings_average,first_publish_year,isbn")
-        ]
-        
-        guard let url = components?.url else {
-            throw OLError.invalidURL
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw OLError.invalidResponse
-        }
-        
-        guard httpResponse.statusCode == 200 else {
-            throw OLError.httpError(statusCode: httpResponse.statusCode)
-        }
-        
-        let searchResponse = try JSONDecoder().decode(OLSearchResponse.self, from: data)
-        
-        return searchResponse.docs.map { doc in
-            convertToBook(from: doc)
+        let searchResponse = try await client.search(query: query, limit: limit)
+        return try searchResponse.docs.map { doc in
+            try convertToBook(from: doc)
         }
     }
     
@@ -132,7 +38,7 @@ class OpenLibraryService: SearchService {
                 // Merge search data with detailed data
                 
                 let mergedBook = ExternalBookItem(
-                    title: detailedBook.title.isEmpty ? item.title : detailedBook.title,
+                    title: item.title,
                     sourceUrl: item.sourceUrl,
                     sourceName: item.sourceName,
                     description: detailedBook.itemDescription,
@@ -153,59 +59,32 @@ class OpenLibraryService: SearchService {
 
     }
         
-    private func getBookDetails(workKey: String) async throws -> ExternalBookItem? {
+    private func getBookDetails(workKey: String) async throws -> DetailedBookInfo? {
         
-        // Clean the work key (remove /works/ if present)
-        let cleanKey = workKey.replacingOccurrences(of: "/works/", with: "")
-        let detailURL = "\(baseURL)/works/\(cleanKey).json"
+        let workDetailResponse = try await client.getBookDetails(workKey: workKey)
         
-        guard let url = URL(string: detailURL) else {
-            throw OLError.invalidURL
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw OLError.invalidResponse
-        }
-        
-        guard httpResponse.statusCode == 200 else {
-            return nil
-        }
-        
-        let workDetail = try JSONDecoder().decode(OLWorkDetail.self, from: data)
-        
-        let coverUrl = workDetail.covers?.first.map { coverId in
-            "https://covers.openlibrary.org/b/id/\(coverId)-L.jpg"
-        }
+        guard let workDetail = workDetailResponse else { return nil }
         
         let year = extractYear(from: workDetail.firstPublishDate)
         
-        return ExternalBookItem(
-            title: workDetail.title ?? "",
-            sourceUrl: URL(string: "\(baseURL)/works/\(cleanKey)")!,
-            sourceName: OpenLibraryService.serviceName,
-            description: workDetail.description?.value,
-            coverUrl: coverUrl.flatMap { URL(string: $0) },
-            year: year,
-        )
+        return DetailedBookInfo(
+                itemDescription: workDetail.description?.value,
+                coverUrl: try workDetail.covers?.first.flatMap { try client.getCoverUrl($0) },
+                year: year
+            )
     }
     
     
     // MARK: - Helper Methods
     
-    private func convertToBook(from doc: OLSearchDoc) -> ExternalBookItem {
-        let coverUrl = doc.coverI.map { "https://covers.openlibrary.org/b/id/\($0)-L.jpg" }
+    private func convertToBook(from doc: OLSearchDoc) throws -> ExternalBookItem {
         
         return ExternalBookItem(
             title: doc.title,
-            sourceUrl: URL(string: "\(baseURL)\(doc.key)")!,
+            sourceUrl: URL(string: "\(client.baseURL)\(doc.key)")!,
             sourceName: OpenLibraryService.serviceName,
             rating: doc.ratingsAverage,
-            coverUrl: coverUrl.flatMap { URL(string: $0) },
+            coverUrl: try doc.coverI.flatMap { try client.getCoverUrl($0) },
             isbn: doc.isbn?.first,
             author: doc.authorName?.joined(separator: ", "),
             year: doc.firstPublishYear,
@@ -222,28 +101,13 @@ class OpenLibraryService: SearchService {
             return nil
         }
     }
+
     
-}
-// MARK: - Error Handling
-
-enum OLError: Error {
-    case invalidURL
-    case invalidResponse
-    case httpError(statusCode: Int)
-    case decodingError
-}
-
-extension OLError: LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL:
-            return "Invalid URL"
-        case .invalidResponse:
-            return "Invalid response from server"
-        case .httpError(let code):
-            return "HTTP error: \(code)"
-        case .decodingError:
-            return "Failed to decode response"
-        }
+    private struct DetailedBookInfo {
+        let itemDescription: String?
+        let coverUrl: URL?
+        let year: Int?
     }
+
 }
+

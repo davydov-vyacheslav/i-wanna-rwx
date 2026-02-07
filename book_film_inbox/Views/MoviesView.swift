@@ -27,8 +27,9 @@ struct MoviesView: View {
                 MediaListContent<MovieItem, MoviePersistenceService>(
                     filter: selectedFilter,
                     persistenceService: persistenceService,
+                    sortDescriptors: [SortDescriptor(\MovieItem.title)],
                     placeholderIcon: "film.fill",
-                    itemDetailedTypeIconFunc: { $0.type == VideoType.tvSeries ? "tv" : "film" },
+                    itemDetailedTypeIconFunc: { MediaItemHelper.getVideoType(from: $0) == VideoType.tvSeries ? "tv" : "film" },
                     isDraft: { DraftMovieService.shared.isDraft(item: $0) },
                     onDelete: { persistenceService.delete($0) },
                 )

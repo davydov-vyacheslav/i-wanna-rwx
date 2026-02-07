@@ -42,7 +42,8 @@ where PersistenceService.Item == Item.MediaItem {
                             .foregroundStyle(.secondary)
                     }
                     .retry(maxCount: 3, interval: .seconds(0.5))
-                    .cacheMemoryOnly()
+                    .cacheOriginalImage()
+                    .diskCacheExpiration(.days(7))
                     .fade(duration: 0.25)
                     .resizable()
                     .scaledToFill()
