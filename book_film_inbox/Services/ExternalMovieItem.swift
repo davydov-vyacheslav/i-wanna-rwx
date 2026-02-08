@@ -15,21 +15,19 @@ struct ExternalMovieItem: ExternalMediaItem {
     var itemDescription: String? = nil
     var isFavorite: Bool = false
     var rating: Double? = nil
-    var sourceUrl: URL
     var coverUrl: URL? = nil
     var status: MediaStatus = MediaStatus.planned
     var title: String
     var author: String? = nil
     var year: Int? = nil
     var type: VideoType = .movie
-    var sourceId: Int? = nil
+    var sourceId: String? = nil
     var originalTitle: String? = nil
     var sourceName: String
 
     public init(
         id: UUID = UUID(),
         title: String,
-        sourceUrl: URL,
         sourceName: String,
         description: String? = nil,
         rating: Double? = nil,
@@ -38,14 +36,13 @@ struct ExternalMovieItem: ExternalMediaItem {
         author: String? = nil,
         year: Int? = nil,
         type: VideoType = .movie,
-        sourceId: Int? = nil,
+        sourceId: String? = nil,
         originalTitle: String? = nil,
     ) {
         self.id = id
         self.title = title
         self.itemDescription = description
         self.rating = rating
-        self.sourceUrl = sourceUrl
         self.coverUrl = coverUrl
         self.status = status
         self.year = year
@@ -61,7 +58,6 @@ struct ExternalMovieItem: ExternalMediaItem {
             description: self.itemDescription,
             isFavorite: self.isFavorite,
             rating: self.rating ?? 0.0,
-            sourceUrl: self.sourceUrl,
             coverImageUrl: self.coverUrl,
             status: .planned,
             title: self.title,

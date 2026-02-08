@@ -14,7 +14,7 @@ struct ExternalBookItem: ExternalMediaItem {
     var itemDescription: String? = nil
     var isFavorite: Bool = false
     var rating: Double? = nil
-    var sourceUrl: URL
+    var sourceId: String?
     var coverUrl: URL? = nil
     var status: MediaStatus = MediaStatus.planned
     var title: String
@@ -25,7 +25,7 @@ struct ExternalBookItem: ExternalMediaItem {
 
     public init(
         title: String,
-        sourceUrl: URL,
+        sourceId: String?,
         sourceName: String,
         description: String? = nil,
         rating: Double? = nil,
@@ -38,7 +38,7 @@ struct ExternalBookItem: ExternalMediaItem {
         self.title = title
         self.itemDescription = description
         self.rating = rating
-        self.sourceUrl = sourceUrl
+        self.sourceId = sourceId
         self.coverUrl = coverUrl
         self.status = status
         self.year = year
@@ -52,14 +52,14 @@ struct ExternalBookItem: ExternalMediaItem {
             itemDescription: self.itemDescription,
             isFavorite: self.isFavorite,
             rating: self.rating,
-            sourceUrl: self.sourceUrl,
             coverImageUrl: self.coverUrl,
             status: MediaStatus.planned,
             title: self.title,
             year: self.year,
             isbn: self.isbn,
             mainAuthor: self.author,
-            sourceName: self.sourceName
+            sourceName: self.sourceName,
+            sourceId: self.sourceId,
         )
     }
 

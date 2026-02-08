@@ -4,6 +4,7 @@
 //
 //  Created by Slava Davydov on 25.01.2026.
 //
+import Foundation
 
 protocol SearchService<SearchResultItem> {
     associatedtype SearchResultItem: ExternalMediaItem
@@ -11,6 +12,7 @@ protocol SearchService<SearchResultItem> {
     func isTokenValid(token: String) async -> Bool
     func search(query: String, limit: Int) async throws -> [SearchResultItem]
     func getDetails(item: SearchResultItem) async throws -> SearchResultItem
+    func getSourceUrl(item: any CommonMediaItem) throws -> URL
 
     static var serviceName: String { get }
     static var requiresToken: Bool { get }
@@ -30,6 +32,10 @@ protocol BookSearchService: SearchService where SearchResultItem == ExternalBook
     func getDetails(item: ExternalBookItem) async throws -> ExternalBookItem
 }
 
+protocol DraftSearchService: SearchService {
+    func isDraft<T: CommonMediaItem>(item: T) -> Bool
+    func single(query: String) -> SearchResultItem
+}
 
 extension SearchService {
     func isTokenValid(token: String) async -> Bool {

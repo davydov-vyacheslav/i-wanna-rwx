@@ -12,14 +12,14 @@ protocol CommonMediaItem: PersistentModel {
     
     var itemDescription: String? { get }
     var title: String { get }
-    var sourceUrl: URL { get }
     var sourceName: String { get }
-    var statusRaw: String { get set }
+    var sourceId: String? { get }
+    var statusRaw: String { get }
     var coverImageUrl: URL? { get }
     var year: Int? { get }
     var isFavorite: Bool { get set }
-    var rating: Double { get set }
-    var mainAuthor: String? { get set }
+    var rating: Double { get }
+    var mainAuthor: String? { get }
 
 }
 

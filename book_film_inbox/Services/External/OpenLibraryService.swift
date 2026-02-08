@@ -33,13 +33,13 @@ class OpenLibraryService: BookSearchService {
 
     func getDetails(item: ExternalBookItem) async throws -> ExternalBookItem {
         // Extract work key from source URL
-        if let workKey = item.sourceUrl.absoluteString.components(separatedBy: "/works/").last {
+        if let workKey = item.sourceId {
             if let detailedBook = try? await getBookDetails(workKey: workKey) {
                 // Merge search data with detailed data
                 
                 let mergedBook = ExternalBookItem(
                     title: item.title,
-                    sourceUrl: item.sourceUrl,
+                    sourceId: item.sourceId,
                     sourceName: item.sourceName,
                     description: detailedBook.itemDescription,
                     rating: item.rating,
@@ -57,6 +57,14 @@ class OpenLibraryService: BookSearchService {
             return item
         }
 
+    }
+    
+    func getSourceUrl(item: any CommonMediaItem) throws -> URL {
+        guard let id = item.sourceId else { throw OLError.invalidURL }
+        guard let url = URL(string: "\(client.baseURL)/works/\(id)") else {
+            throw OLError.invalidURL
+        }
+        return url
     }
         
     private func getBookDetails(workKey: String) async throws -> DetailedBookInfo? {
@@ -81,7 +89,7 @@ class OpenLibraryService: BookSearchService {
         
         return ExternalBookItem(
             title: doc.title,
-            sourceUrl: URL(string: "\(client.baseURL)\(doc.key)")!,
+            sourceId: doc.key.components(separatedBy: "/works/").last,
             sourceName: OpenLibraryService.serviceName,
             rating: doc.ratingsAverage,
             coverUrl: try doc.coverI.flatMap { try client.getCoverUrl($0) },

@@ -40,7 +40,10 @@ where PersistenceService.Item == Item {
                     .frame(width: 80, height: 116)
                     .clipped()
                     .onTapGesture {
-                        UIApplication.shared.open(item.sourceUrl)
+                        guard let source = SettingsSourceStore.shared.getSource(item.sourceName, for: item),
+                              let url = try? source.instance.getSourceUrl(item: item)
+                            else { return }
+                        UIApplication.shared.open(url)
                     }
                 
                 // Content
@@ -121,6 +124,9 @@ where PersistenceService.Item == Item {
                         } else if itemStatus == .done {
                             StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
+                        
+                        Spacer()
+                        
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
                     }
                 }

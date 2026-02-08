@@ -20,7 +20,6 @@ enum MovieSchemaV100: VersionedSchema {
         var itemDescription: String?
         var isFavorite: Bool = false
         var rating: Double
-        var sourceUrl: URL
         var coverImageUrl: URL?
         var statusRaw: String = MediaStatus.planned.rawValue
         var title: String
@@ -28,14 +27,13 @@ enum MovieSchemaV100: VersionedSchema {
         var year: Int?
         var sourceName: String
         var typeRaw: String = VideoType.movie.rawValue
-        var sourceId: Int?
+        var sourceId: String?
         var originalTitle: String?
         
         public init(
             description: String? = nil,
             isFavorite: Bool? = false,
             rating: Double,
-            sourceUrl: URL,
             coverImageUrl: URL? = nil,
             status: MediaStatus = .planned,
             title: String,
@@ -43,14 +41,13 @@ enum MovieSchemaV100: VersionedSchema {
             author: String?,
             sourceName: String,
             type: VideoType,
-            sourceId: Int?,
+            sourceId: String?,
             originalTitle: String?
         ) {
             self.title = title
             self.itemDescription = description
             self.isFavorite = isFavorite ?? false
             self.rating = rating
-            self.sourceUrl = sourceUrl
             self.coverImageUrl = coverImageUrl
             self.statusRaw = status.rawValue
             self.year = year

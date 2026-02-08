@@ -20,7 +20,6 @@ enum BookSchemaV102: VersionedSchema {
         var itemDescription: String?
         var isFavorite: Bool = false
         var rating: Double = 0.0
-        var sourceUrl: URL
         var coverImageUrl: URL?
         var statusRaw: String
         var title: String
@@ -28,33 +27,34 @@ enum BookSchemaV102: VersionedSchema {
         var isbn: String?
         var year: Int?
         var sourceName: String
+        var sourceId: String?
         
         public init(
             id: UUID? = UUID(),
             itemDescription: String? = nil,
             isFavorite: Bool? = false,
             rating: Double? = 0.0,
-            sourceUrl: URL,
             coverImageUrl: URL? = nil,
             status: MediaStatus = MediaStatus.planned,
             title: String,
             year: Int? = nil,
             isbn: String?,
             mainAuthor: String?,
-            sourceName: String
+            sourceName: String,
+            sourceId: String?
         ) {
             self.id = id ?? UUID()
             self.title = title
             self.itemDescription = itemDescription
             self.isFavorite = isFavorite ?? false
             self.rating = rating ?? 0.0
-            self.sourceUrl = sourceUrl
             self.coverImageUrl = coverImageUrl
             self.statusRaw = status.rawValue
             self.year = year
             self.isbn = isbn
             self.mainAuthor = mainAuthor
             self.sourceName = sourceName
+            self.sourceId = sourceId
         }
         
     }

@@ -15,21 +15,20 @@ where PersistenceService.Item == Item
     @Binding var selectedFilter: FilterType
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(FilterType.allCases, id: \.self) { filter in
-                    FilterButtonWithCount(
-                        persistenceService: persistenceService,
-                        filter: filter,
-                        isSelected: selectedFilter == filter
-                    ) {
-                        selectedFilter = filter
-                    }
+        HStack(spacing: 8) {
+            ForEach(FilterType.allCases, id: \.self) { filter in
+                FilterButtonWithCount(
+                    persistenceService: persistenceService,
+                    filter: filter,
+                    isSelected: selectedFilter == filter
+                ) {
+                    selectedFilter = filter
                 }
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal)
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
+        .padding(.horizontal)
         .background(Color(uiColor: .systemBackground))
     }
 }

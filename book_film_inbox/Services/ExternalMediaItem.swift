@@ -12,7 +12,7 @@ protocol ExternalMediaItem: Identifiable {
     
     var itemDescription: String? { get }
     var title: String { get }
-    var sourceUrl: URL { get }
+    var sourceId: String? { get }
     var sourceName: String { get }
     var status: MediaStatus { get }
     var coverUrl: URL? { get }

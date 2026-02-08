@@ -21,12 +21,23 @@ class NotificationService {
     var isAuthorized = false
     var authorizationStatus: UNAuthorizationStatus = .notDetermined
     
+    let userAwareDateFormatter: DateFormatter
+    let loggerDateFormatter: DateFormatter
+    
     private init() {
+        userAwareDateFormatter = DateFormatter()
+        userAwareDateFormatter.setLocalizedDateFormatFromTemplate("ddMMMyyyy")
+        userAwareDateFormatter.timeZone = .current
+
+        loggerDateFormatter = DateFormatter()
+        loggerDateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+
         setupNotificationCategories()
         Task { [weak self] in
             guard let self else { return }
             await checkAuthorizationStatus()
         }
+
     }
     
     @discardableResult
@@ -126,10 +137,7 @@ class NotificationService {
             return
         }
         
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("ddMMMyyyy")
-        formatter.timeZone = .current
-        let expiryDateStr: String = formatter.string(from: expiryDate)
+        let expiryDateStr: String = userAwareDateFormatter.string(from: expiryDate)
 
         
         // Создаём контент
@@ -168,11 +176,9 @@ class NotificationService {
         do {
             try await notificationCenter.add(request)
             
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
             Log.info("📅 Notification scheduled", context: [
                 "name": item.name,
-                "date": dateFormatter.string(from: scheduledDate)
+                "date": loggerDateFormatter.string(from: scheduledDate)
             ])
         } catch {
             Log.error("Failed to schedule notification", error: error, context: ["name": item.name])

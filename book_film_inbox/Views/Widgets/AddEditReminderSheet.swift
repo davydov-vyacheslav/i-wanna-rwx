@@ -15,6 +15,7 @@ struct AddEditReminderSheet: View {
     @State private var form: ReminderForm
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
+    @FocusState private var focusedField: Field?
     
     init(persistenceService: ReminderPersistenceService, item: ReminderItem?) {
         self.persistenceService = persistenceService
@@ -41,6 +42,7 @@ struct AddEditReminderSheet: View {
                     
                     TextField(".label.reminder.name", text: $form.name)
                         .limitText($form.name, to: 50)
+                        .focused($focusedField, equals: .name)
                     TextField(".label.reminder.description", text: $form.description)
                         .limitText($form.description, to: 100)
                     TextField(".label.reminder.price", text: $form.cost)
@@ -79,9 +81,9 @@ struct AddEditReminderSheet: View {
                             )
                             .datePickerStyle(.compact)
                             
-                            Text(".label.reminder.renewal_date.note")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
+//                            Text(".label.reminder.renewal_date.note")
+//                                .font(.footnote)
+//                                .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -103,6 +105,10 @@ struct AddEditReminderSheet: View {
             .navigationTitle(isEdit ? ".title.reminder.edit" : ".title.reminder.new")
             .navigationBarTitleDisplayMode(.inline)
             .background(Color(.systemGroupedBackground))
+            .task {
+                try? await Task.sleep(for: .seconds(UiConstants.autoFocusDelay))
+                focusedField = .name
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(".button.cancel") {
@@ -126,6 +132,7 @@ struct AddEditReminderSheet: View {
     }
     
     private func saveItem() {
+        focusedField = nil
         let id = item?.id ?? UUID()
         let newItem = form.makeReminder(id: id)
         
@@ -140,6 +147,10 @@ struct AddEditReminderSheet: View {
             errorMessage = error.localizedDescription
             showError = true
         }
+    }
+    
+    private enum Field {
+        case name
     }
 }
 

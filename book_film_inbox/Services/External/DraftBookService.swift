@@ -29,10 +29,9 @@ class DraftBookService: BookSearchService {
     }
     
     func single(query: String) -> ExternalBookItem {
-        let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         return ExternalBookItem(
             title: query,
-            sourceUrl: URL(string: "https://google.com/search?q=\(encoded)")!,
+            sourceId: nil,
             sourceName: DraftBookService.serviceName
         )
     }
@@ -41,5 +40,12 @@ class DraftBookService: BookSearchService {
         return item.sourceName == DraftBookService.serviceName
     }
 
+    func getSourceUrl(item: any CommonMediaItem) throws -> URL {
+        let encoded = item.title.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        guard let url = URL(string: "https://google.com/search?q=\(encoded)") else {
+            throw OLError.invalidURL
+        }
+        return url
+    }
     
 }

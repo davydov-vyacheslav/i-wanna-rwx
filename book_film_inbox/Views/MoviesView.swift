@@ -10,7 +10,7 @@ import SwiftUI
 struct MoviesView: View {
     @Environment(MoviePersistenceService.self) private var persistenceService
     
-    @State private var selectedFilter: FilterType = .all
+    @State private var selectedFilter: FilterType = .planned
     @State private var showingAddSheet = false
     
     var body: some View {

@@ -87,7 +87,7 @@ class MoviePersistenceService: MediaPersistenceService {
         try? modelContext.save()
     }
 
-    func isInLibrary(sourceId: Int?, sourceName: String) -> Bool {
+    func isInLibrary(sourceId: String?, sourceName: String) -> Bool {
         guard let sourceId else { return false }
         
         let predicate = #Predicate<MovieItem> { movie in

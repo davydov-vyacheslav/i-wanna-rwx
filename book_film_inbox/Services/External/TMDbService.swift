@@ -52,7 +52,8 @@ class TMDbService: MovieSearchService {
     }
     
     func getDetails(item: ExternalMovieItem) async throws -> ExternalMovieItem {
-        guard let sourceId = item.sourceId else { return item }
+        guard let sourceRaw = item.sourceId else { return item }
+        guard let sourceId = Int(sourceRaw) else { return item }
 
         var creator : String? = nil
         switch item.type {
@@ -69,7 +70,6 @@ class TMDbService: MovieSearchService {
         return ExternalMovieItem(
             id: item.id,
             title: item.title,
-            sourceUrl: item.sourceUrl,
             sourceName: item.sourceName,
             description: item.itemDescription,
             rating: item.rating,
@@ -90,7 +90,6 @@ class TMDbService: MovieSearchService {
         
         return ExternalMovieItem(
             title: movie.title,
-            sourceUrl: URL(string: "https://www.themoviedb.org/movie/\(movie.id)")!,
             sourceName: TMDbService.serviceName,
             description: movie.overview,
             rating: movie.voteAverage,
@@ -99,7 +98,7 @@ class TMDbService: MovieSearchService {
             author: nil,
             year: releaseYear,
             type: .movie,
-            sourceId: movie.id,
+            sourceId: String(movie.id),
             originalTitle: movie.originalTitle
         )
     }
@@ -110,7 +109,6 @@ class TMDbService: MovieSearchService {
 
         return ExternalMovieItem(
             title: tvSeries.name,
-            sourceUrl: URL(string: "https://www.themoviedb.org/tv/\(tvSeries.id)")!,
             sourceName: TMDbService.serviceName,
             description: tvSeries.overview,
             rating: tvSeries.voteAverage,
@@ -119,7 +117,7 @@ class TMDbService: MovieSearchService {
             author: nil,
             year: releaseYear,
             type: .tvSeries,
-            sourceId: tvSeries.id,
+            sourceId: String(tvSeries.id),
             originalTitle: tvSeries.originalName
         )
 
@@ -131,4 +129,25 @@ class TMDbService: MovieSearchService {
         cachedImagesConfig = config
         return config
     }
+    
+    func getSourceUrl(item: any CommonMediaItem) throws -> URL {
+        guard let id = item.sourceId else { throw OLError.invalidURL }
+        guard let movie = item as? MovieItem else {
+            throw OLError.invalidURL
+        }
+        
+        switch MediaItemHelper.getVideoType(from: movie) {
+        case .movie:
+            guard let url = URL(string: "https://www.themoviedb.org/movie/\(id)") else {
+                throw OLError.invalidURL
+            }
+            return url
+        case .tvSeries:
+            guard let url = URL(string: "https://www.themoviedb.org/tv/\(id)") else {
+                throw OLError.invalidURL
+            }
+            return url
+        }
+    }
+
 }

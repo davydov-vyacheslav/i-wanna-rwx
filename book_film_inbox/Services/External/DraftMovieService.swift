@@ -29,16 +29,23 @@ class DraftMovieService: MovieSearchService {
     }
     
     func single(query: String) -> ExternalMovieItem {
-        let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         return ExternalMovieItem(
             title: query,
-            sourceUrl: URL(string: "https://google.com/search?q=\(encoded)")!,
-            sourceName: DraftMovieService.serviceName
+            sourceName: DraftMovieService.serviceName,
+            sourceId: nil
         )
     }
     
     func isDraft(item: any CommonMediaItem) -> Bool {
         return item.sourceName == DraftMovieService.serviceName
+    }
+    
+    func getSourceUrl(item: any CommonMediaItem) throws -> URL {
+        let encoded = item.title.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        guard let url = URL(string: "https://google.com/search?q=\(encoded)") else {
+            throw OLError.invalidURL
+        }
+        return url
     }
 
 }
