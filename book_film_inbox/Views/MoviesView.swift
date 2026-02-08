@@ -35,7 +35,7 @@ struct MoviesView: View {
                 )
                 
             }
-            .navigationTitle(".title.movie.list")
+            .navigationTitle(Tab.movies.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

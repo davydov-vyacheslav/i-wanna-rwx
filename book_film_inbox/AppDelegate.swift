@@ -42,41 +42,15 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             return
         }
         
-        Task { [weak self] in
-            guard self != nil else { return }
+        Task { @MainActor in
+            let navigation = NavigationManager.shared
             switch response.actionIdentifier {
-                
             case NotificationAction.prolongate.rawValue:
-                await MainActor.run {
-                    NotificationCenter.default.post(
-                        name: .switchToRemindersTab,
-                        object: nil
-                    )
-                    
-                    NotificationCenter.default.post(
-                        name: .prolongateReminder,
-                        object: nil,
-                        userInfo: ["itemId": itemId]
-                    )
-                    
-                    NotificationCenter.default.post(
-                        name: .openReminderDetails,
-                        object: nil,
-                        userInfo: ["itemId": itemId]
-                    )
-                }
-                
+                navigation.prolongateAndOpenReminder(id: itemId)
+                Log.info("🔔 Opening reminder with prolongate", context: ["id": itemId.uuidString])
             default:
-                NotificationCenter.default.post(
-                    name: .switchToRemindersTab,
-                    object: nil
-                )
-                
-                NotificationCenter.default.post(
-                    name: .openReminderDetails,
-                    object: nil,
-                    userInfo: ["itemId": itemId]
-                )
+                navigation.openReminderDetails(id: itemId)
+                Log.info("🔔 Opening reminder details", context: ["id": itemId.uuidString])
             }
             
             completionHandler()
@@ -92,10 +66,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
 }
 
-// MARK: - Notification Names
-
-extension Notification.Name {
-    static let switchToRemindersTab = Notification.Name("switchToRemindersTab")
-    static let prolongateReminder = Notification.Name("prolongateReminder")
-    static let openReminderDetails = Notification.Name("openReminderDetails")
+enum NotificationAction: String {
+    case prolongate = "PROLONGATE_ACTION"
+    
+    var displayName: String {
+        switch self {
+        case .prolongate: return String(localized: ".notification.action.renewed")
+        }
+    }
 }

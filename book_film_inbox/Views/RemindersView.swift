@@ -11,12 +11,11 @@ struct RemindersView: View {
     
     @Environment(\.scenePhase) private var scenePhase
     @Environment(ReminderPersistenceService.self) private var persistenceService
+    @Environment(NavigationManager.self) private var navigation
     
     private var notificationService = NotificationService.shared
     
-    @State private var pendingItemIdToOpen: UUID?
     @State private var showingAddSheet = false
-    @State private var selectedItem: ReminderItem?
     @State private var searchText: String = ""
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
@@ -24,13 +23,12 @@ struct RemindersView: View {
     @State private var selectedFilterExpired: Bool = false
     
     var body: some View {
-        NavigationStack {
             RemindersListContent(
                 filterType: selectedFilterType,
                 isExpiring: selectedFilterExpired,
                 searchText: searchText,
                 persistenceService: persistenceService,
-                onTap: { item in selectedItem = item },
+                onTap: { item in navigation.remindersPath.append(ReminderRoute.details(item.id)) },
                 onProlongate: { item in
                     do {
                         try persistenceService.prolongate(item)
@@ -54,7 +52,7 @@ struct RemindersView: View {
                 }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
-            .navigationTitle(".title.reminder.list")
+            .navigationTitle(Tab.reminders.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -68,28 +66,10 @@ struct RemindersView: View {
             .sheet(isPresented: $showingAddSheet) {
                 AddEditReminderSheet(persistenceService: persistenceService, item: nil)
             }
-            .sheet(item: $selectedItem) { item in
-                ReadonlyReminderSheet(persistenceService: persistenceService, item: item)
-            }
             .alert(".title.error", isPresented: $showError) {
                 Button(".button.ok", role: .cancel) {}
             } message: {
                 Text(errorMessage)
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .openReminderDetails)) { notification in
-                guard let itemId = notification.userInfo?["itemId"] as? UUID else { return }
-                if let item = persistenceService.findById(itemId) {
-                    selectedItem = item
-                } else {
-                    pendingItemIdToOpen = itemId
-                }
-            }
-            .onAppear {
-                if let pendingId = pendingItemIdToOpen,
-                   let item = persistenceService.findById(pendingId) {
-                    selectedItem = item
-                    pendingItemIdToOpen = nil
-                }
             }
             .task {
                 await notificationService.checkAuthorizationStatus()
@@ -101,7 +81,7 @@ struct RemindersView: View {
                     }
                 }
             }
-        }
+        
     }
     
     // MARK: - Filter Section
@@ -306,33 +286,6 @@ struct ReminderItemHelper {
     }
     
 }
-
-//extension ReminderItem {
-//    
-//    @Transient
-//    var formattedRenewalType: String {
-//        let prefix = String(localized: ".label.reminder.renew_policy_prefix")
-//        
-//        switch renewalType {
-//        case .custom:
-//            guard let periodValue = customPeriodValue,
-//                  let unit = customPeriodUnit else {
-//                return prefix
-//            }
-//            
-//            let each = String(localized: ".label.reminder.renew_policy_each")
-//            let unitName = String.localizedStringWithFormat(
-//                NSLocalizedString(unit.displayNameSuffix, comment: ""),
-//                periodValue
-//            )
-//            
-//            return "\(prefix) \(each) \(periodValue) \(unitName)"
-//            
-//        default:
-//            return "\(prefix) \(renewalType.displayName)"
-//        }
-//    }
-//}
 
 extension ReminderType {
     var displayName: LocalizedStringKey {

@@ -17,161 +17,155 @@ struct ReadonlyReminderSheet: View {
     @State private var showingDeleteAlert = false
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Header: Icon + Name + Type Badge
-                    HStack(spacing: 16) {
-                        Text(IconGenerator.suggestIcon(for: item.name))
-                            .font(.largeTitle)
-                            .grayscale(item.isExpired ? 1 : 0)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header: Icon + Name + Type Badge
+                HStack(spacing: 16) {
+                    Text(IconGenerator.suggestIcon(for: item.name))
+                        .font(.largeTitle)
+                        .grayscale(item.isExpired ? 1 : 0)
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(item.name)
+                            .font(.title)
+                            .opacity(item.isExpired ? 0.6 : 1)
                         
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(item.name)
-                                .font(.title)
-                                .opacity(item.isExpired ? 0.6 : 1)
+                        HStack(spacing: 16) {
+                            StatusBadge(
+                                icon: item.type.icon,
+                                text: item.type.displayName,
+                                color: Color.gray,
+                            )
                             
-                            HStack(spacing: 16) {
+                            Spacer()
+                            
+                            if !item.cost.isEmpty {
                                 StatusBadge(
-                                    icon: item.type.icon,
-                                    text: item.type.displayName,
-                                    color: Color.gray,
+                                    icon: "dollarsign.circle",
+                                    textVerbatim: item.cost,
+                                    color: Color.green,
                                 )
-                                
-                                Spacer()
-
-                                if !item.cost.isEmpty {
-                                    StatusBadge(
-                                        icon: "dollarsign.circle",
-                                        textVerbatim: item.cost,
-                                        color: Color.green,
-                                    )
-                                }
                             }
-                        }
-                        
-                    }
-                    .padding(.bottom, 8)
-                    
-                    if !item.itemDescription.isEmpty {
-                        Text(item.itemDescription)
-                            .font(.body)
-                            .opacity(0.6)
-                            .padding(.bottom, 8)
-                    }
-                    
-                    ReminderSimpleInfoField(title: ".label.reminder.price", text: item.cost)
-                    
-                    
-                    // Expiry + Periodicity (combined)
-                    if item.renewalType == RenewalType.lifetime {
-                        HStack(spacing: 8) {
-                            Image(systemName: "infinity")
-                            Text(RenewalType.lifetime.displayName)
-                        }
-                        .foregroundColor(Color.green)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
-                        .background(Color.green.opacity(0.15))
-                        .cornerRadius(16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                        )
-                    } else {
-                        ReminderInfoField(title: ".label.reminder.renew_info") {
-                           
-                            if item.expiryDate == nil {
-                                Text(".label.reminder.expiration_date_not_set")
-                            } else if let date = item.expiryDate {
-                                let formattedDate = date.formatted(
-                                    Date.FormatStyle()
-                                        .day(.defaultDigits)
-                                        .month(.wide)
-                                        .year(.defaultDigits)
-                                )
-                                Text(".label.reminder.expiration_date \(formattedDate)")
-                            }
-                            
-                            Text(item.formattedRenewalType)
-
-                            if (item.reminderDays ?? -1) > 0 {
-                                Text(".label.reminder.remind_in_days \(item.reminderDays!)")
-                            }
-
-                            if let days = item.daysUntilExpiry {
-                                StatusBadge(icon: "calendar", text: item.isExpired
-                                            ? ".label.reminder.expired"
-                                            : days == 0
-                                                ? ".label.reminder.expire_today"
-                                                : ".label.reminder.expire_left_days \(days)",
-                                            color: ReminderItemHelper.getColor(item))
-                            }
-                                
-                            
-                        }
-                        
-                    }
-                    
-                    if item.type == ReminderType.license,
-                        let licenseKey = item.licenseKey,
-                        !licenseKey.isEmpty {
-                        
-                        ReminderInfoField(title: ".label.reminder.license_key") {
-                            CopyableText(text: licenseKey)
                         }
                     }
                     
-                    ReminderSimpleInfoField(title: ".label.reminder.notes", text: item.notes)
-                    
-                    // Action Buttons
+                }
+                .padding(.bottom, 8)
+                
+                if !item.itemDescription.isEmpty {
+                    Text(item.itemDescription)
+                        .font(.body)
+                        .opacity(0.6)
+                        .padding(.bottom, 8)
+                }
+                
+                ReminderSimpleInfoField(title: ".label.reminder.price", text: item.cost)
+                
+                
+                // Expiry + Periodicity (combined)
+                if item.renewalType == RenewalType.lifetime {
                     HStack(spacing: 8) {
-                        Button {
-                            showingEditSheet = true
-                        } label: {
-                            Label(".button.edit", systemImage: "pencil")
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, minHeight: 32)
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.blue)
-                        .controlSize(.large)
-                        .lineLimit(1)
-                        
-                        Button(role: .destructive) {
-                            showingDeleteAlert = true
-                        } label: {
-                            Label(".button.delete", systemImage: "trash")
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, minHeight: 32)
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.red)
-                        .controlSize(.large)
+                        Image(systemName: "infinity")
+                        Text(RenewalType.lifetime.displayName)
                     }
-                    .padding(.top, 8)
+                    .foregroundColor(Color.green)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Color.green.opacity(0.15))
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                    )
+                } else {
+                    ReminderInfoField(title: ".label.reminder.renew_info") {
+                        
+                        if item.expiryDate == nil {
+                            Text(".label.reminder.expiration_date_not_set")
+                        } else if let date = item.expiryDate {
+                            let formattedDate = date.formatted(
+                                Date.FormatStyle()
+                                    .day(.defaultDigits)
+                                    .month(.wide)
+                                    .year(.defaultDigits)
+                            )
+                            Text(".label.reminder.expiration_date \(formattedDate)")
+                        }
+                        
+                        Text(item.formattedRenewalType)
+                        
+                        if (item.reminderDays ?? -1) > 0 {
+                            Text(".label.reminder.remind_in_days \(item.reminderDays!)")
+                        }
+                        
+                        if let days = item.daysUntilExpiry {
+                            StatusBadge(icon: "calendar", text: item.isExpired
+                                        ? ".label.reminder.expired"
+                                        : days == 0
+                                        ? ".label.reminder.expire_today"
+                                        : ".label.reminder.expire_left_days \(days)",
+                                        color: ReminderItemHelper.getColor(item))
+                        }
+                        
+                        
+                    }
+                    
                 }
-                .padding()
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(".button.close") { dismiss() }
+                
+                if item.type == ReminderType.license,
+                   let licenseKey = item.licenseKey,
+                   !licenseKey.isEmpty {
+                    
+                    ReminderInfoField(title: ".label.reminder.license_key") {
+                        CopyableText(text: licenseKey)
+                    }
                 }
-            }
-            .sheet(isPresented: $showingEditSheet) {
-                AddEditReminderSheet(persistenceService: persistenceService, item: item)
-            }
-            .alert(".label.common.remove \(item.name)", isPresented: $showingDeleteAlert) {
-                Button(".button.cancel", role: .cancel) { }
-                Button(".button.delete", role: .destructive) {
-                    persistenceService.delete(item)
-                    dismiss()
+                
+                ReminderSimpleInfoField(title: ".label.reminder.notes", text: item.notes)
+                
+                // Action Buttons
+                HStack(spacing: 8) {
+                    Button {
+                        showingEditSheet = true
+                    } label: {
+                        Label(".button.edit", systemImage: "pencil")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 32)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.blue)
+                    .controlSize(.large)
+                    .lineLimit(1)
+                    
+                    Button(role: .destructive) {
+                        showingDeleteAlert = true
+                    } label: {
+                        Label(".button.delete", systemImage: "trash")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 32)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.red)
+                    .controlSize(.large)
                 }
+                .padding(.top, 8)
+            }
+            .padding()
+        }
+        .navigationTitle(item.name)
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingEditSheet) {
+            AddEditReminderSheet(persistenceService: persistenceService, item: item)
+        }
+        .alert(".label.common.remove \(item.name)", isPresented: $showingDeleteAlert) {
+            Button(".button.cancel", role: .cancel) { }
+            Button(".button.delete", role: .destructive) {
+                persistenceService.delete(item)
+                NavigationManager.shared.remindersPath.removeLast()
             }
         }
     }
-
+    
 }
 
 

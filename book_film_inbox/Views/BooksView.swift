@@ -34,7 +34,7 @@ struct BooksView: View {
                      onDelete: { persistenceService.delete($0) },
                  )
              }
-             .navigationTitle(".title.book.list")
+             .navigationTitle(Tab.books.title)
              .navigationBarTitleDisplayMode(.inline)
              .toolbar {
                  ToolbarItem(placement: .navigationBarTrailing) {

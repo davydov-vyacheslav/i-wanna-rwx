@@ -11,12 +11,14 @@ import SwiftData
 @main
 struct InboxApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @State private var navigationManager = NavigationManager.shared
     
     var body: some Scene {
         WindowGroup {
             switch PersistenceController.shared {
             case .success(let controller):
                 ContentView()
+                    .environment(navigationManager)
                     .environment(SettingsService.shared)
                     .environment(BookPersistenceService(context: controller.container.mainContext))
                     .environment(MoviePersistenceService(context: controller.container.mainContext))

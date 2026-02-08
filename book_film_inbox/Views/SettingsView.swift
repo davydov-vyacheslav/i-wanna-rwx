@@ -74,7 +74,7 @@ struct SettingsView: View {
                 }
 
             }
-            .navigationTitle(".title.settings")
+            .navigationTitle(Tab.settings.title)
         }
     }
 }

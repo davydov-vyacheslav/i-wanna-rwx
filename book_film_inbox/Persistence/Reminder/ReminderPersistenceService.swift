@@ -17,26 +17,6 @@ class ReminderPersistenceService {
 
     init(context: ModelContext) {
         self.modelContext = context
-        
-        // Обрабатываем prolongate запросы напрямую в сервисе
-        NotificationCenter.default.addObserver(
-            forName: .prolongateReminder,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            guard let itemId = notification.userInfo?["itemId"] as? UUID else { return }
-            
-            Task { @MainActor [weak self] in
-                guard let self = self,
-                      let item = self.findById(itemId) else { return }
-                
-                do {
-                    try self.prolongate(item)
-                } catch {
-                    Log.error("Error prolongating reminder", error: error)
-                }
-            }
-        }
     }
     
     func makeFilterPredicate(typeFilter: ReminderType?, text: String) -> Predicate<ReminderItem>? {
@@ -63,25 +43,22 @@ class ReminderPersistenceService {
         let predicate = #Predicate<ReminderItem> { $0.id == itemId }
         let descriptor = FetchDescriptor(predicate: predicate)
         
-        guard let item = try? modelContext.fetch(descriptor).first else { return nil }
-        return item
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            Log.error("Error finding reminder by ID", error: error, context: ["id": itemId.uuidString])
+            return nil
+        }
     }
     
     func findByTypeAndExpiration(_ typeFilter: ReminderType?, _ isExpiring: Bool, _ text: String) -> [ReminderItem] {
 
         let predicate = makeFilterPredicate(typeFilter: typeFilter, text: text)
         
-        let descriptor: FetchDescriptor<ReminderItem>
-        if let predicate = predicate {
-            descriptor = FetchDescriptor<ReminderItem>(
-                predicate: predicate,
-                sortBy: [SortDescriptor(\.name)]
-            )
-        } else {
-            descriptor = FetchDescriptor<ReminderItem>(
-                sortBy: [SortDescriptor(\.name)]
-            )
-        }
+        let descriptor: FetchDescriptor<ReminderItem> = FetchDescriptor<ReminderItem>(
+            predicate: predicate ?? #Predicate { _ in true },
+            sortBy: [SortDescriptor(\.name)]
+        )
         
         do {
             let items = try modelContext.fetch(descriptor)
@@ -97,6 +74,21 @@ class ReminderPersistenceService {
         }
     }
     
+    func add(_ item: ReminderItem) {
+        modelContext.insert(item)
+        
+        do {
+            try modelContext.save()
+            Log.info("📝 Reminder added", context: ["name": item.name])
+            
+            Task {
+                await notificationService.scheduleNotification(for: item)
+            }
+        } catch {
+            Log.error("Failed to add reminder", error: error, context: ["name": item.name])
+        }
+    }
+
     func update(_ item: ReminderItem) throws {
         
         let targetID = item.id
@@ -105,8 +97,8 @@ class ReminderPersistenceService {
         )
         
         guard let dbItem = try modelContext.fetch(descriptor).first else {
-            Log.error("Reminder not found for update")
-            return
+            Log.error("Reminder not found for update", context: ["id": item.id.uuidString])
+            throw ReminderError.notFound
         }
         
         dbItem.name = item.name
@@ -120,34 +112,57 @@ class ReminderPersistenceService {
         dbItem.cost = item.cost
         dbItem.notes = item.notes
             
-        try? modelContext.save()
+        try modelContext.save()
+        Log.info("✏️ Reminder updated", context: ["name": item.name])
+        
         Task {
-            await notificationService.scheduleNotification(for: item)
+            await notificationService.scheduleNotification(for: dbItem)
         }
         
-    }
-    func add(_ item: ReminderItem) {
-        modelContext.insert(item)
-        try? modelContext.save()
-        Task {
-            await notificationService.scheduleNotification(for: item)
-        }
     }
     
     func delete(_ item: ReminderItem) {
         modelContext.delete(item)
-        try? modelContext.save()
-        Task {
-            await notificationService.cancelNotification(for: item.id)
+        
+        do {
+            try modelContext.save()
+            Log.info("🗑️ Reminder deleted", context: ["name": item.name])
+            
+            Task {
+                await notificationService.cancelNotification(for: item.id)
+            }
+        } catch {
+            Log.error("Failed to delete reminder", error: error, context: ["name": item.name])
         }
     }
     
     func prolongate(_ item: ReminderItem) throws {
-        item.expiryDate = item.nextExpiryDate
+        guard let nextDate = item.nextExpiryDate else {
+            Log.error("Cannot prolongate: no next expiry date", context: ["name": item.name])
+            throw ReminderError.cannotProlongate
+        }
+        
+        item.expiryDate = nextDate
         try update(item)
+        
+        Log.info("🔄 Reminder prolongated", context: [
+            "name": item.name,
+            "newDate": nextDate
+        ])
     }
+
+}
+
+enum ReminderError: LocalizedError {
+    case notFound
+    case cannotProlongate
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    var errorDescription: String? {
+        switch self {
+        case .notFound:
+            return String(localized: ".error.reminder.not_found")
+        case .cannotProlongate:
+            return String(localized: ".error.reminder.cannot_prolongate")
+        }
     }
 }

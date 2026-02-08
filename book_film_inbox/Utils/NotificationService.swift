@@ -152,7 +152,7 @@ class NotificationService {
         )
 
         // 5 seconds delay
-        //let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        // let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
 
         let trigger = UNCalendarNotificationTrigger(
             dateMatching: triggerDateComponents,
@@ -165,16 +165,17 @@ class NotificationService {
             trigger: trigger
         )
 
-        Task { [weak self] in
-            guard let self else { return }
+        do {
             try await notificationCenter.add(request)
-
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm"
-            Log.info("📅 Scheduled notification", context: [
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            Log.info("📅 Notification scheduled", context: [
                 "name": item.name,
-                "date": formatter.string(from: scheduledDate)
+                "date": dateFormatter.string(from: scheduledDate)
             ])
+        } catch {
+            Log.error("Failed to schedule notification", error: error, context: ["name": item.name])
         }
         
     }
@@ -184,9 +185,7 @@ class NotificationService {
     func cancelNotification(for itemId: UUID) async {
         notificationCenter.removePendingNotificationRequests(withIdentifiers: [itemId.uuidString])
         notificationCenter.removeDeliveredNotifications(withIdentifiers: [itemId.uuidString])
-        Log.info("🗑️ Cancelled notification", context: [
-            "id": itemId
-        ])
+        Log.info("🗑️ Cancelled notification", context: [ "id": itemId ])
     }
     
     
@@ -242,14 +241,4 @@ enum NotificationCategory: String {
     case common = "REMINDER_COMMON"
     case na = "REMINDER_NO_ACTIONS"
     
-}
-
-enum NotificationAction: String {
-    case prolongate = "PROLONGATE_ACTION"
-    
-    var displayName: String {
-        switch self {
-        case .prolongate: return String(localized: ".notification.action.renewed")
-        }
-    }
 }

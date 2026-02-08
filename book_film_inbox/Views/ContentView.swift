@@ -8,37 +8,131 @@
 import SwiftUI
 
 struct ContentView: View {
-    @AppStorage("selectedTab") private var selectedTab = 0
+    @Environment(NavigationManager.self) private var navigation
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            BooksView()
+        @Bindable var navigation = navigation
+        
+        TabView(selection: $navigation.selectedTab) {
+            BooksTab()
                 .tabItem {
-                    Label(".title.book.list", systemImage: "book")
+                    Label(Tab.books.title, systemImage: Tab.books.icon)
                 }
-                .tag(0)
+                .tag(Tab.books)
 
-            MoviesView()
+            MoviesTab()
                 .tabItem {
-                    Label(".title.movie.list", systemImage: "film")
+                    Label(Tab.movies.title, systemImage: Tab.movies.icon)
                 }
-                .tag(1)
+                .tag(Tab.movies)
             
-            RemindersView()
+            RemindersTab()
                 .tabItem {
-                    Label(".title.reminder.list", systemImage: "repeat")
+                    Label(Tab.reminders.title, systemImage: Tab.reminders.icon)
                 }
-                .tag(2)
+                .tag(Tab.reminders)
 
-            SettingsView()
+            SettingsTab()
                 .tabItem {
-                    Label(".title.settings", systemImage: "gear")
+                    Label(Tab.settings.title, systemImage: Tab.settings.icon)
                 }
-                .tag(3)
+                .tag(Tab.settings)
         }
         .tint(.blue)
-        .onReceive(NotificationCenter.default.publisher(for: .switchToRemindersTab)) { _ in
-            selectedTab = 2
+    }
+}
+
+// MARK: - Tab Views with Navigation
+
+struct BooksTab: View {
+    @Environment(NavigationManager.self) private var navigation
+    
+    var body: some View {
+        @Bindable var navigation = navigation
+        
+        NavigationStack(path: $navigation.booksPath) {
+            BooksView()
+                .navigationDestination(for: BookRoute.self) { route in }
+        }
+    }
+}
+
+struct MoviesTab: View {
+    @Environment(NavigationManager.self) private var navigation
+    
+    var body: some View {
+        @Bindable var navigation = navigation
+        
+        NavigationStack(path: $navigation.moviesPath) {
+            MoviesView()
+                .navigationDestination(for: MovieRoute.self) { route in }
+        }
+    }
+}
+
+struct RemindersTab: View {
+    @Environment(NavigationManager.self) private var navigation
+    @Environment(ReminderPersistenceService.self) private var persistenceService
+    
+    var body: some View {
+        @Bindable var navigation = navigation
+        
+        NavigationStack(path: $navigation.remindersPath) {
+            RemindersView()
+                .navigationDestination(for: ReminderRoute.self) { route in
+                    destinationView(for: route)
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private func destinationView(for route: ReminderRoute) -> some View {
+        switch route {
+        case .details(let id):
+            if let item = persistenceService.findById(id) {
+                ReadonlyReminderSheet(
+                    persistenceService: persistenceService,
+                    item: item
+                )
+            } else {
+                Text(".error.reminder.not_found")
+                    .foregroundColor(.secondary)
+            }
+            
+        case .prolongateAndView(let id):
+            if let item = persistenceService.findById(id) {
+                ProlongateReminderView(
+                    persistenceService: persistenceService,
+                    item: item
+                )
+            } else {
+                Text(".error.reminder.not_found")
+                    .foregroundColor(.secondary)
+            }
+            
+        case .edit(let id):
+            if let item = persistenceService.findById(id) {
+                AddEditReminderSheet(
+                    persistenceService: persistenceService,
+                    item: item
+                )
+            } else {
+                Text(".error.reminder.not_found")
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
+struct SettingsTab: View {
+    @Environment(NavigationManager.self) private var navigation
+    
+    var body: some View {
+        @Bindable var navigation = navigation
+        
+        NavigationStack(path: $navigation.settingsPath) {
+            SettingsView()
+                .navigationDestination(for: SettingsRoute.self) { route in }
         }
     }
 }
