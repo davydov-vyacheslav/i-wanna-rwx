@@ -18,15 +18,15 @@ enum BookSchemaV102: VersionedSchema {
         
         @Attribute(.unique) var id: UUID
         var itemDescription: String?
-        var isFavorite: Bool = false
+        @Attribute(.spotlight) var isFavorite: Bool = false
         var rating: Double = 0.0
         var coverImageUrl: URL?
-        var statusRaw: String
-        var title: String
+        @Attribute(.spotlight) var statusRaw: String
+        @Attribute(.spotlight) var title: String
         var mainAuthor: String?
-        var isbn: String?
+        @Attribute(.spotlight) var isbn: String?
         var year: Int?
-        var sourceName: String
+        @Attribute(.spotlight) var sourceName: String
         var sourceId: String?
         
         public init(

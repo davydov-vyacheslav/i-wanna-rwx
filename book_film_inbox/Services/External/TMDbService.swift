@@ -34,15 +34,16 @@ class TMDbService: MovieSearchService {
     func search(query: String, limit: Int) async throws -> [ExternalMovieItem] {
 
         // Search across movies, TV shows, and people
-        let searchResults = try await tmdbClient.search.searchAll(query: query)
-        let imagesConfig = try await imagesConfig()
+        async let searchResults = tmdbClient.search.searchAll(query: query)
+        async let imagesConfig = imagesConfig()
+        let (results, config) = try await (searchResults, imagesConfig)
         
-        let movies: [ExternalMovieItem] = searchResults.results.compactMap { result in
+        let movies: [ExternalMovieItem] = results.results.compactMap { result in
             switch result {
             case .movie(let movie):
-                return toExternalMovieItem(movie: movie, imagesConfiguration: imagesConfig)
+                return toExternalMovieItem(movie: movie, imagesConfiguration: config)
             case .tvSeries(let tvSeries):
-                return toExternalMovieItem(tvSeries: tvSeries, imagesConfiguration: imagesConfig)
+                return toExternalMovieItem(tvSeries: tvSeries, imagesConfiguration: config)
             default:
                 return nil
             }
@@ -86,7 +87,7 @@ class TMDbService: MovieSearchService {
     
     private func toExternalMovieItem(movie: MovieListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
         let coverUrl = movie.posterPath.map { imagesConfiguration.posterURL(for: $0, idealWidth: 250) } ?? nil
-        let releaseYear = movie.releaseDate.map { Calendar.current.component(.year, from: $0) } ?? nil
+        let releaseYear = movie.releaseDate.map { CommonConstants.calendar.component(.year, from: $0) } ?? nil
         
         return ExternalMovieItem(
             title: movie.title,
@@ -105,7 +106,7 @@ class TMDbService: MovieSearchService {
     
     private func toExternalMovieItem(tvSeries: TVSeriesListItem, imagesConfiguration: ImagesConfiguration) -> ExternalMovieItem {
         let coverUrl = tvSeries.posterPath.map { imagesConfiguration.posterURL(for: $0, idealWidth: 250) } ?? nil
-        let releaseYear = tvSeries.firstAirDate.map { Calendar.current.component(.year, from: $0) } ?? nil
+        let releaseYear = tvSeries.firstAirDate.map { CommonConstants.calendar.component(.year, from: $0) } ?? nil
 
         return ExternalMovieItem(
             title: tvSeries.name,

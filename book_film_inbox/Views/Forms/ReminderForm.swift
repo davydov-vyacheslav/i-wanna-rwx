@@ -16,7 +16,7 @@ final class ReminderForm {
     var description: String = ""
     var renewalType: RenewalType = .monthly
 
-    var customPeriodValue: Int = 0
+    var customPeriodValue: Int = 1
     var customPeriodUnit: PeriodUnit = .days
 
     var expiryDate: Date = Date().addingTimeInterval(86400)
@@ -32,11 +32,11 @@ final class ReminderForm {
         name = item.name
         description = item.itemDescription
         renewalType = item.renewalType
-        customPeriodValue = item.customPeriodValue ?? 0
+        customPeriodValue = item.customPeriodValue ?? 1
         customPeriodUnit = item.customPeriodUnit ?? .days
         expiryDate = item.expiryDate ?? expiryDate
         licenseKey = item.licenseKey ?? ""
-        reminderDays = item.reminderDays ?? reminderDays
+        reminderDays = max(1, item.reminderDays ?? 3)
         cost = item.cost
         notes = item.notes
     }

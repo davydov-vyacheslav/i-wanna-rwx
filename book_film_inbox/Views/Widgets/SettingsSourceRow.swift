@@ -61,7 +61,7 @@ struct SettingsSourceRow: View {
         let isValid = await searchService.isTokenValid(token: tempToken)
         
         if isValid {
-            settingsService.saveToken(for: serviceName, token: tempToken)
+            settingsService.saveToken(for: serviceName, token: tempToken, .apiToken)
             isEditing = false
             tempToken = ""
             isExpanded = false

@@ -86,7 +86,7 @@ struct ReminderItemCard: View {
         renewalType: RenewalType.monthly,
         customPeriodValue: 3,
         customPeriodUnit: PeriodUnit.days,
-        expiryDate: Calendar.current.date(
+        expiryDate: CommonConstants.calendar.date(
             from: DateComponents(year: 2027, month: 1, day: 28)
         ),
         licenseKey: "secret one",

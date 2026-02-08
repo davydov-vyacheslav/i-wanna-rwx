@@ -11,10 +11,6 @@ import Foundation
 let log = SwiftyBeaver.self
 
 enum Log {
-    static let ui = log
-    static let db = log
-    static let net = log
-    static let notification = log
     
     static func setup() {
         let console = ConsoleDestination()

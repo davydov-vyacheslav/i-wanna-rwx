@@ -18,16 +18,16 @@ enum MovieSchemaV100: VersionedSchema {
         
         @Attribute(.unique) var id: UUID = UUID()
         var itemDescription: String?
-        var isFavorite: Bool = false
+        @Attribute(.spotlight) var isFavorite: Bool = false
         var rating: Double
         var coverImageUrl: URL?
-        var statusRaw: String = MediaStatus.planned.rawValue
+        @Attribute(.spotlight) var statusRaw: String = MediaStatus.planned.rawValue
         var title: String
-        var mainAuthor: String?
+        @Attribute(.spotlight) var mainAuthor: String?
         var year: Int?
-        var sourceName: String
+        @Attribute(.spotlight) var sourceName: String
         var typeRaw: String = VideoType.movie.rawValue
-        var sourceId: String?
+        @Attribute(.spotlight) var sourceId: String?
         var originalTitle: String?
         
         public init(

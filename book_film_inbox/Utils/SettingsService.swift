@@ -22,8 +22,8 @@ class SettingsService {
         keychain.load(key: "token_\(source)")
     }
     
-    func saveToken(for source: String, token: String) {
-        _ = keychain.save(key: "token_\(source)", value: token)
+    func saveToken(for source: String, token: String, _ keyType: KeyType) {
+        _ = keychain.save(key: "token_\(source)", value: token, keyType)
         tokenChangeTrigger += 1
         SettingsSourceStore.shared.reloadSources()
     }

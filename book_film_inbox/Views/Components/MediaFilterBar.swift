@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+// TODO: why do we need separate class for that? why can't we use ForEach FilterButton within Book/Movie views?
 struct MediaFilterBar<PersistenceService: MediaPersistenceService, Item: CommonMediaItem>: View
 where PersistenceService.Item == Item
 {

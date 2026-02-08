@@ -60,7 +60,7 @@ struct AddEditReminderSheet: View {
                     .pickerStyle(.menu)
                     
                     if form.renewalType == .custom {
-                        Stepper(".label.reminder.renewal_amount \(form.customPeriodValue) \(form.customPeriodUnit.displayNameSuffix)", value: $form.customPeriodValue, in: 0...365)
+                        Stepper(".label.reminder.renewal_amount \(form.customPeriodValue) \(form.customPeriodUnit.displayNameSuffix)", value: $form.customPeriodValue, in: 1...365)
                         
                         Picker(".label.common.empty_value", selection: $form.customPeriodUnit) {
                             Text(PeriodUnit.days.displayNameSuffix).tag(PeriodUnit.days)
@@ -92,13 +92,15 @@ struct AddEditReminderSheet: View {
                     Section(header: Text(".label.reminder.license_key")) {
                         TextEditor(text: $form.licenseKey)
                             .font(.system(.body, design: .monospaced))
-                            .frame(height: 100)
+                            .frame(minHeight: 100, maxHeight: 200)
+                            .scrollContentBackground(.hidden)
                     }
                 }
                 
                 Section(header: Text(".label.reminder.notes")) {
                     TextEditor(text: $form.notes)
-                        .frame(height: 80)
+                        .frame(minHeight: 80, maxHeight: 160)
+                        .scrollContentBackground(.hidden)
                 }
             }
             .scrollContentBackground(.hidden)
@@ -159,6 +161,9 @@ extension View {
         self.onChange(of: text.wrappedValue) { oldValue, newValue in
             if newValue.count > limit {
                 text.wrappedValue = String(newValue.prefix(limit))
+                #if os(iOS)
+                UINotificationFeedbackGenerator().notificationOccurred(.warning)
+                #endif
             }
         }
     }

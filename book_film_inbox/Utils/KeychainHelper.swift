@@ -8,18 +8,24 @@
 import Security
 import Foundation
 
+enum KeyType {
+    case apiToken          // TMDb, OpenLibrary - can cloud sync
+    case sensitiveData     // Будущие платёжные данные - don't sync
+}
+
 class KeychainHelper {
     static let shared = KeychainHelper()
     private init() {}
     
-    func save(key: String, value: String) -> Bool {
+    func save(key: String, value: String, _ keyType: KeyType) -> Bool {
         guard let data = value.data(using: .utf8) else { return false }
+        let shouldSync = (keyType == .apiToken)
         
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
             kSecValueData as String: data,
-            kSecAttrSynchronizable as String: true
+            kSecAttrSynchronizable as String: shouldSync
         ]
         
         // Delete any existing item

@@ -8,8 +8,8 @@
 import UserNotifications
 import Foundation
 import Combine
-import os
 
+@MainActor
 @Observable
 class NotificationService {
     
@@ -129,7 +129,8 @@ class NotificationService {
         guard let scheduledDate = computeScheduledNotificationDate(
             expiryDate: expiryDate,
             reminderDays: reminderDays,
-            notificationHour: notificationHour
+            notificationHour: notificationHour,
+            calendar: CommonConstants.calendar
         ) else {
             Log.info("No valid notification time, skipping", context: [
                 "name": item.name
@@ -154,7 +155,7 @@ class NotificationService {
             "expiryDate": expiryDate.timeIntervalSince1970
         ]
 
-        let triggerDateComponents = Calendar.current.dateComponents(
+        let triggerDateComponents = CommonConstants.calendar.dateComponents(
             [.year, .month, .day, .hour, .minute],
             from: scheduledDate
         )
