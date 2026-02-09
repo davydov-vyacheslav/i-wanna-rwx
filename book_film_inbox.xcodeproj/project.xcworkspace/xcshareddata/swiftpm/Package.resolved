@@ -1,5 +1,5 @@
 {
-  "originHash" : "aee0df7eb48bc44b89b6ea136b813c82cccdc16b8d09eae8cc563d9ddb4f89f9",
+  "originHash" : "8449c216bdf7db4f114f3f283af951dee65e2dd570e6cc2cd66c9d97e0e5ee1c",
   "pins" : [
     {
       "identity" : "kingfisher",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "d30a5fad881137e2267f96a8e3fc35c58999bb94",
         "version" : "8.6.2"
-      }
-    },
-    {
-      "identity" : "swiftybeaver",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver",
-      "state" : {
-        "revision" : "8cba041db09596183331d123f337d0eb2e6e8e91",
-        "version" : "2.1.1"
       }
     },
     {
