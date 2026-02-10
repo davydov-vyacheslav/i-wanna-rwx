@@ -88,38 +88,36 @@ struct RemindersView: View {
     
     private var filterSection: some View {
         HStack(spacing: 8) {
-            ReminderFilterButton(
-                persistenceService: persistenceService,
-                type: .license,
-                isExpiring: false,
-                searchText: searchText,
-                isSelected: selectedFilterType == .license
-            ) {
-                selectedFilterType = (selectedFilterType == .license) ? nil : .license
-            }
-            
-            ReminderFilterButton(
-                persistenceService: persistenceService,
-                type: .subscription,
-                isExpiring: false,
-                searchText: searchText,
-                isSelected: selectedFilterType == .subscription
-            ) {
-                selectedFilterType = (selectedFilterType == .subscription) ? nil : .subscription
-            }
-            
+            FilterButton(
+                iconName: ReminderType.license.icon,
+                predicate: persistenceService.makeFilterPredicate(typeFilter: .license, text: searchText),
+                isSelected: selectedFilterType == .license,
+                action: {
+                    selectedFilterType = (selectedFilterType == .license) ? nil : .license
+                }
+            )
+
+            FilterButton(
+                iconName: ReminderType.subscription.icon,
+                predicate: persistenceService.makeFilterPredicate(typeFilter: .subscription, text: searchText),
+                isSelected: selectedFilterType == .subscription,
+                action: {
+                    selectedFilterType = (selectedFilterType == .subscription) ? nil : .subscription
+                }
+            )
+
             Spacer()
             
-            ReminderFilterButton(
-                persistenceService: persistenceService,
-                type: selectedFilterType,
-                isExpiring: true,
-                searchText: searchText,
+            FilterButton(
+                iconName: "hourglass.bottomhalf.fill",
+                predicate: persistenceService.makeFilterPredicate(typeFilter: selectedFilterType, text: searchText),
+                postSearchFilter: { !selectedFilterExpired || $0.isExpiringOrExpired },
                 isSelected: selectedFilterExpired,
-                customIcon: "hourglass.bottomhalf.fill"
-            ) {
-                selectedFilterExpired = !selectedFilterExpired
-            }
+                action: {
+                    selectedFilterExpired = !selectedFilterExpired
+                }
+            )
+
         }
     }
     
@@ -224,54 +222,6 @@ struct RemindersListContent: View {
                 }
             }
         }
-    }
-}
-
- // MARK: - Filter Button with Count
-
-struct ReminderFilterButton: View {
-    let persistenceService: ReminderPersistenceService
-    let type: ReminderType?
-    let isExpiring: Bool
-    let searchText: String
-    let isSelected: Bool
-    let customIcon: String?
-    let onTap: () -> Void
-    
-    @Query private var reminders: [ReminderItem]
-    
-    init(
-        persistenceService: ReminderPersistenceService,
-        type: ReminderType?,
-        isExpiring: Bool,
-        searchText: String,
-        isSelected: Bool,
-        customIcon: String? = nil,
-        onTap: @escaping () -> Void
-    ) {
-        self.persistenceService = persistenceService
-        self.type = type
-        self.isExpiring = isExpiring
-        self.searchText = searchText
-        self.isSelected = isSelected
-        self.customIcon = customIcon
-        self.onTap = onTap
-        
-        let predicate = persistenceService.makeFilterPredicate(typeFilter: type, text: searchText)
-        _reminders = Query(filter: predicate ?? #Predicate { _ in true })
-    }
-    
-    private var count: Int {
-        reminders.filter { !isExpiring || $0.isExpiringOrExpired }.count
-    }
-    
-    var body: some View {
-        FilterButton(
-            iconName: customIcon ?? type?.icon ?? "",
-            count: count,
-            isSelected: isSelected,
-            action: onTap
-        )
     }
 }
 

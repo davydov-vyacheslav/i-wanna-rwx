@@ -18,10 +18,20 @@ struct BooksView: View {
          NavigationStack {
              VStack(spacing: 0) {
                  // Filters
-                 MediaFilterBar<BookPersistenceService, BookItem>(
-                     persistenceService: persistenceService,
-                     selectedFilter: $selectedFilter
-                 )
+                 HStack(spacing: 8) {
+                     ForEach(FilterType.allCases, id: \.self) { filter in
+                         FilterButton(
+                            iconName: filter.iconName,
+                            predicate: persistenceService.makeFilterPredicate(for: filter),
+                            isSelected: selectedFilter == filter,
+                            action: { selectedFilter = filter }
+                         )
+                         .frame(maxWidth: .infinity)
+                     }
+                 }
+                 .padding(.vertical, 8)
+                 .padding(.horizontal)
+                 .background(Color(uiColor: .systemBackground))
                  
                  // List with dynamic filtering
                  MediaListContent<BookItem, BookPersistenceService>(

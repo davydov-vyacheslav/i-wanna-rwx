@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MoviesView: View {
     @Environment(MoviePersistenceService.self) private var persistenceService
@@ -18,10 +19,20 @@ struct MoviesView: View {
             VStack(spacing: 0) {
 
                 // Filters
-                MediaFilterBar<MoviePersistenceService, MovieItem>(
-                    persistenceService: persistenceService,
-                    selectedFilter: $selectedFilter
-                )
+                HStack(spacing: 8) {
+                    ForEach(FilterType.allCases, id: \.self) { filter in
+                        FilterButton(
+                            iconName: filter.iconName,
+                            predicate: persistenceService.makeFilterPredicate(for: filter),
+                            isSelected: selectedFilter == filter,
+                            action: { selectedFilter = filter }
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal)
+                .background(Color(uiColor: .systemBackground))
                 
                 // List with dynamic filtering
                 MediaListContent<MovieItem, MoviePersistenceService>(

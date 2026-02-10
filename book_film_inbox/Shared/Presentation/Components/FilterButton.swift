@@ -6,26 +6,28 @@
 //
 
 import SwiftUI
+import SwiftData
 
-struct FilterButton: View {
+struct FilterButton<Item: PersistentModel>: View {
     let iconName: String
-    let count: Int
     let isSelected: Bool
-    let isFavorite: Bool
     let action: () -> Void
+    let postSearchFilter: (Item) -> Bool
+    
+    @Query private var items: [Item]
     
     init(
         iconName: String,
-        count: Int,
+        predicate: Predicate<Item>?,
+        postSearchFilter: @escaping (Item) -> Bool = { _ in true},
         isSelected: Bool,
-        isFavorite: Bool = false,
         action: @escaping () -> Void
     ) {
         self.iconName = iconName
-        self.count = count
         self.isSelected = isSelected
-        self.isFavorite = isFavorite
         self.action = action
+        self.postSearchFilter = postSearchFilter
+        _items = Query(filter: predicate ?? #Predicate { _ in true })
     }
     
     var body: some View {
@@ -48,16 +50,13 @@ struct FilterButton: View {
     
     private var backgroundColor: Color {
         if isSelected {
-            return isFavorite ? .red : .blue
+            return .blue
         }
         return Color(uiColor: .secondarySystemBackground)
     }
-
-}
-
-
-#Preview {
-    FilterButton(iconName: FilterType.all.iconName, count: 3, isSelected: false, isFavorite: true) {
-        
+    
+    private var count: Int {
+        items.filter(postSearchFilter).count
     }
+
 }
