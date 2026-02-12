@@ -56,6 +56,8 @@ Purpose: Remember renewal dates and keep license keys organized - without overth
 - Always accessible - Two taps from home screen to the exact list you need.
 - No complexity - No categories, tags, or over-organization. Just clean, functional lists.
 - No Ad
+- KISS - Keep it simple and specific. Only things to remind you. No personalized movie recommendations,
+no media content download, no book reader, etc
 
 ## Target Users
 
@@ -64,4 +66,47 @@ Purpose: Remember renewal dates and keep license keys organized - without overth
 - Subscription users tired of surprise renewal charges
 - Software users who need to track license renewals
 - Anyone who values simplicity over feature bloat
-  
+
+## Other
+
+Doubtable decisions made 🤔:
+- runtime language switch is not supported: only device locale to be used
+- no import/export/share
+- no soft delete
+
+Open Questions:
+- Does this app really need to be iPad compatible?
+- Other datasources to be added
+
+Feedbacks:
+- Any issues / comments / questions can be left as an 'Issue' within this repostiory
+
+Data Sources being considered:
+  - Video:
+    - [TMDb](https://www.themoviedb.org/) . Used existing [TMDb Swing package](https://github.com/adamayoung/TMDb) to operate with. Requires registration and API token obtaining and providing to the application.
+  - Books:
+    - [OpenLibrary](https://openlibrary.org/) , self-written client
+  - Other (not included) data sources considered:
+    - [GoodreadsService](https://www.goodreads.com/) - another Book search service. They don't provide API anymore. At this stage no desire to write/use act-like-a-human client. Possibly to be implemented in future
+    - [OMDb](https://www.omdbapi.com/). Do we need it having TMDb ?
+    - [IMDb](https://www.imdb.com/). They don't have API, and do we need it having TMDb ?
+    - HdRezka
+
+## Screenshots
+
+Books: 
+<div>
+  <img src='images/Books-Add.png' width='30%' />
+  <img src='images/Books-List.png' width='30%' />
+</div>
+
+Movies:
+<div>
+  <img src='images/Movie-List.png' width='30%' />
+</div>
+
+Reminders:
+<div>
+  <img src='images/Reminders-New.png' width='30%' />
+  <img src='images/Reminders-List.png' width='30%' />
+</div>
