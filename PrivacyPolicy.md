@@ -73,7 +73,3 @@ Note: OpenLibrary API does not require authentication.
 9. Contact Us
    Questions? Email: apple@javanix.com
 
----
-Disclaimer:
-This app uses the TMDB API but is not endorsed or certified by TMDB.
-This app uses Open Library API,
