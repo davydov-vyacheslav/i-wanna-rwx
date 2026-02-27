@@ -2,6 +2,8 @@
 
 iOS application for Films-Books-Reminders notes
 
+Test Flight link: https://testflight.apple.com/join/grEcBEBQ
+
 ## Motivation & Purpose
 ### The Problem
 
