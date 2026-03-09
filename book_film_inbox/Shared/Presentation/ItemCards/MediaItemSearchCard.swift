@@ -47,14 +47,15 @@ where PersistenceService.Item == Item.MediaItem {
                     .fade(duration: 0.25)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 80, height: 116)
+                    .frame(width: 60, height: 70)
+                    .cornerRadius(8)
                     .clipped()
 
                 let yearText = item.year != nil ? String(item.year!) : "—"
                 
                 VStack(alignment: .leading) {
                     Text(item.title)
-                        .font(.headline)
+                        .font(.subheadline)
 
                     HStack {
                         Image(systemName: itemDetailedTypeIcon)

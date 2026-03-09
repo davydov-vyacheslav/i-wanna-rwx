@@ -13,13 +13,17 @@ enum IconGenerator {
     }
 
     private static let rules: [IconRule] = [
-        .init(keywords: ["netflix", "video", "movie"], icon: "🎬"),
-        .init(keywords: ["spotify", "music", "audio"], icon: "🎵"),
+        .init(keywords: ["mail", "outlook"], icon: "📧"),
+        .init(keywords: ["steam", "games", "xbox"], icon: "🎮"),
+        .init(keywords: ["netflix", "video", "movie", "youtube", "twitch"], icon: "🎬"),
+        .init(keywords: ["spotify", "music", "audio", "tidal"], icon: "🎵"),
+        .init(keywords: ["chatgpt", "claude", "copilot", "midjourney"], icon: "🤖"),
         .init(keywords: ["git", "code", "intellij"], icon: "💻"),
+        .init(keywords: ["canva", "tableau"], icon: "📈"),
         .init(keywords: ["design", "figma", "sketch", "photoshop"], icon: "🎨"),
         .init(keywords: ["cloud", "drive", "dropbox", "azure", "aws", "gcp"], icon: "☁️"),
-        .init(keywords: ["note", "notion", "docs"], icon: "📝"),
-        .init(keywords: ["chat", "slack", "discord"], icon: "💬")
+        .init(keywords: ["note", "notion", "docs", "sublime", "confluence"], icon: "📝"),
+        .init(keywords: ["chat", "slack", "discord", "telegram", "message"], icon: "💬")
     ]
     
     private static let icons = ["📦", "📁", "🔧", "📎", "🧩", "🗂️", "🔒", "⚙️"]

@@ -37,7 +37,8 @@ where PersistenceService.Item == Item {
                     .fade(duration: 0.25)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 80, height: 116)
+                    .frame(width: 80, height: 108)
+                    .cornerRadius(8)
                     .clipped()
                     .onTapGesture {
                         guard let source = SettingsSourceStore.shared.getSource(item.sourceName, for: item),
@@ -56,7 +57,7 @@ where PersistenceService.Item == Item {
                             .foregroundColor(isDraft(item) ? .gray : .orange)
                         
                         Text(item.title)
-                            .font(.headline)
+                            .font(.subheadline)
                             .lineLimit(2)
                     }
                     

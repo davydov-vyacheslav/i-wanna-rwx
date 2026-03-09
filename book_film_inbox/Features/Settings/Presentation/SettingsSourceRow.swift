@@ -24,7 +24,7 @@ struct SettingsSourceRow: View {
     }
     
     private var hasToken: Bool {
-        settingsService.hasToken(for: serviceName)
+        type(of: searchService).requiresToken && settingsService.hasToken(for: serviceName)
     }
     
     var body: some View {

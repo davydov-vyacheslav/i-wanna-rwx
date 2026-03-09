@@ -111,7 +111,7 @@ struct RemindersView: View {
             FilterButton(
                 iconName: "hourglass.bottomhalf.fill",
                 predicate: persistenceService.makeFilterPredicate(typeFilter: selectedFilterType, text: searchText),
-                postSearchFilter: { !selectedFilterExpired || $0.isExpiringOrExpired },
+                postSearchFilter: { $0.isExpiringOrExpired },
                 isSelected: selectedFilterExpired,
                 action: {
                     selectedFilterExpired = !selectedFilterExpired
