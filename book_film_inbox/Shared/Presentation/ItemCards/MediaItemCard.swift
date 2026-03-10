@@ -82,31 +82,23 @@ where PersistenceService.Item == Item {
                             } label: {
                                 Image(systemName: item.isFavorite ? "heart.fill" : "heart")
                                     .foregroundColor(item.isFavorite ? .red : .secondary)
+                                    .frame(width: 32, height: 32)
+                                    .background(.ultraThinMaterial)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            .buttonStyle(.plain)
+                            
+                            Button {
+                                persistenceService.changeStatus(item, to: itemStatus == .done ? .planned : .done)
+                            } label: {
+                                Image(systemName: "eye")
+                                    .foregroundColor(itemStatus == .done ? .green : .secondary)
+                                    .frame(width: 32, height: 32)
+                                    .background(.ultraThinMaterial)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
                             .frame(width: 16)
-                            
-                            if itemStatus == .done {
-                                Button {
-                                    persistenceService.changeStatus(item, to: .planned)
-                                } label: {
-                                    Image(systemName: "clock")
-                                        .foregroundColor(.secondary)
-                                }
-                                .buttonStyle(.plain)
-                                .frame(width: 16)
-                            }
-                            
-                            if itemStatus == .planned {
-                                Button {
-                                    persistenceService.changeStatus(item, to: .done)
-                                } label: {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.green)
-                                }
-                                .buttonStyle(.plain)
-                                .frame(width: 16)
-                            }
                             
                         }
                     }
