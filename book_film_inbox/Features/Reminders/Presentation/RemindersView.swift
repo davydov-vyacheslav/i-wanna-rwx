@@ -266,4 +266,11 @@ extension PeriodUnit {
         case .years: return String(localized: ".type.reminder.period.year")
         }
     }
+    func displayNamePluralSuffix(amount: Int) -> String {
+        switch self {
+        case .days: return String(localized: ".type.reminder.period.x_days \(amount)")
+        case .months: return String(localized: ".type.reminder.period.x_months \(amount)")
+        case .years: return String(localized: ".type.reminder.period.x_years \(amount)")
+        }
+    }
 }

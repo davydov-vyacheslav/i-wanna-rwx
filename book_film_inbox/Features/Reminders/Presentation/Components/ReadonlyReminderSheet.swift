@@ -95,7 +95,7 @@ struct ReadonlyReminderSheet: View {
                         Text(item.formattedRenewalType)
                         
                         if (item.reminderDays ?? -1) > 0 {
-                            Text(".label.reminder.remind_in_days \(item.reminderDays!)")
+                            Text(".label.reminder.remind_in \(PeriodUnit.days.displayNamePluralSuffix(amount: item.reminderDays!))")
                         }
                         
                         if let days = item.daysUntilExpiry {
@@ -103,7 +103,7 @@ struct ReadonlyReminderSheet: View {
                                         ? ".label.reminder.expired"
                                         : days == 0
                                         ? ".label.reminder.expire_today"
-                                        : ".label.reminder.expire_left_days \(days)",
+                                        : ".label.reminder.expire_in \(PeriodUnit.days.displayNamePluralSuffix(amount: days))",
                                         color: ReminderItemHelper.getColor(item))
                         }
                         

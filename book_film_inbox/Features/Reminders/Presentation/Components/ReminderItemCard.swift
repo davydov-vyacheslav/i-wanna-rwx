@@ -48,7 +48,8 @@ struct ReminderItemCard: View {
                     if let days = item.daysUntilExpiry {
                         StatusBadge(
                             icon: "calendar",
-                            text: item.isExpired ? ".label.reminder.expired" : ".label.reminder.expired_in_days \(days)",
+                            text: item.isExpired ? ".label.reminder.expired" : nil,
+                            textVerbatim: item.isExpired ? nil : PeriodUnit.days.displayNamePluralSuffix(amount: days),
                             color: ReminderItemHelper.getColor(item)
                         )
                     } else {

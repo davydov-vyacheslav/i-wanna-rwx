@@ -27,6 +27,13 @@ struct StatusBadge: View {
         self.color = color
     }
     
+    init(icon: String, text: LocalizedStringKey?, textVerbatim: String?, color: Color) {
+        self.icon = icon
+        self.text = text
+        self.textVerbatim = textVerbatim
+        self.color = color
+    }
+    
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)

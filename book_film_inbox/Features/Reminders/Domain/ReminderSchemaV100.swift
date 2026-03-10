@@ -157,13 +157,9 @@ enum ReminderSchemaV100: VersionedSchema {
                     return prefix
                 }
                 
-                let each = String(localized: ".label.reminder.renew_policy_each")
-                let unitName = String.localizedStringWithFormat(
-                    NSLocalizedString(unit.displayNameSuffix, comment: ""),
-                    periodValue
-                )
+                let amount = String(localized: ".label.reminder.renewal_amount \(unit.displayNamePluralSuffix(amount: periodValue))")
                 
-                return "\(prefix) \(each) \(periodValue) \(unitName)"
+                return "\(prefix) \(amount)"
                 
             default:
                 return "\(prefix) \(renewalType.displayName)"

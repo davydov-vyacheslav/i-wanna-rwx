@@ -60,7 +60,7 @@ struct AddEditReminderSheet: View {
                     .pickerStyle(.menu)
                     
                     if form.renewalType == .custom {
-                        Stepper(".label.reminder.renewal_amount \(form.customPeriodValue) \(form.customPeriodUnit.displayNameSuffix)", value: $form.customPeriodValue, in: 1...365)
+                        Stepper(".label.reminder.renewal_amount \(form.customPeriodUnit.displayNamePluralSuffix(amount: form.customPeriodValue))", value: $form.customPeriodValue, in: 1...365)
                         
                         Picker(".label.common.empty_value", selection: $form.customPeriodUnit) {
                             Text(PeriodUnit.days.displayNameSuffix).tag(PeriodUnit.days)
@@ -71,7 +71,7 @@ struct AddEditReminderSheet: View {
                     }
                     
                     if form.renewalType != .lifetime {
-                        Stepper(".label.reminder.remind_in_days \(form.reminderDays)", value: $form.reminderDays, in: 1...14)
+                        Stepper(".label.reminder.remind_in \(PeriodUnit.days.displayNamePluralSuffix(amount: form.reminderDays))", value: $form.reminderDays, in: 1...14)
                         
                         VStack(alignment: .leading, spacing: 4) {
                             DatePicker(
