@@ -10,19 +10,22 @@ import Kingfisher
 
 struct MediaItemCard<Item: CommonMediaItem, PersistenceService: MediaPersistenceService>: View
 where PersistenceService.Item == Item {
-    
+
     @Environment(\.modelContext) private var modelContext
     let persistenceService: PersistenceService
 
     @State private var showDescription = false
     let item: Item
-    let placeholderIcon: String // book.fill | film.fill
-    let itemDetailedTypeIcon: String // tv | film | book
+    let placeholderIcon: String
+    let itemDetailedTypeIcon: String
     let isDraft: (_ item: Item) -> Bool
 
     var body: some View {
+        let itemStatus = MediaItemHelper.getStatus(from: item)
+
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .top, spacing: 8) {
+
                 // Poster
                 KFImage(item.coverImageUrl)
                     .placeholder {
@@ -43,40 +46,61 @@ where PersistenceService.Item == Item {
                     .onTapGesture {
                         guard let source = SettingsSourceStore.shared.getSource(item.sourceName, for: item),
                               let url = try? source.instance.getSourceUrl(item: item)
-                            else { return }
+                        else { return }
                         UIApplication.shared.open(url)
                     }
-                
-                // Content
-                VStack(alignment: .leading, spacing: 1) {
-                    let itemStatus = MediaItemHelper.getStatus(from: item)
-                    // Title
-                    HStack {
-                        
-                        Image(systemName: itemDetailedTypeIcon)
-                            .foregroundColor(isDraft(item) ? .gray : .orange)
-                        
-                        Text(item.title)
-                            .font(.subheadline)
-                            .lineLimit(2)
-                    }
-                    
-                    // Meta + Actions Buttons
-                    HStack(spacing: 8) {
-                        
-                        Text(item.year.map(String.init) ?? "—")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
 
-                        Image(systemName: "star.fill")
-                            .font(.caption)
-                            .foregroundColor(.yellow)
-                        Text(MediaItemHelper.getRatingText(from: item))
-                            .font(.caption)
-                        
-                        Spacer()
-                        
-                        HStack(spacing: 16) {
+                // Right side
+                VStack(alignment: .leading, spacing: 4) {
+
+                    // Content + Buttons
+                    HStack(alignment: .top, spacing: 8) {
+
+                        // Content
+                        VStack(alignment: .leading, spacing: 1) {
+                            HStack(alignment: .top) {
+                                Image(systemName: itemDetailedTypeIcon)
+                                    .foregroundColor(isDraft(item) ? .gray : .orange)
+                                Text(item.title)
+                                    .font(.subheadline)
+                                    .lineLimit(2)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            HStack(spacing: 8) {
+                                Text(item.year.map(String.init) ?? "—")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Image(systemName: "star.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.yellow)
+                                Text(MediaItemHelper.getRatingText(from: item))
+                                    .font(.caption)
+                            }
+
+                            Text(item.mainAuthor ?? String(localized: ".label.common_media.no_author"))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .onTapGesture {
+                            if item.itemDescription != nil {
+                                showDescription = true
+                            }
+                        }
+                        .sheet(isPresented: $showDescription) {
+                            ScrollView {
+                                Text(item.itemDescription ?? "")
+                                    .padding(24)
+                            }
+                            .presentationDetents([.medium, .large])
+                            .onTapGesture {
+                                showDescription = false
+                            }
+                        }
+
+                        // Buttons
+                        VStack(spacing: 8) {
                             Button {
                                 persistenceService.toggleFavorite(item)
                             } label: {
@@ -87,7 +111,7 @@ where PersistenceService.Item == Item {
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
-                            
+
                             Button {
                                 persistenceService.changeStatus(item, to: itemStatus == .done ? .planned : .done)
                             } label: {
@@ -98,49 +122,24 @@ where PersistenceService.Item == Item {
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
-                            .frame(width: 16)
-                            
                         }
                     }
-                    .frame(height: 16)
 
-                    Text(item.mainAuthor ?? String(localized: ".label.common_media.no_author") )
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Spacer(minLength: 0)
 
-                    Spacer()
-                    
-                    // Badges
+                    // Badges — full right-side width
                     HStack(spacing: 6) {
                         if itemStatus == .planned {
                             StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
                         } else if itemStatus == .done {
                             StatusBadge(icon: "checkmark", text: ".type.media_status.seen", color: .green)
                         }
-                        
                         Spacer()
-                        
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
                     }
                 }
-                .onTapGesture {
-                    if item.itemDescription != nil {
-                        showDescription = true
-                    }
-                }
-                .sheet(isPresented: $showDescription) {
-                    ScrollView {
-                        Text(item.itemDescription ?? "")
-                            .padding(24)
-                    }
-                    .presentationDetents([.medium, .large])
-                    .onTapGesture {
-                        showDescription = false
-                    }
-                }
-                
+                .frame(minHeight: 108)
             }
-            
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
