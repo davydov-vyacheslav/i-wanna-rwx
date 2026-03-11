@@ -11,51 +11,44 @@ import SwiftData
 struct MoviesView: View {
     @Environment(MoviePersistenceService.self) private var persistenceService
     
-    @State private var selectedFilter: FilterType = .planned
+    @State private var movieFilter: MediaFilterState = MediaFilterState<VideoTypeFilter>()
     @State private var showingAddSheet = false
+    @State private var showingFilterSheet = false
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
 
-                // Filters
-                HStack(spacing: 8) {
-                    ForEach(FilterType.allCases, id: \.self) { filter in
-                        FilterButton(
-                            iconName: filter.iconName,
-                            predicate: persistenceService.makeFilterPredicate(for: filter),
-                            isSelected: selectedFilter == filter,
-                            action: { selectedFilter = filter }
-                        )
-                        .frame(maxWidth: .infinity)
-                    }
-                }
-                .padding(.vertical, 8)
-                .padding(.horizontal)
-                .background(Color(uiColor: .systemBackground))
-                
                 // List with dynamic filtering
                 MediaListContent<MovieItem, MoviePersistenceService>(
-                    filter: selectedFilter,
+                    customPredicate: makePredicate(movieFilter),
                     persistenceService: persistenceService,
                     sortDescriptors: [SortDescriptor(\MovieItem.title)],
                     placeholderIcon: "film.fill",
                     itemDetailedTypeIconFunc: { MediaItemHelper.getVideoType(from: $0) == VideoType.tvSeries ? "tv" : "film" },
                     isDraft: { DraftMovieService.shared.isDraft(item: $0) },
-                    onDelete: { persistenceService.delete($0) },
+                    onDelete: { persistenceService.delete($0) }
                 )
-                
             }
             .navigationTitle(Tab.movies.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddSheet = true
-                    } label: {
-                        Image(systemName: "plus")
+                    HStack(spacing: 16) {
+                        FilterToolbarButton(filterState: $movieFilter) {
+                            showingFilterSheet = true
+                        }
+
+                        Button {
+                            showingAddSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
+            }
+            .sheet(isPresented: $showingFilterSheet) {
+                MediaFilterSheet(filterState: $movieFilter)
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddMediaSheet<ExternalMovieItem, MoviePersistenceService>(
@@ -70,10 +63,54 @@ struct MoviesView: View {
                     sourcesKeyPath: \.availableVideoSources,
                     persistenceService: persistenceService
                 )
-
             }
+        }
+    }
+    
+    private func makePredicate(_ filterState: MediaFilterState<VideoTypeFilter>) -> Predicate<MovieItem>? {
+        guard filterState.isActive else { return nil }
+
+        let wantMovies = (filterState.itemType == .movies)
+        let wantSeries = (filterState.itemType == .series)
+        let filterType = (filterState.itemType != .all)
+        let checkFav = filterState.isFavourite
+        let checkSeen = filterState.isSeen
+        let checkNotSeen = filterState.isNotSeen
+        let checkDraft = filterState.isDraft
+
+        let draftServiceName = DraftMovieService.serviceName
+        let statusDone = MediaStatus.done.rawValue
+        let tvSeriesType = VideoType.tvSeries.rawValue
+        
+        return #Predicate<MovieItem> { item in
+            (!filterType || (wantMovies ? item.typeRaw != tvSeriesType : (wantSeries ? item.typeRaw == tvSeriesType : true)))
+            && (!checkFav || item.isFavorite)
+            && (!checkSeen || item.statusRaw == statusDone)
+            && (!checkNotSeen || item.statusRaw != statusDone)
+            && (!checkDraft || item.sourceName == draftServiceName)
         }
     }
 }
 
+enum VideoTypeFilter: String, FilterTypeOption {
+    case all
+    case movies
+    case series
 
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .all: return String(localized: ".type.common.all")
+        case .movies: return String(localized: ".type.movie.movies")
+        case .series: return String(localized: ".type.movie.tvSeries")
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .all: return "rectangle.stack.fill"
+        case .movies: return "film"
+        case .series: return "tv"
+        }
+    }
+}

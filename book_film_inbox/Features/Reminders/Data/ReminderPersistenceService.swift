@@ -19,26 +19,6 @@ class ReminderPersistenceService {
         self.modelContext = context
     }
     
-    func makeFilterPredicate(typeFilter: ReminderType?, text: String) -> Predicate<ReminderItem>? {
-        if let typeFilter, !text.isEmpty {
-            let raw = typeFilter.rawValue
-            return #Predicate { item in
-                item.typeRaw == raw &&
-                (item.name.contains(text) || item.itemDescription.contains(text))
-            }
-        } else if let typeFilter {
-            let raw = typeFilter.rawValue
-            return #Predicate { item in
-                item.typeRaw == raw
-            }
-        } else if !text.isEmpty {
-            return #Predicate { item in
-                item.name.contains(text) || item.itemDescription.contains(text)
-            }
-        }
-        return nil
-    }
-    
     func findById(_ itemId: UUID) -> ReminderItem? {
         let predicate = #Predicate<ReminderItem> { $0.id == itemId }
         let descriptor = FetchDescriptor(predicate: predicate)
@@ -48,29 +28,6 @@ class ReminderPersistenceService {
         } catch {
             Log.error("Error finding reminder by ID", error: error, context: ["id": itemId.uuidString])
             return nil
-        }
-    }
-    
-    func findByTypeAndExpiration(_ typeFilter: ReminderType?, _ isExpiring: Bool, _ text: String) -> [ReminderItem] {
-
-        let predicate = makeFilterPredicate(typeFilter: typeFilter, text: text)
-        
-        let descriptor: FetchDescriptor<ReminderItem> = FetchDescriptor<ReminderItem>(
-            predicate: predicate ?? #Predicate { _ in true },
-            sortBy: [SortDescriptor(\.name)]
-        )
-        
-        do {
-            let items = try modelContext.fetch(descriptor)
-            
-            let filtered = items.filter {
-                !isExpiring || $0.isExpiringOrExpired
-            }
-            
-            return filtered
-        } catch {
-            Log.error("Error fetching Reminders by filter", error: error)
-            return []
         }
     }
     

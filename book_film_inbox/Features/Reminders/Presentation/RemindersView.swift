@@ -15,47 +15,40 @@ struct RemindersView: View {
     
     private var notificationService = NotificationService.shared
     
+    @State private var reminderFilter: ReminderFilterState = ReminderFilterState()
     @State private var showingAddSheet = false
-    @State private var searchText: String = ""
+    @State private var showingFilterSheet = false
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
-    @State private var selectedFilterType: ReminderType? = nil
-    @State private var selectedFilterExpired: Bool = false
     
     var body: some View {
-            RemindersListContent(
-                filterType: selectedFilterType,
-                isExpiring: selectedFilterExpired,
-                searchText: searchText,
-                persistenceService: persistenceService,
-                onTap: { item in navigation.remindersPath.append(ReminderRoute.details(item.id)) },
-                onProlongate: { item in
-                    do {
-                        try persistenceService.prolongate(item)
-                    } catch {
-                        errorMessage = error.localizedDescription
-                        showError = true
-                    }
-                }
-            )
-            .safeAreaInset(edge: .top) {
-                VStack(spacing: 0) {
-                    filterSection
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 16)
-                        .background(Color(uiColor: .systemBackground))
-                    
-                    if notificationService.authorizationStatus == .denied {
-                        notificationWarningBanner
-                            .padding(.horizontal, 16)
-                    }
+        RemindersListContent(
+            filterState: reminderFilter,
+            persistenceService: persistenceService,
+            onTap: { item in navigation.remindersPath.append(ReminderRoute.details(item.id)) },
+            onProlongate: { item in
+                do {
+                    try persistenceService.prolongate(item)
+                } catch {
+                    errorMessage = error.localizedDescription
+                    showError = true
                 }
             }
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
-            .navigationTitle(Tab.reminders.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+        )
+        .safeAreaInset(edge: .top) {
+            if notificationService.authorizationStatus == .denied {
+                notificationWarningBanner
+            }
+        }
+        .navigationTitle(Tab.reminders.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                HStack(spacing: 16) {
+                    FilterToolbarButton(filterState: $reminderFilter) {
+                        showingFilterSheet = true
+                    }
+                    
                     Button {
                         showingAddSheet = true
                     } label: {
@@ -63,62 +56,29 @@ struct RemindersView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingAddSheet) {
-                AddEditReminderSheet(persistenceService: persistenceService, item: nil)
-            }
-            .alert(".title.error", isPresented: $showError) {
-                Button(".button.ok", role: .cancel) {}
-            } message: {
-                Text(errorMessage)
-            }
-            .task {
-                await notificationService.checkAuthorizationStatus()
-            }
-            .onChange(of: scenePhase) { oldPhase, newPhase in
-                if newPhase == .active {
-                    Task {
-                        await notificationService.checkAuthorizationStatus()
-                    }
-                }
-            }
-        
-    }
-    
-    // MARK: - Filter Section
-    
-    private var filterSection: some View {
-        HStack(spacing: 8) {
-            FilterButton(
-                iconName: ReminderType.license.icon,
-                predicate: persistenceService.makeFilterPredicate(typeFilter: .license, text: searchText),
-                isSelected: selectedFilterType == .license,
-                action: {
-                    selectedFilterType = (selectedFilterType == .license) ? nil : .license
-                }
-            )
-
-            FilterButton(
-                iconName: ReminderType.subscription.icon,
-                predicate: persistenceService.makeFilterPredicate(typeFilter: .subscription, text: searchText),
-                isSelected: selectedFilterType == .subscription,
-                action: {
-                    selectedFilterType = (selectedFilterType == .subscription) ? nil : .subscription
-                }
-            )
-
-            Spacer()
-            
-            FilterButton(
-                iconName: "hourglass.bottomhalf.fill",
-                predicate: persistenceService.makeFilterPredicate(typeFilter: selectedFilterType, text: searchText),
-                postSearchFilter: { $0.isExpiringOrExpired },
-                isSelected: selectedFilterExpired,
-                action: {
-                    selectedFilterExpired = !selectedFilterExpired
-                }
-            )
-
         }
+        .sheet(isPresented: $showingAddSheet) {
+            AddEditReminderSheet(persistenceService: persistenceService, item: nil)
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            ReminderFilterSheet(filterState: $reminderFilter)
+        }
+        .alert(".title.error", isPresented: $showError) {
+            Button(".button.ok", role: .cancel) {}
+        } message: {
+            Text(errorMessage)
+        }
+        .task {
+            await notificationService.checkAuthorizationStatus()
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .active {
+                Task {
+                    await notificationService.checkAuthorizationStatus()
+                }
+            }
+        }
+        
     }
     
     private var notificationWarningBanner: some View {
@@ -145,17 +105,18 @@ struct RemindersView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(Color.orange.opacity(0.15))
+            .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+        .padding(.horizontal, 16)
+        .padding(.top, 4)
     }
 }
 
  // MARK: - List Content with @Query
 
 struct RemindersListContent: View {
-    let filterType: ReminderType?
-    let isExpiring: Bool
-    let searchText: String
+    let filterState: ReminderFilterState
     let persistenceService: ReminderPersistenceService
     let onTap: (ReminderItem) -> Void
     let onProlongate: (ReminderItem) -> Void
@@ -163,21 +124,29 @@ struct RemindersListContent: View {
     @Query private var allReminders: [ReminderItem]
     
     init(
-        filterType: ReminderType?,
-        isExpiring: Bool,
-        searchText: String,
+        filterState: ReminderFilterState,
         persistenceService: ReminderPersistenceService,
         onTap: @escaping (ReminderItem) -> Void,
         onProlongate: @escaping (ReminderItem) -> Void
     ) {
-        self.filterType = filterType
-        self.isExpiring = isExpiring
-        self.searchText = searchText
+        self.filterState = filterState
         self.persistenceService = persistenceService
         self.onTap = onTap
         self.onProlongate = onProlongate
+
+        let reminderType: ReminderType? = switch filterState.itemType {
+        case .subscriptions: .subscription
+        case .licences: .license
+        case .all: nil
+        }
         
-        let predicate = persistenceService.makeFilterPredicate(typeFilter: filterType, text: searchText)
+        var predicate: Predicate<ReminderItem>? = nil
+        if let reminderType {
+            let raw = reminderType.rawValue
+            predicate = #Predicate { i in
+                i.typeRaw == raw
+            }
+        }
         
         _allReminders = Query(
             filter: predicate ?? #Predicate { _ in true },
@@ -186,7 +155,9 @@ struct RemindersListContent: View {
     }
     
     private var filteredReminders: [ReminderItem] {
-        allReminders.filter { !isExpiring || $0.isExpiringOrExpired }
+        allReminders.filter { item in
+            !filterState.isExpiringSoon || item.isExpiringOrExpired
+        }
     }
     
     var body: some View {
@@ -222,6 +193,47 @@ struct RemindersListContent: View {
                 }
             }
         }
+    }
+}
+
+enum ReminderTypeFilter: String, FilterTypeOption {
+    case all
+    case subscriptions
+    case licences
+
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .all: return String(localized: ".type.common.all")
+        case .subscriptions: return String(localized: ".type.reminder.subscriptions")
+        case .licences: return String(localized: ".type.reminder.licenses")
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .all: return "rectangle.stack.fill"
+        case .subscriptions: return "arrow.triangle.2.circlepath"
+        case .licences: return "key.fill"
+        }
+    }
+}
+
+struct ReminderFilterState: CommonFilterState {
+    typealias FilterType = ReminderTypeFilter
+    
+    var itemType: ReminderTypeFilter = .all
+    var isExpiringSoon: Bool = false
+
+    var isActive: Bool {
+        itemType != .all || isExpiringSoon
+    }
+
+    var activeCount: Int {
+        var count = 0
+        if itemType != .all { count += 1 }
+        if isExpiringSoon { count += 1 }
+        return count
     }
 }
 

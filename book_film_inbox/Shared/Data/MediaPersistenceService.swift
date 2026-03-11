@@ -9,11 +9,8 @@ import Foundation
 
 protocol MediaPersistenceService {
     associatedtype Item: CommonMediaItem
-    func findByType(_ filter: FilterType) -> [Item]
-    func count(filter: FilterType) -> Int
     func add(_ item: Item)
     func delete(_ item: Item)
     func toggleFavorite(_ item: Item)
     func changeStatus(_ item: Item, to status: MediaStatus)
-    func makeFilterPredicate(for filter: FilterType) -> Predicate<Item>?
 }

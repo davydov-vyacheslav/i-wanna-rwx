@@ -21,51 +21,6 @@ class MoviePersistenceService: MediaPersistenceService {
     
     
     // MARK: - Main methods
-    func findByType(_ filter: FilterType) -> [MovieItem] {
-        let predicate: Predicate<MovieItem>? = makeFilterPredicate(for: filter)
-        
-        let descriptor = FetchDescriptor<MovieItem>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.title)]
-        )
-        
-        do {
-            let results = try modelContext.fetch(descriptor)
-            return results
-        } catch {
-            Log.error("Error fetching Movies by filter", error: error, context: [
-                "filter": filter
-            ])
-            return []
-        }
-    }
-    
-    func makeFilterPredicate(for filter: FilterType) -> Predicate<MovieItem>? {
-        let pendingState = MediaStatus.planned.rawValue
-        let draftServiceName = DraftMovieService.serviceName
-        
-        switch filter {
-        case .all:
-            return nil // No filter, fetch all
-        case .favorite:
-            return #Predicate<MovieItem> { item in
-                item.isFavorite == true
-            }
-        case .planned:
-            return #Predicate<MovieItem> { item in
-                item.statusRaw == pendingState
-            }
-        case .draft:
-            return #Predicate<MovieItem> { item in
-                item.sourceName == draftServiceName
-            }
-        }
-
-    }
-    
-    func count(filter: FilterType) -> Int {
-        findByType(filter).count
-    }
     
     func add(_ item: MovieItem) {
         modelContext.insert(item)

@@ -11,7 +11,6 @@ import SwiftData
 struct MediaListContent<Item: CommonMediaItem, PersistenceService: MediaPersistenceService>: View
 where PersistenceService.Item == Item {
     
-    let filter: FilterType
     let persistenceService: PersistenceService
     let onDelete: (Item) -> Void
     let placeholderIcon: String // book.fill | film.fill
@@ -20,19 +19,16 @@ where PersistenceService.Item == Item {
 
     @Query private var items: [Item]
     
-    init(filter: FilterType, persistenceService: PersistenceService, sortDescriptors: [SortDescriptor<Item>], placeholderIcon: String,
+    init(customPredicate: Predicate<Item>?, persistenceService: PersistenceService, sortDescriptors: [SortDescriptor<Item>], placeholderIcon: String,
          itemDetailedTypeIconFunc: @escaping (Item) -> String, isDraft: @escaping (Item) -> Bool, onDelete: @escaping (Item) -> Void) {
-        self.filter = filter
         self.persistenceService = persistenceService
         self.onDelete = onDelete
         self.placeholderIcon = placeholderIcon
         self.itemDetailedTypeIconFunc = itemDetailedTypeIconFunc
         self.isDraft = isDraft
         
-        let predicate: Predicate<Item>? = persistenceService.makeFilterPredicate(for: filter)
-        
         _items = Query(
-            filter: predicate ?? #Predicate { _ in true },
+            filter: customPredicate ?? #Predicate { _ in true },
             sort: sortDescriptors
         )
     }
