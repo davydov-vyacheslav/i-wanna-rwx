@@ -32,6 +32,7 @@ struct BooksView: View {
                     itemDetailedTypeIconFunc: { item in "book" },
                     isDraft: { DraftBookService.shared.isDraft(item: $0) },
                     onDelete: { persistenceService.delete($0) },
+                    extraMetaView: { _ in EmptyView() }
                 )
             }
             .navigationTitle(Tab.books.title)

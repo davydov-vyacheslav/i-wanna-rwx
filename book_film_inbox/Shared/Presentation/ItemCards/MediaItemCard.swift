@@ -19,7 +19,24 @@ where PersistenceService.Item == Item {
     let placeholderIcon: String
     let itemDetailedTypeIcon: String
     let isDraft: (_ item: Item) -> Bool
+    let extraMetaView: (_ item: Item) -> AnyView
 
+    init(
+        persistenceService: PersistenceService,
+        item: Item,
+        placeholderIcon: String,
+        itemDetailedTypeIcon: String,
+        isDraft: @escaping (Item) -> Bool,
+        extraMetaView: @escaping (_ item: Item) -> AnyView
+    ) {
+        self.persistenceService = persistenceService
+        self.item = item
+        self.placeholderIcon = placeholderIcon
+        self.itemDetailedTypeIcon = itemDetailedTypeIcon
+        self.isDraft = isDraft
+        self.extraMetaView = extraMetaView
+    }
+    
     var body: some View {
         let itemStatus = MediaItemHelper.getStatus(from: item)
 
@@ -76,6 +93,10 @@ where PersistenceService.Item == Item {
                                     .foregroundColor(.yellow)
                                 Text(MediaItemHelper.getRatingText(from: item))
                                     .font(.caption)
+                                
+                                extraMetaView(item)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
 
                             Text(item.mainAuthor ?? String(localized: ".label.common_media.no_author"))

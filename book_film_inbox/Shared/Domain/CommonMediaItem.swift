@@ -36,4 +36,9 @@ struct MediaItemHelper {
         VideoType(rawValue: item.typeRaw) ?? .movie
     }
 
+    static func getTvSeriesStatus(from item: MovieItem) -> TvSeriesStatus? {
+        guard let status = item.tvSeriesStatusRaw else { return nil }
+        return TvSeriesStatus(rawValue: status)
+    }
+    
 }

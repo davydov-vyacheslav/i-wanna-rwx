@@ -9,7 +9,7 @@ import Foundation
 protocol SearchService<SearchResultItem> {
     associatedtype SearchResultItem: ExternalMediaItem
     
-    func isTokenValid(token: String) async -> Bool
+    func isTokenValid(token: String?) async -> Bool
     func search(query: String, limit: Int) async throws -> [SearchResultItem]
     func getDetails(item: SearchResultItem) async throws -> SearchResultItem
     func getSourceUrl(item: any CommonMediaItem) throws -> URL
@@ -38,7 +38,7 @@ protocol DraftSearchService: SearchService {
 }
 
 extension SearchService {
-    func isTokenValid(token: String) async -> Bool {
+    func isTokenValid(token: String?) async -> Bool {
         return true
     }
 }

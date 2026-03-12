@@ -16,16 +16,21 @@ where PersistenceService.Item == Item {
     let placeholderIcon: String // book.fill | film.fill
     let itemDetailedTypeIconFunc: (Item) -> String // tv | film | book
     let isDraft: (_ item: Item) -> Bool
+    let extraMetaView: (_ item: Item) -> AnyView
 
     @Query private var items: [Item]
     
     init(customPredicate: Predicate<Item>?, persistenceService: PersistenceService, sortDescriptors: [SortDescriptor<Item>], placeholderIcon: String,
-         itemDetailedTypeIconFunc: @escaping (Item) -> String, isDraft: @escaping (Item) -> Bool, onDelete: @escaping (Item) -> Void) {
+         itemDetailedTypeIconFunc: @escaping (Item) -> String,
+         isDraft: @escaping (Item) -> Bool,
+         onDelete: @escaping (Item) -> Void,
+         @ViewBuilder extraMetaView: @escaping (Item) -> some View) {
         self.persistenceService = persistenceService
         self.onDelete = onDelete
         self.placeholderIcon = placeholderIcon
         self.itemDetailedTypeIconFunc = itemDetailedTypeIconFunc
         self.isDraft = isDraft
+        self.extraMetaView = { AnyView(extraMetaView($0)) }
         
         _items = Query(
             filter: customPredicate ?? #Predicate { _ in true },
@@ -47,7 +52,8 @@ where PersistenceService.Item == Item {
                         item: item,
                         placeholderIcon: placeholderIcon,
                         itemDetailedTypeIcon: itemDetailedTypeIconFunc(item),
-                        isDraft: isDraft
+                        isDraft: isDraft,
+                        extraMetaView: extraMetaView
                     )
                     .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
                     .listRowSeparator(.hidden)

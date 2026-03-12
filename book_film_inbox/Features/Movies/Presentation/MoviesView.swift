@@ -31,7 +31,14 @@ struct MoviesView: View {
                     placeholderIcon: "film.fill",
                     itemDetailedTypeIconFunc: { MediaItemHelper.getVideoType(from: $0) == VideoType.tvSeries ? "tv" : "film" },
                     isDraft: { DraftMovieService.shared.isDraft(item: $0) },
-                    onDelete: { persistenceService.delete($0) }
+                    onDelete: { persistenceService.delete($0) },
+                    extraMetaView: {
+                        if let status = MediaItemHelper.getTvSeriesStatus(from: $0) {
+                            Text(".label.movies.tv_series.status \(status.displayName)")
+                        } else {
+                            EmptyView()
+                        }
+                    },
                 )
             }
             .navigationTitle(Tab.movies.title)

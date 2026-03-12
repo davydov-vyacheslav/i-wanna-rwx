@@ -23,9 +23,10 @@ class TMDbService: MovieSearchService {
         tmdbClient = TMDbClient(apiKey: currentToken ?? "")
     }
     
-    func isTokenValid(token: String) async -> Bool {
+    func isTokenValid(token: String?) async -> Bool {
         do {
-            return try await TMDbClient(apiKey: token).authentication.validateKey()
+            let client = token.map { TMDbClient(apiKey: $0) } ?? tmdbClient
+            return try await client.authentication.validateKey()
         } catch {
             return false
         }
@@ -57,6 +58,7 @@ class TMDbService: MovieSearchService {
         guard let sourceId = Int(sourceRaw) else { return item }
 
         var creator : String? = nil
+        var tvSeriesStatus: TvSeriesStatus? = nil
         switch item.type {
         case .movie:
             let credits = try? await tmdbClient.movies.credits(forMovie: sourceId)
@@ -66,6 +68,12 @@ class TMDbService: MovieSearchService {
             creator = credits?.crew.first(where: {
                 $0.job == "Executive Producer" || $0.job == "Director" || $0.department == "Production"
             })?.name
+            let show = try await tmdbClient.tvSeries.details(forTVSeries: sourceId)
+            if show.status == "Ended" || show.status == "Canceled" {
+                tvSeriesStatus = .ended
+            } else if show.status != nil {
+                tvSeriesStatus = .ongoing
+            }
         }
         
         return ExternalMovieItem(
@@ -80,7 +88,8 @@ class TMDbService: MovieSearchService {
             year: item.year,
             type: item.type,
             sourceId: item.sourceId,
-            originalTitle: item.originalTitle
+            originalTitle: item.originalTitle,
+            tvSeriesStatus: tvSeriesStatus,
         )
         
     }

@@ -29,6 +29,7 @@ enum MovieSchemaV100: VersionedSchema {
         var typeRaw: String = VideoType.movie.rawValue
         @Attribute(.spotlight) var sourceId: String?
         var originalTitle: String?
+        var tvSeriesStatusRaw: String?
         
         public init(
             description: String? = nil,
@@ -42,7 +43,8 @@ enum MovieSchemaV100: VersionedSchema {
             sourceName: String,
             type: VideoType,
             sourceId: String?,
-            originalTitle: String?
+            originalTitle: String?,
+            tvSeriesStatus: TvSeriesStatus?,
         ) {
             self.title = title
             self.itemDescription = description
@@ -56,6 +58,7 @@ enum MovieSchemaV100: VersionedSchema {
             self.typeRaw = type.rawValue
             self.originalTitle = originalTitle
             self.sourceId = sourceId
+            self.tvSeriesStatusRaw = tvSeriesStatus?.rawValue
         }
      
     }
