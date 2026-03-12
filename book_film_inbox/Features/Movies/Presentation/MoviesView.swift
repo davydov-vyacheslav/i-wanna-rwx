@@ -11,7 +11,11 @@ import SwiftData
 struct MoviesView: View {
     @Environment(MoviePersistenceService.self) private var persistenceService
     
-    @State private var movieFilter: MediaFilterState = MediaFilterState<VideoTypeFilter>()
+    @State private var movieFilter: MediaFilterState = {
+        var state = MediaFilterState<VideoTypeFilter>()
+        state.isNotSeen = true
+        return state
+    }()
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
     

@@ -11,7 +11,11 @@ import SwiftData
 struct BooksView: View {
     @Environment(BookPersistenceService.self) private var persistenceService
     
-    @State private var bookFilter: MediaFilterState = MediaFilterState<BookTypeFilter>()
+    @State private var bookFilter: MediaFilterState = {
+        var state = MediaFilterState<BookTypeFilter>()
+        state.isNotSeen = true
+        return state
+    }()
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
     
