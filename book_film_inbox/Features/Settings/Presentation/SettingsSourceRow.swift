@@ -163,8 +163,13 @@ struct SettingsSourceRow: View {
                             } label: {
                                 Image(systemName: showToken ? "eye.slash.fill" : "eye.fill")
                                     .foregroundColor(.secondary)
+                                    .accessibilityHidden(true)
                             }
                             .buttonStyle(.borderless)
+                            .accessibilityLabel(showToken
+                                ? Text(".accessibility.settings.hide_token")
+                                : Text(".accessibility.settings.show_token")
+                            )
                         }
                     }
                 }

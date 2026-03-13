@@ -15,6 +15,7 @@ struct PersistenceErrorView: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 60))
                 .foregroundColor(.red)
+                .accessibilityHidden(true)
             
             Text(".label.error.database")
                 .font(.title)
@@ -28,6 +29,7 @@ struct PersistenceErrorView: View {
                 exit(0)
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityHint(Text(".accessibility.error.reset_app_hint"))
         }
         .padding()
     }

@@ -53,7 +53,9 @@ struct RemindersView: View {
                         showingAddSheet = true
                     } label: {
                         Image(systemName: "plus")
+                            .accessibilityHidden(true)
                     }
+                    .accessibilityLabel(Text(".accessibility.reminders.add"))
                 }
             }
         }
@@ -91,6 +93,7 @@ struct RemindersView: View {
                 Image(systemName: "bell.slash.fill")
                     .font(.caption)
                     .foregroundColor(.orange)
+                    .accessibilityHidden(true)
                 
                 Text(".label.reminder.notifications_disabled")
                     .font(.caption)
@@ -101,6 +104,7 @@ struct RemindersView: View {
                 Image(systemName: "arrow.right")
                     .font(.caption2)
                     .foregroundColor(.secondary)
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -110,6 +114,8 @@ struct RemindersView: View {
         .buttonStyle(.plain)
         .padding(.horizontal, 16)
         .padding(.top, 4)
+        .accessibilityLabel(Text(".label.reminder.notifications_disabled"))
+        .accessibilityHint(Text(".accessibility.reminders.notifications_disabled_hint"))
     }
 }
 
@@ -167,9 +173,12 @@ struct RemindersListContent: View {
                     .listRowInsets(EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16))
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
+                    .contentShape(Rectangle())
                     .onTapGesture {
                         onTap(item)
                     }
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint(Text(".accessibility.reminders.open_hint"))
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         if item.renewalType != .lifetime && item.renewalType != .none {
                             Button {

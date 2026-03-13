@@ -48,6 +48,7 @@ struct MediaSearchBar<ExternalItem: ExternalMediaItem>: View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
 
             TextField(".placeholder.common.search", text: $searchText)
                 .focused($isSearchFieldFocused)
@@ -61,13 +62,16 @@ struct MediaSearchBar<ExternalItem: ExternalMediaItem>: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(Text(".accessibility.search_bar.clear"))
             }
 
             if isSearching {
                 ProgressView()
                     .scaleEffect(0.8)
+                    .accessibilityLabel(Text(".accessibility.search_bar.searching"))
             }
         }
         .padding(12)
@@ -78,7 +82,7 @@ struct MediaSearchBar<ExternalItem: ExternalMediaItem>: View {
     // MARK: - Service Picker
 
     private var servicePicker: some View {
-        Picker(".label.common.empty_value", selection: $selectedService) {
+        Picker(".accessibility.search_bar.source_picker", selection: $selectedService) {
             ForEach(availableServices) { service in
                 Text(type(of: service.instance).serviceName)
                     .tag(Optional(service))
@@ -106,6 +110,8 @@ struct MediaSearchBar<ExternalItem: ExternalMediaItem>: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(".accessibility.search_bar.searching_in \(serviceName)"))
     }
 
     // MARK: - No Services Warning
@@ -113,6 +119,7 @@ struct MediaSearchBar<ExternalItem: ExternalMediaItem>: View {
         HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.orange)
+                .accessibilityHidden(true)
             Text(".label.common_media.search.no_services")
                 .font(.subheadline)
                 .fontWeight(.medium)
@@ -123,6 +130,7 @@ struct MediaSearchBar<ExternalItem: ExternalMediaItem>: View {
         .cornerRadius(10)
         .padding(.horizontal)
         .padding(.bottom, 8)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Character Count Hint

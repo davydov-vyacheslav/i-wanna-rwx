@@ -49,7 +49,9 @@ struct BooksView: View {
                             showingAddSheet = true
                         } label: {
                             Image(systemName: "plus")
+                                .accessibilityHidden(true)
                         }
+                        .accessibilityLabel(Text(".accessibility.books.add"))
                     }
                 }
             }

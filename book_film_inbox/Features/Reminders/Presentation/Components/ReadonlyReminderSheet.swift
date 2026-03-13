@@ -24,6 +24,7 @@ struct ReadonlyReminderSheet: View {
                     Text(IconGenerator.suggestIcon(for: item.name))
                         .font(.largeTitle)
                         .grayscale(item.isExpired ? 1 : 0)
+                        .accessibilityHidden(true)
                     
                     VStack(alignment: .leading, spacing: 6) {
                         Text(item.name)
@@ -66,6 +67,7 @@ struct ReadonlyReminderSheet: View {
                 if item.renewalType == RenewalType.lifetime {
                     HStack(spacing: 8) {
                         Image(systemName: "infinity")
+                            .accessibilityHidden(true)
                         Text(RenewalType.lifetime.displayName)
                     }
                     .foregroundColor(Color.green)
@@ -77,6 +79,7 @@ struct ReadonlyReminderSheet: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(Color.green.opacity(0.3), lineWidth: 1)
                     )
+                    .accessibilityElement(children: .combine)
                 } else {
                     ReminderInfoField(title: ".label.reminder.renew_info") {
                         

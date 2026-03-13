@@ -34,6 +34,7 @@ struct CopyableText: View {
                                      : Color.blue)
                     .scaledToFit()
                     .frame(height: 18)
+                    .accessibilityHidden(true)
             }
             .padding(12)
             .background(Color.blue.opacity(0.1))
@@ -45,6 +46,12 @@ struct CopyableText: View {
             .tint(.blue)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(text))
+        .accessibilityHint(copiedToClipboard
+            ? Text(".accessibility.copyable_text.hint_copied")
+            : Text(".accessibility.copyable_text.hint")
+        )
+        .accessibilityValue(copiedToClipboard ? Text(".accessibility.copyable_text.hint_copied") : Text(".label.common.empty_value"))
         .task(id: copiedToClipboard) {
             guard copiedToClipboard else { return }
             try? await Task.sleep(for: .seconds(2))

@@ -23,7 +23,8 @@ struct ReminderItemCard: View {
                 )
                 .cornerRadius(16)
                 .grayscale(item.isExpired ? 1 : 0)
-            
+                .accessibilityHidden(true)
+
             // Content
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
@@ -75,6 +76,21 @@ struct ReminderItemCard: View {
         .padding(.vertical, 8)
         .background(Color(uiColor: .secondarySystemBackground))
         .cornerRadius(16)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(reminderAccessibilityLabel)
+    }
+
+    private var reminderAccessibilityLabel: String {
+        var parts: [String] = [item.name]
+        if !item.cost.isEmpty { parts.append(item.cost) }
+        if item.isExpired {
+            parts.append(String(localized: ".label.reminder.expired"))
+        } else if let days = item.daysUntilExpiry {
+            parts.append(PeriodUnit.days.displayNamePluralSuffix(amount: days))
+        } else {
+            parts.append(RenewalType.lifetime.displayName)
+        }
+        return parts.joined(separator: ", ")
     }
 }
 

@@ -55,9 +55,10 @@ where PersistenceService.Item == Item.MediaItem {
                     .frame(width: 60, height: 70)
                     .cornerRadius(8)
                     .clipped()
+                    .accessibilityHidden(true)
 
                 let yearText = item.year != nil ? String(item.year!) : "—"
-                
+
                 VStack(alignment: .leading) {
                     Text(item.title)
                         .font(.subheadline)
@@ -65,7 +66,8 @@ where PersistenceService.Item == Item.MediaItem {
                     HStack {
                         Image(systemName: itemDetailedTypeIcon)
                             .foregroundColor(.secondary)
-                        
+                            .accessibilityHidden(true)
+
                         Text(verbatim: yearText)
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -74,23 +76,38 @@ where PersistenceService.Item == Item.MediaItem {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                    
+
                     if let author = authorInfo {
                         Text(author)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                    
                 }
-                
+
                 Spacer()
-                
+
                 if isInLibrary {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
+                        .accessibilityHidden(true)
                 }
             }
         }
         .disabled(isInLibrary || isAdding)
+        .accessibilityLabel(searchCardAccessibilityLabel)
+        .accessibilityHint(isInLibrary
+            ? Text(".accessibility.search_card.already_in_library")
+            : Text(".accessibility.search_card.add_hint")
+        )
+    }
+
+    private var searchCardAccessibilityLabel: Text {
+        var parts: [String] = [item.title]
+        if let year = item.year { parts.append(String(year)) }
+        if let author = authorInfo { parts.append(author) }
+        if isInLibrary {
+            parts.append(String(localized: ".accessibility.search_card.already_in_library"))
+        }
+        return Text(parts.joined(separator: ", "))
     }
 }

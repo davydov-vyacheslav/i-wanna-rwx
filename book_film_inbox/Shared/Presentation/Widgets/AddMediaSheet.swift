@@ -114,6 +114,7 @@ where PersistenceService.Item == Item.MediaItem
             Image(systemName: emptyStateIcon)
                 .font(.largeTitle)
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
             Text(".label.common.search.enter_text")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -178,6 +179,7 @@ where PersistenceService.Item == Item.MediaItem
     private var toastView: some View {
         HStack {
             Image(systemName: "exclamationmark.triangle.fill")
+                .accessibilityHidden(true)
             Text(toastMessage)
                 .font(.subheadline)
         }
@@ -188,6 +190,8 @@ where PersistenceService.Item == Item.MediaItem
         .shadow(radius: 5)
         .padding()
         .transition(.move(edge: .bottom).combined(with: .opacity))
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isStaticText)
     }
     
     // MARK: - Event Handlers

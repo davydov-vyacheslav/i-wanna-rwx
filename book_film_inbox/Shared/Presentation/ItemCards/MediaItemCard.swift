@@ -38,6 +38,22 @@ where PersistenceService.Item == Item,
         self.extraMetaView = extraMetaView
     }
     
+    // MARK: - Accessibility helpers
+
+    private var cardAccessibilityLabel: String {
+        let itemStatus = MediaItemHelper.getStatus(from: item)
+        var parts: [String] = []
+        parts.append(item.title)
+        if let year = item.year { parts.append(String(year)) }
+        if let author = item.mainAuthor { parts.append(author) }
+        if item.isFavorite { parts.append(String(localized: ".label.common.filter.favorite")) }
+        switch itemStatus {
+        case .planned: parts.append(String(localized: ".type.media_status.planned"))
+        case .done:    parts.append(String(localized: ".type.media_status.seen"))
+        }
+        return parts.joined(separator: ", ")
+    }
+
     var body: some View {
         let itemStatus = MediaItemHelper.getStatus(from: item)
 
@@ -67,6 +83,9 @@ where PersistenceService.Item == Item,
                         else { return }
                         UIApplication.shared.open(url)
                     }
+                    .accessibilityLabel(Text(".accessibility.card.open_source \(item.sourceName)"))
+                    .accessibilityHint(Text(".accessibility.card.open_source_hint"))
+                    .accessibilityAddTraits(.isButton)
 
                 // Right side
                 VStack(alignment: .leading, spacing: 4) {
@@ -74,11 +93,12 @@ where PersistenceService.Item == Item,
                     // Content + Buttons
                     HStack(alignment: .top, spacing: 8) {
 
-                        // Content
+                        // Content — нажатие открывает описание
                         VStack(alignment: .leading, spacing: 1) {
                             HStack(alignment: .top) {
                                 Image(systemName: itemDetailedTypeIcon)
                                     .foregroundColor(isDraft(item) ? .gray : .orange)
+                                    .accessibilityHidden(true)
                                 Text(item.title)
                                     .font(.subheadline)
                                     .lineLimit(2)
@@ -92,9 +112,10 @@ where PersistenceService.Item == Item,
                                 Image(systemName: "star.fill")
                                     .font(.caption)
                                     .foregroundColor(.yellow)
+                                    .accessibilityHidden(true)
                                 Text(MediaItemHelper.getRatingText(from: item))
                                     .font(.caption)
-                                
+
                                 extraMetaView(item)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -105,11 +126,18 @@ where PersistenceService.Item == Item,
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             if item.itemDescription != nil {
                                 showDescription = true
                             }
                         }
+                        .accessibilityLabel(Text(cardAccessibilityLabel))
+                        .accessibilityHint(item.itemDescription != nil
+                            ? Text(".accessibility.card.description_hint")
+                            : Text(".label.common.empty_value")
+                        )
+                        .accessibilityAddTraits(item.itemDescription != nil ? .isButton : [])
                         .sheet(isPresented: $showDescription) {
                             ScrollView {
                                 Text(item.itemDescription ?? "")
@@ -119,9 +147,10 @@ where PersistenceService.Item == Item,
                             .onTapGesture {
                                 showDescription = false
                             }
+                            .accessibilityHint(Text(".accessibility.card.dismiss_description_hint"))
                         }
 
-                        // Buttons
+                        // Action buttons
                         VStack(spacing: 8) {
                             Button {
                                 persistenceService.toggleFavorite(item)
@@ -131,8 +160,13 @@ where PersistenceService.Item == Item,
                                     .frame(width: 32, height: 32)
                                     .background(.ultraThinMaterial)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .accessibilityHidden(true)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(item.isFavorite
+                                ? Text(".accessibility.card.remove_favorite")
+                                : Text(".accessibility.card.add_favorite")
+                            )
 
                             Button {
                                 persistenceService.changeStatus(item, to: itemStatus == .done ? .planned : .done)
@@ -142,14 +176,19 @@ where PersistenceService.Item == Item,
                                     .frame(width: 32, height: 32)
                                     .background(.ultraThinMaterial)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .accessibilityHidden(true)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(itemStatus == .done
+                                ? Text(".accessibility.card.mark_planned")
+                                : Text(".accessibility.card.mark_seen")
+                            )
                         }
                     }
 
                     Spacer(minLength: 0)
 
-                    // Badges — full right-side width
+                    // Badges
                     HStack(spacing: 6) {
                         if itemStatus == .planned {
                             StatusBadge(icon: "clock", text: ".type.media_status.planned", color: .blue)
@@ -159,6 +198,7 @@ where PersistenceService.Item == Item,
                         Spacer()
                         StatusBadge(icon: "magnifyingglass", text: .init(item.sourceName), color: .gray)
                     }
+                    .accessibilityHidden(true)
                 }
                 .frame(minHeight: 108)
             }

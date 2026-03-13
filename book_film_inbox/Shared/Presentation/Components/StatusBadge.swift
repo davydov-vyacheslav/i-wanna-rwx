@@ -37,7 +37,8 @@ struct StatusBadge: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-            
+                .accessibilityHidden(true)
+
             if let verbatim = textVerbatim {
                 Text(verbatim: verbatim)
             } else if let key = text {
@@ -50,5 +51,6 @@ struct StatusBadge: View {
         .background(color.opacity(0.1))
         .foregroundColor(color)
         .cornerRadius(12)
+        .accessibilityElement(children: .combine)
     }
 }

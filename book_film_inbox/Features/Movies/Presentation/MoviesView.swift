@@ -54,7 +54,9 @@ struct MoviesView: View {
                             showingAddSheet = true
                         } label: {
                             Image(systemName: "plus")
+                                .accessibilityHidden(true)
                         }
+                        .accessibilityLabel(Text(".accessibility.movies.add"))
                     }
                 }
             }

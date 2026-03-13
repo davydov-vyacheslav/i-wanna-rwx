@@ -16,6 +16,7 @@ struct FilterToolbarButton<FS: CommonFilterState>: View {
             ZStack(alignment: .topTrailing) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
                     .symbolVariant(filterState.isActive ? .fill : .none)
+                    .accessibilityHidden(true)
 
                 if filterState.activeCount > 0 {
                     Text(filterState.activeCount, format: .number)
@@ -24,8 +25,14 @@ struct FilterToolbarButton<FS: CommonFilterState>: View {
                         .padding(3)
                         .background(Color.accentColor, in: Circle())
                         .offset(x: 6, y: -6)
+                        .accessibilityHidden(true)
                 }
             }
         }
+        .accessibilityLabel(filterState.activeCount > 0
+            ? Text(".accessibility.filter.label_active \(filterState.activeCount)")
+            : Text(".accessibility.filter.label")
+        )
+        .accessibilityHint(Text(".accessibility.filter.hint"))
     }
 }
