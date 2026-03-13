@@ -24,7 +24,7 @@ struct MoviesView: View {
             VStack(spacing: 0) {
 
                 // List with dynamic filtering
-                MediaListContent<MovieItem, MoviePersistenceService>(
+                MediaListContent<MovieItem, ExternalMovieItem, MoviePersistenceService>(
                     customPredicate: makePredicate(movieFilter),
                     persistenceService: persistenceService,
                     sortDescriptors: [SortDescriptor(\MovieItem.title)],

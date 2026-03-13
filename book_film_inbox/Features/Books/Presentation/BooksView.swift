@@ -24,7 +24,7 @@ struct BooksView: View {
             VStack(spacing: 0) {
                 
                 // List with dynamic filtering
-                MediaListContent<BookItem, BookPersistenceService>(
+                MediaListContent<BookItem, ExternalBookItem, BookPersistenceService>(
                     customPredicate: makePredicate(bookFilter),
                     persistenceService: persistenceService,
                     sortDescriptors: [SortDescriptor(\BookItem.title)],

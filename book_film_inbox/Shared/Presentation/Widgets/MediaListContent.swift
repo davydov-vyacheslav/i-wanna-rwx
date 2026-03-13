@@ -8,8 +8,9 @@
 import SwiftUI
 import SwiftData
 
-struct MediaListContent<Item: CommonMediaItem, PersistenceService: MediaPersistenceService>: View
-where PersistenceService.Item == Item {
+struct MediaListContent<Item: CommonMediaItem, ExternalItem: ExternalMediaItem, PersistenceService: MediaPersistenceService>: View
+where PersistenceService.Item == Item,
+      ExternalItem.MediaItem == Item {
     
     let persistenceService: PersistenceService
     let onDelete: (Item) -> Void
@@ -47,7 +48,7 @@ where PersistenceService.Item == Item {
         } else {
             List {
                 ForEach(items) { item in
-                    MediaItemCard<Item, PersistenceService>(
+                    MediaItemCard<Item, ExternalItem, PersistenceService>(
                         persistenceService: persistenceService,
                         item: item,
                         placeholderIcon: placeholderIcon,

@@ -7,59 +7,53 @@
 
 import SwiftUI
 
-struct MediaSearchBar: View {
+struct MediaSearchBar<ExternalItem: ExternalMediaItem>: View {
     @Binding var searchText: String
-    @Binding var selectedService: SettingsSourceEntity?
+    @Binding var selectedService: SettingsSourceEntity<ExternalItem>?
     @Binding var isSearching: Bool
-    
-    let availableServices: [SettingsSourceEntity]
+
+    let availableServices: [SettingsSourceEntity<ExternalItem>]
     let onClear: () -> Void
-    
+
     @FocusState.Binding var isSearchFieldFocused: Bool
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // Search field with service selector
             HStack(spacing: 8) {
                 searchInputField
-                
-                if !availableServices.isEmpty {
-                    serviceSelector
-                }
 
+                if availableServices.count > 1, selectedService != nil {
+                    servicePicker
+                }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
-            
-            // Current service indicator (if multiple services available)
-            if availableServices.count > 1, let service = selectedService {
+
+            if let service = selectedService {
                 currentServiceIndicator(serviceName: type(of: service.instance).serviceName)
             }
-            
-            // No services warning
+
             if availableServices.isEmpty {
                 noServicesWarning
             }
-            
-            // Character count hint
+
             if !searchText.isEmpty && searchText.count < 3 {
                 characterCountHint
             }
         }
     }
-    
+
     // MARK: - Search Input Field
     private var searchInputField: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
-            
+
             TextField(".placeholder.common.search", text: $searchText)
                 .focused($isSearchFieldFocused)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
-            
-            // Clear button
+
             if !searchText.isEmpty {
                 Button {
                     searchText = ""
@@ -70,8 +64,7 @@ struct MediaSearchBar: View {
                 }
                 .buttonStyle(.plain)
             }
-            
-            // Live search indicator
+
             if isSearching {
                 ProgressView()
                     .scaleEffect(0.8)
@@ -81,44 +74,24 @@ struct MediaSearchBar: View {
         .background(Color(.systemGray6))
         .cornerRadius(10)
     }
-    
-    // MARK: - Service Selector Menu
-    private var serviceSelector: some View {
 
-        var selectedServiceName: String? = nil
-        if let service = selectedService?.instance {
-            selectedServiceName = type(of: service).serviceName
-        }
-        
-        return Menu {
+    // MARK: - Service Picker
+
+    private var servicePicker: some View {
+        Picker(".label.common.empty_value", selection: $selectedService) {
             ForEach(availableServices) { service in
-                Button {
-                    selectedService = service
-                } label: {
-                    HStack {
-                        Text(type(of: service.instance).serviceName)
-                        if selectedServiceName == type(of: service.instance).serviceName {
-                            Image(systemName: "checkmark")
-                        }
-                    }
-                }
+                Text(type(of: service.instance).serviceName)
+                    .tag(Optional(service))
             }
-        } label: {
-            HStack(spacing: 4) {
-                Text(selectedServiceName ?? "Select")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                Image(systemName: "chevron.down")
-                    .font(.caption)
-            }
-            .foregroundColor(.blue)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .background(Color.blue.opacity(0.1))
-            .cornerRadius(10)
         }
+        .pickerStyle(.menu)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color.blue.opacity(0.1))
+        .cornerRadius(10)
+        .tint(.blue)
     }
-    
+
     // MARK: - Current Service Indicator
     private func currentServiceIndicator(serviceName: String) -> some View {
         HStack {
@@ -134,17 +107,15 @@ struct MediaSearchBar: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 4)
     }
-    
+
     // MARK: - No Services Warning
     private var noServicesWarning: some View {
         HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.orange)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(".label.common_media.search.no_services")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-            }
+            Text(".label.common_media.search.no_services")
+                .font(.subheadline)
+                .fontWeight(.medium)
             Spacer()
         }
         .padding(12)
@@ -153,7 +124,7 @@ struct MediaSearchBar: View {
         .padding(.horizontal)
         .padding(.bottom, 8)
     }
-    
+
     // MARK: - Character Count Hint
     private var characterCountHint: some View {
         HStack {

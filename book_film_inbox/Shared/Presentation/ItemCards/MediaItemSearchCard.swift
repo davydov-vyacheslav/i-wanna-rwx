@@ -23,14 +23,19 @@ where PersistenceService.Item == Item.MediaItem {
     let itemDetailedTypeIcon: String // tv | film | book
     let authorInfo: String?
     
+    @State private var isAdding = false
+    
     var body: some View {
         Button {
+            guard !isAdding else { return }
+            isAdding = true
             Task {
                 if !isInLibrary {
                     let detailedItem = try await selectedService?.getDetails(item: item) ?? item
                     persistenceService.add(detailedItem.toCommonMediaItem())
                     dismiss()
                 }
+                isAdding = false
             }
         } label: {
             HStack {
@@ -86,6 +91,6 @@ where PersistenceService.Item == Item.MediaItem {
                 }
             }
         }
-        .disabled(isInLibrary)
+        .disabled(isInLibrary || isAdding)
     }
 }

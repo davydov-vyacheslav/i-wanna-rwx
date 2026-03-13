@@ -18,7 +18,7 @@ where PersistenceService.Item == Item.MediaItem
     @State private var results: [Item] = []
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
-    @State private var selectedService: SettingsSourceEntity? = nil
+    @State private var selectedService: SettingsSourceEntity<Item>? = nil
     
     @Bindable private var settingsSearchStore = SettingsSourceStore.shared
     
@@ -35,10 +35,10 @@ where PersistenceService.Item == Item.MediaItem
     let isItemInLibrary: (Item) -> Bool
     let getAuthorInfo: (Item) -> String?
     let getDraftItem: (String) -> Item
-    let sourcesKeyPath: KeyPath<SettingsSourceStore, [SettingsSourceEntity]>
+    let sourcesKeyPath: KeyPath<SettingsSourceStore, [SettingsSourceEntity<Item>]>
     let persistenceService: PersistenceService
 
-    var availableServices: [SettingsSourceEntity] {
+    var availableServices: [SettingsSourceEntity<Item>] {
         settingsSearchStore[keyPath: sourcesKeyPath].filter { service in
             !type(of: service.instance).requiresToken || settingsService.hasToken(for: type(of: service.instance).serviceName)
         }
@@ -48,7 +48,7 @@ where PersistenceService.Item == Item.MediaItem
         NavigationStack {
             VStack(spacing: 0) {
                 // Search Bar Component
-                MediaSearchBar(
+                MediaSearchBar<Item>(
                     searchText: $searchText,
                     selectedService: $selectedService,
                     isSearching: $isSearching,
@@ -255,10 +255,8 @@ where PersistenceService.Item == Item.MediaItem
                 limit: 10
             )
             
-            let itemsResults = searchResults.compactMap { $0 as? Item }
-            
             await MainActor.run {
-                results = itemsResults
+                results = searchResults
                 isSearching = false
             }
         } catch {

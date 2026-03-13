@@ -8,8 +8,9 @@
 import SwiftUI
 import Kingfisher
 
-struct MediaItemCard<Item: CommonMediaItem, PersistenceService: MediaPersistenceService>: View
-where PersistenceService.Item == Item {
+struct MediaItemCard<Item: CommonMediaItem, ExternalItem: ExternalMediaItem, PersistenceService: MediaPersistenceService>: View
+where PersistenceService.Item == Item,
+      ExternalItem.MediaItem == Item {
 
     @Environment(\.modelContext) private var modelContext
     let persistenceService: PersistenceService
@@ -61,7 +62,7 @@ where PersistenceService.Item == Item {
                     .cornerRadius(8)
                     .clipped()
                     .onTapGesture {
-                        guard let source = SettingsSourceStore.shared.getSource(item.sourceName, for: item),
+                        guard let source = SettingsSourceStore.shared.getSource(item.sourceName, for: item, as: ExternalItem.self),
                               let url = try? source.instance.getSourceUrl(item: item)
                         else { return }
                         UIApplication.shared.open(url)
