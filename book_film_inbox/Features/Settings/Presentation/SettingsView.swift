@@ -42,14 +42,16 @@ struct SettingsView: View {
                     }
                     
                     Link(destination: URL(string: projectLink)!) {
-                            HStack {
-                                Label(".label.settings.github", systemImage: "link")
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.footnote)
-                                    .foregroundColor(.secondary)
-                            }
+                        HStack {
+                            Label(".label.settings.github", systemImage: "link")
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
                         }
+                    }
+                    
+                    SettingsExportComponent()
                 }
 
             }

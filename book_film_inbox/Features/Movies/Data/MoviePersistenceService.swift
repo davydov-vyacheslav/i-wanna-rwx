@@ -62,5 +62,20 @@ class MoviePersistenceService: MediaPersistenceService {
             return false
         }
     }
-
+    
+    func saveContext() {
+        do {
+            try modelContext.save()
+            Log.info("Movies context is saved")
+        } catch {
+            Log.error("Failed to update movies metadata", error: error)
+        }
+    }
+    
+    func fetchAllTvSeries() -> [MovieItem] {
+        let descriptor = FetchDescriptor<MovieItem>()
+        return ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { MediaItemHelper.getVideoType(from: $0) == .tvSeries }
+    }
+    
 }

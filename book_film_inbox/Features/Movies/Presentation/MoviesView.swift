@@ -32,9 +32,34 @@ struct MoviesView: View {
                     itemDetailedTypeIconFunc: { MediaItemHelper.getVideoType(from: $0) == VideoType.tvSeries ? "tv" : "film" },
                     isDraft: { DraftMovieService.shared.isDraft(item: $0) },
                     onDelete: { persistenceService.delete($0) },
+                    onRefresh: {
+                        let allItems = persistenceService.fetchAllTvSeries()
+                        for item in allItems {
+                            guard let source = SettingsSourceStore.shared.getSource(
+                                item.sourceName, for: item, as: ExternalMovieItem.self
+                            ) else { continue }
+                            let ext = ExternalMovieItem.fromMovieItem(item: item)
+                            guard let updated = try? await source.instance.getDetails(item: ext) else { continue }
+
+                            item.tvSeriesStatusRaw = updated.tvSeriesStatus?.rawValue
+                            item.tvNumberOfSeasons = updated.tvNumberOfSeasons
+                        }
+                        persistenceService.saveContext()
+                    },
                     extraMetaView: {
-                        if let status = MediaItemHelper.getTvSeriesStatus(from: $0) {
+                        if let status = MediaItemHelper.getTvSeriesStatus(from: $0),
+                               let seasons = $0.tvNumberOfSeasons,
+                               MediaItemHelper.getVideoType(from: $0) == .tvSeries {
+                            HStack(spacing: 8) {
+                                Text(".label.movies.tv_series.status \(status.displayName)")
+                                Text(verbatim: " • ")
+                                Text(".label.movies.tv_series.seasons \(seasons)")
+                            }
+                        } else if let status = MediaItemHelper.getTvSeriesStatus(from: $0) {
                             Text(".label.movies.tv_series.status \(status.displayName)")
+                        } else if let seasons = $0.tvNumberOfSeasons,
+                                  MediaItemHelper.getVideoType(from: $0) == .tvSeries {
+                            Text(".label.movies.tv_series.seasons \(seasons)")
                         } else {
                             EmptyView()
                         }

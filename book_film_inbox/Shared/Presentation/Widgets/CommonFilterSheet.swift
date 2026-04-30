@@ -71,7 +71,11 @@ where TF.AllCases: RandomAccessCollection, FilterState.FilterType == TF {
     private func typeButton(_ type: TF) -> some View {
         let isSelected = filterState.itemType == type
         Button {
-            filterState.itemType = type
+            if isSelected {
+                filterState.itemType = .all
+            } else {
+                filterState.itemType = type
+            }
         } label: {
             VStack(spacing: 6) {
                 Image(systemName: type.icon)

@@ -25,6 +25,7 @@ struct ExternalMovieItem: ExternalMediaItem {
     var originalTitle: String? = nil
     var sourceName: String
     var tvSeriesStatus: TvSeriesStatus? = nil
+    var tvNumberOfSeasons: Int? = nil
 
     public init(
         id: UUID = UUID(),
@@ -39,7 +40,8 @@ struct ExternalMovieItem: ExternalMediaItem {
         type: VideoType = .movie,
         sourceId: String? = nil,
         originalTitle: String? = nil,
-        tvSeriesStatus: TvSeriesStatus? = nil
+        tvSeriesStatus: TvSeriesStatus? = nil,
+        tvNumberOfSeasons: Int? = nil,
     ) {
         self.id = id
         self.title = title
@@ -54,6 +56,7 @@ struct ExternalMovieItem: ExternalMediaItem {
         self.sourceId = sourceId
         self.originalTitle = originalTitle
         self.tvSeriesStatus = tvSeriesStatus
+        self.tvNumberOfSeasons = tvNumberOfSeasons
     }
    
     func toCommonMediaItem() -> MovieItem {
@@ -70,7 +73,8 @@ struct ExternalMovieItem: ExternalMediaItem {
             type: self.type,
             sourceId: self.sourceId,
             originalTitle: self.originalTitle,
-            tvSeriesStatus: self.tvSeriesStatus
+            tvSeriesStatus: self.tvSeriesStatus,
+            tvNumberOfSeasons: self.tvNumberOfSeasons
         )
     }
    
@@ -87,7 +91,8 @@ struct ExternalMovieItem: ExternalMediaItem {
                      type: MediaItemHelper.getVideoType(from: item),
                      sourceId: item.sourceId,
                      originalTitle: item.originalTitle,
-                     tvSeriesStatus: MediaItemHelper.getTvSeriesStatus(from: item))
+                     tvSeriesStatus: MediaItemHelper.getTvSeriesStatus(from: item),
+                     tvNumberOfSeasons: item.tvNumberOfSeasons)
             
             
     }

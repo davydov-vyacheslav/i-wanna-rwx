@@ -51,6 +51,13 @@ where PersistenceService.Item == Item.MediaItem {
                     .diskCacheExpiration(.days(7))
                     .fade(duration: 0.25)
                     .resizable()
+                    .onLongPressGesture {
+                        guard let source = SettingsSourceStore.shared.getSource(item.sourceName, for: item.toCommonMediaItem(), as: Item.self),
+                              let url = try? source.instance.getSourceUrl(item: item.toCommonMediaItem()),
+                              !DraftMovieService.shared.isDraft(item: item.toCommonMediaItem())
+                        else { return }
+                        UIApplication.shared.open(url)
+                    }
                     .scaledToFill()
                     .frame(width: 60, height: 70)
                     .cornerRadius(8)

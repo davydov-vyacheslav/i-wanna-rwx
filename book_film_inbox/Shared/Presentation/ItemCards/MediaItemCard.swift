@@ -116,14 +116,16 @@ where PersistenceService.Item == Item,
                                 Text(MediaItemHelper.getRatingText(from: item))
                                     .font(.caption)
 
-                                extraMetaView(item)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
                             }
 
                             Text(item.mainAuthor ?? String(localized: ".label.common_media.no_author"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+
+                            extraMetaView(item)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())

@@ -30,6 +30,7 @@ enum MovieSchemaV100: VersionedSchema {
         @Attribute(.spotlight) var sourceId: String?
         var originalTitle: String?
         var tvSeriesStatusRaw: String?
+        var tvNumberOfSeasons: Int?
         
         public init(
             description: String? = nil,
@@ -45,6 +46,7 @@ enum MovieSchemaV100: VersionedSchema {
             sourceId: String?,
             originalTitle: String?,
             tvSeriesStatus: TvSeriesStatus?,
+            tvNumberOfSeasons: Int? = nil,
         ) {
             self.title = title
             self.itemDescription = description
@@ -59,6 +61,7 @@ enum MovieSchemaV100: VersionedSchema {
             self.originalTitle = originalTitle
             self.sourceId = sourceId
             self.tvSeriesStatusRaw = tvSeriesStatus?.rawValue
+            self.tvNumberOfSeasons = tvNumberOfSeasons
         }
      
     }

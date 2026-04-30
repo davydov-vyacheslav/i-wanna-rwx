@@ -59,6 +59,7 @@ class TMDbService: MovieSearchService {
 
         var creator : String? = nil
         var tvSeriesStatus: TvSeriesStatus? = nil
+        var tvFetchedSeasons: Int? = nil
         switch item.type {
         case .movie:
             let credits = try? await tmdbClient.movies.credits(forMovie: sourceId)
@@ -74,6 +75,7 @@ class TMDbService: MovieSearchService {
             } else if show.status != nil {
                 tvSeriesStatus = .ongoing
             }
+            tvFetchedSeasons = show.numberOfSeasons
         }
         
         return ExternalMovieItem(
@@ -90,6 +92,7 @@ class TMDbService: MovieSearchService {
             sourceId: item.sourceId,
             originalTitle: item.originalTitle,
             tvSeriesStatus: tvSeriesStatus,
+            tvNumberOfSeasons: tvFetchedSeasons,
         )
         
     }

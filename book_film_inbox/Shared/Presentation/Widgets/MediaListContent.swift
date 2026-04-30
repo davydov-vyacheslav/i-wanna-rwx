@@ -14,6 +14,7 @@ where PersistenceService.Item == Item,
     
     let persistenceService: PersistenceService
     let onDelete: (Item) -> Void
+    let onRefresh: (() async -> Void)?
     let placeholderIcon: String // book.fill | film.fill
     let itemDetailedTypeIconFunc: (Item) -> String // tv | film | book
     let isDraft: (_ item: Item) -> Bool
@@ -25,9 +26,11 @@ where PersistenceService.Item == Item,
          itemDetailedTypeIconFunc: @escaping (Item) -> String,
          isDraft: @escaping (Item) -> Bool,
          onDelete: @escaping (Item) -> Void,
+         onRefresh: (() async -> Void)? = nil,
          @ViewBuilder extraMetaView: @escaping (Item) -> some View) {
         self.persistenceService = persistenceService
         self.onDelete = onDelete
+        self.onRefresh = onRefresh
         self.placeholderIcon = placeholderIcon
         self.itemDetailedTypeIconFunc = itemDetailedTypeIconFunc
         self.isDraft = isDraft
@@ -71,6 +74,9 @@ where PersistenceService.Item == Item,
             }
             .listStyle(.plain)
             .padding(.horizontal)
+            .refreshable {
+                await onRefresh?()
+            }
         }
     }
 }
