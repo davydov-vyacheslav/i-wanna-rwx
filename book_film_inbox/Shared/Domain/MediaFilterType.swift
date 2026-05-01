@@ -11,22 +11,20 @@ struct MediaFilterState<TF: FilterTypeOption>: CommonFilterState {
     typealias FilterType = TF
     
     var itemType: TF = .all
-    var isDraft: Bool = false
-    var isFavourite: Bool = false
-    var isSeen: Bool = false
-    var isNotSeen: Bool = false
+    var draftState: TriState = .all
+    var favouriteState: TriState = .all
+    var seenState: TriState = .all
 
     var isActive: Bool {
-        itemType != .all || isDraft || isFavourite || isSeen || isNotSeen
+        itemType != .all || draftState != .all || favouriteState != .all || seenState != .all
     }
 
     var activeCount: Int {
         var count = 0
         if itemType != .all { count += 1 }
-        if isDraft { count += 1 }
-        if isFavourite { count += 1 }
-        if isSeen { count += 1 }
-        if isNotSeen { count += 1 }
+        if draftState != .all { count += 1 }
+        if favouriteState != .all { count += 1 }
+        if seenState != .all { count += 1 }
         return count
     }
 }

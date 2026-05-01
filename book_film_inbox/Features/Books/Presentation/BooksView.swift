@@ -13,7 +13,7 @@ struct BooksView: View {
     
     @State private var bookFilter: MediaFilterState = {
         var state = MediaFilterState<BookTypeFilter>()
-        state.isNotSeen = true
+        state.seenState = .exclude
         return state
     }()
     @State private var showingAddSheet = false
@@ -78,19 +78,22 @@ struct BooksView: View {
     private func makePredicate(_ filterState: MediaFilterState<BookTypeFilter>) -> Predicate<BookItem>? {
         guard filterState.isActive else { return nil }
         
-        let checkFav = filterState.isFavourite
-        let checkSeen = filterState.isSeen
-        let checkNotSeen = filterState.isNotSeen
-        let checkDraft = filterState.isDraft
+        let checkFavInclude = filterState.favouriteState == .include
+        let checkFavExclude = filterState.favouriteState == .exclude
         
-        let draftServiceName = DraftMovieService.serviceName
+        let checkSeenInclude = filterState.seenState == .include
+        let checkSeenExclude = filterState.seenState == .exclude
+
+        let checkDraftInclude = filterState.draftState == .include
+        let checkDraftExclude = filterState.draftState == .exclude
+
+        let draftServiceName = DraftBookService.serviceName
         let statusDone = MediaStatus.done.rawValue
         
         return #Predicate<BookItem> { item in
-               (!checkFav || item.isFavorite)
-            && (!checkSeen || item.statusRaw == statusDone)
-            && (!checkNotSeen || item.statusRaw != statusDone)
-            && (!checkDraft || item.sourceName == draftServiceName)
+            (!checkFavInclude || item.isFavorite) && (!checkFavExclude  || !item.isFavorite)
+            && (!checkSeenInclude || item.statusRaw == statusDone) && (!checkSeenExclude || item.statusRaw != statusDone)
+            && (!checkDraftInclude || item.sourceName == draftServiceName) && (!checkDraftExclude  || item.sourceName != draftServiceName)
         }
     }
 }

@@ -13,7 +13,7 @@ struct MoviesView: View {
     
     @State private var movieFilter: MediaFilterState = {
         var state = MediaFilterState<VideoTypeFilter>()
-        state.isNotSeen = true
+        state.seenState = .exclude
         return state
     }()
     @State private var showingAddSheet = false
@@ -111,10 +111,15 @@ struct MoviesView: View {
         let wantMovies = (filterState.itemType == .movies)
         let wantSeries = (filterState.itemType == .series)
         let filterType = (filterState.itemType != .all)
-        let checkFav = filterState.isFavourite
-        let checkSeen = filterState.isSeen
-        let checkNotSeen = filterState.isNotSeen
-        let checkDraft = filterState.isDraft
+        
+        let checkFavInclude = filterState.favouriteState == .include
+        let checkFavExclude = filterState.favouriteState == .exclude
+        
+        let checkSeenInclude = filterState.seenState == .include
+        let checkSeenExclude = filterState.seenState == .exclude
+
+        let checkDraftInclude = filterState.draftState == .include
+        let checkDraftExclude = filterState.draftState == .exclude
 
         let draftServiceName = DraftMovieService.serviceName
         let statusDone = MediaStatus.done.rawValue
@@ -122,10 +127,9 @@ struct MoviesView: View {
         
         return #Predicate<MovieItem> { item in
             (!filterType || (wantMovies ? item.typeRaw != tvSeriesType : (wantSeries ? item.typeRaw == tvSeriesType : true)))
-            && (!checkFav || item.isFavorite)
-            && (!checkSeen || item.statusRaw == statusDone)
-            && (!checkNotSeen || item.statusRaw != statusDone)
-            && (!checkDraft || item.sourceName == draftServiceName)
+            && (!checkFavInclude || item.isFavorite) && (!checkFavExclude  || !item.isFavorite)
+            && (!checkSeenInclude || item.statusRaw == statusDone) && (!checkSeenExclude || item.statusRaw != statusDone)
+            && (!checkDraftInclude || item.sourceName == draftServiceName) && (!checkDraftExclude || item.sourceName != draftServiceName)
         }
     }
 }
