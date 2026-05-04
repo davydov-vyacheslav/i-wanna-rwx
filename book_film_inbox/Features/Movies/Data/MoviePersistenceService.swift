@@ -63,6 +63,24 @@ class MoviePersistenceService: MediaPersistenceService {
         }
     }
     
+    func isDraftInLibrary(_ title: String) -> Bool {
+        // we shouldn't add draft movie with the title already added to the list...
+        let predicate = #Predicate<MovieItem> { movie in
+            movie.title == title || movie.originalTitle == title
+        }
+        let descriptor = FetchDescriptor<MovieItem>(predicate: predicate)
+        
+        do {
+            let results = try modelContext.fetch(descriptor)
+            return !results.isEmpty
+        } catch {
+            Log.error("Error checking if movie exists by title / orignal title", error: error, context: [
+                "title": title
+            ])
+            return false
+        }
+    }
+    
     func saveContext() {
         do {
             try modelContext.save()

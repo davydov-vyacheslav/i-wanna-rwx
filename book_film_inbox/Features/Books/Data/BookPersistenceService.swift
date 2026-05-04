@@ -57,5 +57,24 @@ class BookPersistenceService: MediaPersistenceService {
             return false
         }
     }
+    
+    func isDraftInLibrary(_ title: String) -> Bool {
+        // we shouldn't add draft book with the title already added to the list...
+        let predicate = #Predicate<BookItem> { book in
+            book.title == title
+        }
+        let descriptor = FetchDescriptor<BookItem>(predicate: predicate)
+        
+        do {
+            let results = try modelContext.fetch(descriptor)
+            return !results.isEmpty
+        } catch {
+            Log.error("Error checking if book exists by title", error: error, context: [
+                "title": title
+            ])
+            return false
+        }
+    }
+    
 
 }

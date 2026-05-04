@@ -199,6 +199,7 @@ struct SettingsSourceRow: View {
                                 .font(.caption)
                         }
                     }
+                    .buttonStyle(.borderless)
                 }
                 
                 // Action Buttons

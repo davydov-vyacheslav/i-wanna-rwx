@@ -48,6 +48,26 @@ class SettingsSourceStore {
             return nil
         }
     }
+    
+    func validateTokensOnStartup() async {
+        Log.info(">> validateTokensOnStartup")
+        let settingsService = SettingsService.shared
+
+        let allSources: [any SearchService] =
+            availableBookSources.map { $0.instance } +
+            availableVideoSources.map { $0.instance }
+
+        for source in allSources {
+            let name = type(of: source).serviceName
+            guard type(of: source).requiresToken else { continue }
+            let token = settingsService.getToken(for: name)
+            let isValid = await source.isTokenValid(token: token)
+            if !isValid {
+                Log.info("Token invalid on startup, removing", context: ["source": name])
+                settingsService.removeToken(for: name)
+            }
+        }
+    }
 }
 
 struct SettingsSourceEntity<ExternalItem: ExternalMediaItem>: Identifiable, Equatable, Hashable {

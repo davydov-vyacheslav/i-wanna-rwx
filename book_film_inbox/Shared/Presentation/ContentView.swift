@@ -39,6 +39,9 @@ struct ContentView: View {
                 .tag(Tab.settings)
         }
         .tint(.blue)
+        .task {
+            await SettingsSourceStore.shared.validateTokensOnStartup()
+        }
     }
 }
 

@@ -24,9 +24,9 @@ class TMDbService: MovieSearchService {
     }
     
     func isTokenValid(token: String?) async -> Bool {
+        guard let newToken = token else { return false }
         do {
-            let client = token.map { TMDbClient(apiKey: $0) } ?? tmdbClient
-            return try await client.authentication.validateKey()
+            return try await TMDbClient(apiKey: newToken).authentication.validateKey()
         } catch {
             return false
         }

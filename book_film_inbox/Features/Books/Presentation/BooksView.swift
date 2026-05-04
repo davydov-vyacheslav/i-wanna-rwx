@@ -66,6 +66,7 @@ struct BooksView: View {
                     placeholderIcon: "book.fill",
                     getItemDetailedTypeIcon: { item in "book" },
                     isItemInLibrary: { persistenceService.isInLibrary($0.isbn ?? "NoISBN") },
+                    isDraftItemInLibrary: { persistenceService.isDraftInLibrary($0) },
                     getAuthorInfo: { $0.author ?? String(localized: ".label.common_media.no_author") },
                     getDraftItem: { DraftBookService.shared.single(query: $0) },
                     sourcesKeyPath: \.availableBookSources,

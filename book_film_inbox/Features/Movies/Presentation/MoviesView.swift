@@ -96,6 +96,7 @@ struct MoviesView: View {
                     placeholderIcon: "film.fill",
                     getItemDetailedTypeIcon: { $0?.type == .tvSeries ? "tv" : "film" },
                     isItemInLibrary: { persistenceService.isInLibrary(sourceId: $0.sourceId, sourceName: $0.sourceName) },
+                    isDraftItemInLibrary: { persistenceService.isDraftInLibrary($0) },
                     getAuthorInfo: { item in nil },
                     getDraftItem: { DraftMovieService.shared.single(query: $0) },
                     sourcesKeyPath: \.availableVideoSources,

@@ -74,7 +74,7 @@ class KeychainHelper {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
-            kSecAttrSynchronizable as String: true
+            kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
         ]
         
         let status = SecItemDelete(query as CFDictionary)

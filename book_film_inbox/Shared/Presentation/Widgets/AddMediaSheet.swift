@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TMDb
 
 
 struct AddMediaSheet<Item: ExternalMediaItem, PersistenceService: MediaPersistenceService>: View
@@ -33,6 +34,7 @@ where PersistenceService.Item == Item.MediaItem
     let placeholderIcon: String // book.fill | film.fill
     let getItemDetailedTypeIcon: (Item?) -> String // tv | film | book
     let isItemInLibrary: (Item) -> Bool
+    let isDraftItemInLibrary: (String) -> Bool
     let getAuthorInfo: (Item) -> String?
     let getDraftItem: (String) -> Item
     let sourcesKeyPath: KeyPath<SettingsSourceStore, [SettingsSourceEntity<Item>]>
@@ -41,6 +43,7 @@ where PersistenceService.Item == Item.MediaItem
     var availableServices: [SettingsSourceEntity<Item>] {
         settingsSearchStore[keyPath: sourcesKeyPath].filter { service in
             !type(of: service.instance).requiresToken || settingsService.hasToken(for: type(of: service.instance).serviceName)
+            // TODO: && searchService.isTokenValid(token: settingsService.getToken(for: serviceName))
         }
     }
     
@@ -159,7 +162,7 @@ where PersistenceService.Item == Item.MediaItem
                     MediaSearchItemCard<Item, PersistenceService>(
                         persistenceService: persistenceService,
                         item: getDraftItem(searchText),
-                        isInLibrary: false,
+                        isInLibrary: isDraftItemInLibrary(searchText),
                         selectedService: nil,
                         placeholderIcon: placeholderIcon,
                         itemDetailedTypeIcon: getItemDetailedTypeIcon(nil),
@@ -263,12 +266,16 @@ where PersistenceService.Item == Item.MediaItem
                 results = searchResults
                 isSearching = false
             }
+        } catch let error as TMDbError where error.isCancelled {
+            // catch TMDB specific error for cancelled
+            await MainActor.run { isSearching = false }
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            // catch common http error for cancelled
+            await MainActor.run { isSearching = false }
         } catch {
             await MainActor.run {
                 results = []
                 isSearching = false
-            }
-            if error.localizedDescription != "cancelled" {
                 showToastMessage("Search error: \(error.localizedDescription)")
             }
         }
@@ -282,5 +289,13 @@ where PersistenceService.Item == Item.MediaItem
             try? await Task.sleep(for: .seconds(UiConstants.toastDuration))
             showToast = false
         }
+    }
+}
+
+extension TMDbError {
+    var isCancelled: Bool {
+        guard case .network(let underlying) = self else { return false }
+        let nsError = underlying as NSError
+        return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
     }
 }
