@@ -2,7 +2,7 @@
 
 iOS application for Films-Books-Reminders notes
 
-Test Flight link: https://testflight.apple.com/join/grEcBEBQ
+Application link: https://apps.apple.com/ua/app/iwannarwx/id6759549993
 
 ## Motivation & Purpose
 ### The Problem
