@@ -63,7 +63,7 @@ where PersistenceService.Item == Item,
                 // Poster
                 KFImage(item.coverImageUrl)
                     .placeholder {
-                        Image(systemName: placeholderIcon)
+                        Image(placeholderIcon)
                             .resizable()
                             .scaledToFit()
                             .foregroundStyle(.secondary)

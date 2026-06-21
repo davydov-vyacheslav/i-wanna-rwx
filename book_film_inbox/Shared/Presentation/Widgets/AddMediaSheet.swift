@@ -31,7 +31,7 @@ where PersistenceService.Item == Item.MediaItem
     let title: LocalizedStringKey
     let cantFindMessage: LocalizedStringKey
     let emptyStateIcon: String //books.vertical | film.stack.fill
-    let placeholderIcon: String // book.fill | film.fill
+    let placeholderIcon: String // draft_movie / draft_book
     let getItemDetailedTypeIcon: (Item?) -> String // tv | film | book
     let isItemInLibrary: (Item) -> Bool
     let isDraftItemInLibrary: (String) -> Bool

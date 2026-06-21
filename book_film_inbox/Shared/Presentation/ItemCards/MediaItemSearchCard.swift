@@ -19,7 +19,7 @@ where PersistenceService.Item == Item.MediaItem {
     let item: Item
     let isInLibrary: Bool
     let selectedService: (any SearchService<Item>)?
-    let placeholderIcon: String // book.fill | film.fill
+    let placeholderIcon: String // draft_movie / draft_book
     let itemDetailedTypeIcon: String // tv | film | book
     let authorInfo: String?
     
@@ -41,7 +41,7 @@ where PersistenceService.Item == Item.MediaItem {
             HStack {
                 KFImage(item.coverUrl)
                     .placeholder {
-                        Image(systemName: placeholderIcon)
+                        Image(placeholderIcon)
                             .resizable()
                             .scaledToFit()
                             .foregroundStyle(.secondary)

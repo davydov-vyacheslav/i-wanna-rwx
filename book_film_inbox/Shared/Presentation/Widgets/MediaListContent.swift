@@ -15,7 +15,7 @@ where PersistenceService.Item == Item,
     let persistenceService: PersistenceService
     let onDelete: (Item) -> Void
     let onRefresh: (() async -> Void)?
-    let placeholderIcon: String // book.fill | film.fill
+    let placeholderIcon: String // draft_movie / draft_book
     let itemDetailedTypeIconFunc: (Item) -> String // tv | film | book
     let isDraft: (_ item: Item) -> Bool
     let extraMetaView: (_ item: Item) -> AnyView
