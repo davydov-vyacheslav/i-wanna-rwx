@@ -12,6 +12,7 @@ struct BooksView: View {
     @Environment(BookPersistenceService.self) private var persistenceService
     
     @State private var bookFilter: MediaFilterState<BookTypeFilter>
+    @State private var bookSort: MediaSortOption
     @State private var searchText = ""
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
@@ -19,6 +20,14 @@ struct BooksView: View {
 
     init() {
         _bookFilter = State(initialValue: FilterStore.load(FilterStore.Key.books, default: .appDefault))
+        _bookSort = State(initialValue: FilterStore.load(FilterStore.Key.booksSort, default: .titleAsc))
+    }
+
+    private var sortDescriptors: [SortDescriptor<BookItem>] {
+        switch bookSort {
+        case .titleAsc: return [SortDescriptor(\BookItem.title, order: .forward)]
+        case .updatedDesc: return [SortDescriptor(\BookItem.updatedAt, order: .reverse)]
+        }
     }
 
     var body: some View {
@@ -29,7 +38,7 @@ struct BooksView: View {
                 MediaListContent<BookItem, ExternalBookItem, BookPersistenceService>(
                     customPredicate: makePredicate(bookFilter),
                     persistenceService: persistenceService,
-                    sortDescriptors: [SortDescriptor(\BookItem.title)],
+                    sortDescriptors: sortDescriptors,
                     placeholderIcon: "draft_book",
                     itemDetailedTypeIconFunc: { item in "book" },
                     isDraft: { DraftBookService.shared.isDraft(item: $0) },
@@ -43,10 +52,13 @@ struct BooksView: View {
             .searchable(text: $searchText)
             .navigationBarTitleDisplayMode(.inline)
             .onChange(of: bookFilter) { _, new in FilterStore.save(new, forKey: FilterStore.Key.books) }
+            .onChange(of: bookSort) { _, new in FilterStore.save(new, forKey: FilterStore.Key.booksSort) }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
                         ListCountLabel(counts: counts)
+
+                        SortMenu(selection: $bookSort)
 
                         FilterToolbarButton(filterState: $bookFilter) {
                             showingFilterSheet = true

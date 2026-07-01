@@ -1366,6 +1366,75 @@
         }
       }
     },
+    ".label.common.sort" : {
+      "comment" : "Title/accessibility label for the control that changes a list's sort order.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сортировка"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сортування"
+          }
+        }
+      }
+    },
+    ".label.common.sort.title" : {
+      "comment" : "A sort option that orders a list alphabetically by title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По названию"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За назвою"
+          }
+        }
+      }
+    },
+    ".label.common.sort.updated" : {
+      "comment" : "A sort option that orders a list by most recently updated first.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last updated"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недавно обновлённые"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нещодавно оновлені"
+          }
+        }
+      }
+    },
     ".label.common.remove %@" : {
       "localizations" : {
         "en" : {

@@ -16,6 +16,8 @@ enum FilterStore {
         static let books = "filter.books"
         static let movies = "filter.movies"
         static let reminders = "filter.reminders"
+        static let booksSort = "sort.books"
+        static let moviesSort = "sort.movies"
     }
 
     static func load<F: Codable>(_ key: String, default def: F) -> F {

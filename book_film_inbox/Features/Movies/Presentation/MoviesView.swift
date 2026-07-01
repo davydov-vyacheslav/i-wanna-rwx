@@ -12,6 +12,7 @@ struct MoviesView: View {
     @Environment(MoviePersistenceService.self) private var persistenceService
     
     @State private var movieFilter: MediaFilterState<VideoTypeFilter>
+    @State private var movieSort: MediaSortOption
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
     @State private var searchText = ""
@@ -19,6 +20,14 @@ struct MoviesView: View {
 
     init() {
         _movieFilter = State(initialValue: FilterStore.load(FilterStore.Key.movies, default: .appDefault))
+        _movieSort = State(initialValue: FilterStore.load(FilterStore.Key.moviesSort, default: .titleAsc))
+    }
+
+    private var sortDescriptors: [SortDescriptor<MovieItem>] {
+        switch movieSort {
+        case .titleAsc: return [SortDescriptor(\MovieItem.title, order: .forward)]
+        case .updatedDesc: return [SortDescriptor(\MovieItem.updatedAt, order: .reverse)]
+        }
     }
 
     var body: some View {
@@ -29,7 +38,7 @@ struct MoviesView: View {
                 MediaListContent<MovieItem, ExternalMovieItem, MoviePersistenceService>(
                     customPredicate: makePredicate(movieFilter),
                     persistenceService: persistenceService,
-                    sortDescriptors: [SortDescriptor(\MovieItem.title)],
+                    sortDescriptors: sortDescriptors,
                     placeholderIcon: "draft_movie",
                     itemDetailedTypeIconFunc: { MediaItemHelper.getVideoType(from: $0) == VideoType.tvSeries ? "tv" : "film" },
                     isDraft: { DraftMovieService.shared.isDraft(item: $0) },
@@ -43,8 +52,14 @@ struct MoviesView: View {
                             let ext = ExternalMovieItem.fromMovieItem(item: item)
                             guard let updated = try? await source.instance.getDetails(item: ext) else { continue }
 
-                            item.tvSeriesStatusRaw = updated.tvSeriesStatus?.rawValue
-                            item.tvNumberOfSeasons = updated.tvNumberOfSeasons
+                            let newStatus = updated.tvSeriesStatus?.rawValue
+                            let newSeasons = updated.tvNumberOfSeasons
+
+                            if item.tvSeriesStatusRaw != newStatus || item.tvNumberOfSeasons != newSeasons {
+                                item.tvSeriesStatusRaw = newStatus
+                                item.tvNumberOfSeasons = newSeasons
+                                item.updatedAt = Date()
+                            }
                         }
                         persistenceService.saveContext()
                     },
@@ -74,10 +89,13 @@ struct MoviesView: View {
             .searchable(text: $searchText)
             .navigationBarTitleDisplayMode(.inline)
             .onChange(of: movieFilter) { _, new in FilterStore.save(new, forKey: FilterStore.Key.movies) }
+            .onChange(of: movieSort) { _, new in FilterStore.save(new, forKey: FilterStore.Key.moviesSort) }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
                         ListCountLabel(counts: counts)
+
+                        SortMenu(selection: $movieSort)
 
                         FilterToolbarButton(filterState: $movieFilter) {
                             showingFilterSheet = true
