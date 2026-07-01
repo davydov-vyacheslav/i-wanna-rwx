@@ -29,7 +29,8 @@ Simple. Focused. Always ready when you need it.
 - Smart Search
   - Powered by OpenLibrary's free API to find official book data
   - Powered by TMDb free API to find official movie data. Though you'd obligate to obtain the API key by your own and put in App's settings
-- Filtering - Toggle between "All", "Favorites", and "Planned"
+- Filtering - Tri-state filters (favorite / seen / draft) plus a movie/TV-series type toggle. Your applied filter is remembered per list between sessions.
+- Item counts - Each list shows the total number of items, and the current count once a filter or search narrows the list (e.g. `12 of 45`)
 - Direct Links - Tap the cover to open OpenLibrary / TMDb page for details
 - Full Descriptions - Long-press item card to read the complete summary
 
@@ -41,7 +42,8 @@ Simple. Focused. Always ready when you need it.
 - Track Renewals - Monthly, yearly, lifetime, or custom periods
 - Expiration Alerts - Get notified before items expire
 - License Storage - Securely store license keys with multi-line support
-- Smart Filtering - View expiring soon, expired, or all items
+- Smart Filtering - Filter by type (subscriptions / licenses) or "expiring soon"; the applied filter is remembered between sessions
+- Item counts - The list header shows the total, and the filtered count when a filter or search is active
 - Notes - Add context for each subscription or license
 
 **Use Cases**:
@@ -93,6 +95,10 @@ Data Sources being considered:
     - [OMDb](https://www.omdbapi.com/). Do we need it having TMDb ?
     - [IMDb](https://www.imdb.com/). They don't have API, and do we need it having TMDb ?
     - HdRezka
+
+## Development
+
+Built with SwiftUI and SwiftData (with CloudKit sync). See [AGENT.md](AGENT.md) for the architecture overview, directory map, conventions, and build/test instructions.
 
 ## Screenshots
 
