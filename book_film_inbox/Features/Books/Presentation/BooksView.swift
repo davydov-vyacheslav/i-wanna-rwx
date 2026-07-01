@@ -16,6 +16,7 @@ struct BooksView: View {
         state.seenState = .exclude
         return state
     }()
+    @State private var searchText = ""
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
     
@@ -32,12 +33,13 @@ struct BooksView: View {
                     itemDetailedTypeIconFunc: { item in "book" },
                     isDraft: { DraftBookService.shared.isDraft(item: $0) },
                     onDelete: { persistenceService.delete($0) },
+                    searchText: searchText,
                     extraMetaView: { _ in EmptyView() }
                 )
             }
             .navigationTitle(Tab.books.title)
+            .searchable(text: $searchText)
             .navigationBarTitleDisplayMode(.inline)
-            
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {

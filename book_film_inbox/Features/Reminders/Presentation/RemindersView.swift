@@ -16,6 +16,7 @@ struct RemindersView: View {
     private var notificationService = NotificationService.shared
     
     @State private var reminderFilter: ReminderFilterState = ReminderFilterState()
+    @State private var searchText = ""
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
     @State private var errorMessage: String = ""
@@ -25,6 +26,7 @@ struct RemindersView: View {
         RemindersListContent(
             filterState: reminderFilter,
             persistenceService: persistenceService,
+            searchText: searchText,
             onTap: { item in navigation.remindersPath.append(ReminderRoute.details(item.id)) },
             onProlongate: { item in
                 do {
@@ -40,6 +42,7 @@ struct RemindersView: View {
                 notificationWarningBanner
             }
         }
+        .searchable(text: $searchText)
         .navigationTitle(Tab.reminders.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -124,6 +127,7 @@ struct RemindersView: View {
 struct RemindersListContent: View {
     let filterState: ReminderFilterState
     let persistenceService: ReminderPersistenceService
+    let searchText: String
     let onTap: (ReminderItem) -> Void
     let onProlongate: (ReminderItem) -> Void
     
@@ -132,11 +136,13 @@ struct RemindersListContent: View {
     init(
         filterState: ReminderFilterState,
         persistenceService: ReminderPersistenceService,
+        searchText: String = "",
         onTap: @escaping (ReminderItem) -> Void,
         onProlongate: @escaping (ReminderItem) -> Void
     ) {
         self.filterState = filterState
         self.persistenceService = persistenceService
+        self.searchText = searchText
         self.onTap = onTap
         self.onProlongate = onProlongate
 
@@ -162,7 +168,8 @@ struct RemindersListContent: View {
     
     private var filteredReminders: [ReminderItem] {
         allReminders.filter { item in
-            !filterState.isExpiringSoon || item.isExpiringOrExpired
+            (!filterState.isExpiringSoon || item.isExpiringOrExpired)
+                && (searchText.isEmpty || item.name.localizedCaseInsensitiveContains(searchText))
         }
     }
     

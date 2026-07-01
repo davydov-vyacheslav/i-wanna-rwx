@@ -19,6 +19,7 @@ where PersistenceService.Item == Item,
     let itemDetailedTypeIconFunc: (Item) -> String // tv | film | book
     let isDraft: (_ item: Item) -> Bool
     let extraMetaView: (_ item: Item) -> AnyView
+    let searchText: String
 
     @Query private var items: [Item]
     
@@ -27,6 +28,7 @@ where PersistenceService.Item == Item,
          isDraft: @escaping (Item) -> Bool,
          onDelete: @escaping (Item) -> Void,
          onRefresh: (() async -> Void)? = nil,
+         searchText: String = "",
          @ViewBuilder extraMetaView: @escaping (Item) -> some View) {
         self.persistenceService = persistenceService
         self.onDelete = onDelete
@@ -34,6 +36,7 @@ where PersistenceService.Item == Item,
         self.placeholderIcon = placeholderIcon
         self.itemDetailedTypeIconFunc = itemDetailedTypeIconFunc
         self.isDraft = isDraft
+        self.searchText = searchText
         self.extraMetaView = { AnyView(extraMetaView($0)) }
         
         _items = Query(
@@ -42,15 +45,20 @@ where PersistenceService.Item == Item,
         )
     }
     
+    private var displayedItems: [Item] {
+        guard !searchText.isEmpty else { return items }
+        return items.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+
     var body: some View {
-        if items.isEmpty {
+        if displayedItems.isEmpty {
             Spacer()
             Text(".label.common.list_empty")
                 .foregroundColor(.secondary)
             Spacer()
         } else {
             List {
-                ForEach(items) { item in
+                ForEach(displayedItems) { item in
                     MediaItemCard<Item, ExternalItem, PersistenceService>(
                         persistenceService: persistenceService,
                         item: item,

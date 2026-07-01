@@ -18,6 +18,7 @@ struct MoviesView: View {
     }()
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
+    @State private var searchText = ""
     
     var body: some View {
         NavigationStack {
@@ -46,6 +47,7 @@ struct MoviesView: View {
                         }
                         persistenceService.saveContext()
                     },
+                    searchText: searchText,
                     extraMetaView: {
                         if let status = MediaItemHelper.getTvSeriesStatus(from: $0),
                                let seasons = $0.tvNumberOfSeasons,
@@ -67,6 +69,7 @@ struct MoviesView: View {
                 )
             }
             .navigationTitle(Tab.movies.title)
+            .searchable(text: $searchText)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
