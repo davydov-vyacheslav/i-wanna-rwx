@@ -11,15 +11,16 @@ import SwiftData
 struct MoviesView: View {
     @Environment(MoviePersistenceService.self) private var persistenceService
     
-    @State private var movieFilter: MediaFilterState = {
-        var state = MediaFilterState<VideoTypeFilter>()
-        state.seenState = .exclude
-        return state
-    }()
+    @State private var movieFilter: MediaFilterState<VideoTypeFilter>
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
     @State private var searchText = ""
-    
+    @State private var counts = ListCounts()
+
+    init() {
+        _movieFilter = State(initialValue: FilterStore.load(FilterStore.Key.movies, default: .appDefault))
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -67,13 +68,17 @@ struct MoviesView: View {
                         }
                     },
                 )
+                .onPreferenceChange(ListCountsKey.self) { counts = $0 }
             }
             .navigationTitle(Tab.movies.title)
             .searchable(text: $searchText)
             .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: movieFilter) { _, new in FilterStore.save(new, forKey: FilterStore.Key.movies) }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
+                        ListCountLabel(counts: counts)
+
                         FilterToolbarButton(filterState: $movieFilter) {
                             showingFilterSheet = true
                         }

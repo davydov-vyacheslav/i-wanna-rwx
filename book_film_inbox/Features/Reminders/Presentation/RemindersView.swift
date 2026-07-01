@@ -15,13 +15,18 @@ struct RemindersView: View {
     
     private var notificationService = NotificationService.shared
     
-    @State private var reminderFilter: ReminderFilterState = ReminderFilterState()
+    @State private var reminderFilter: ReminderFilterState
     @State private var searchText = ""
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
-    
+    @State private var counts = ListCounts()
+
+    init() {
+        _reminderFilter = State(initialValue: FilterStore.load(FilterStore.Key.reminders, default: .appDefault))
+    }
+
     var body: some View {
         RemindersListContent(
             filterState: reminderFilter,
@@ -37,6 +42,8 @@ struct RemindersView: View {
                 }
             }
         )
+        .onPreferenceChange(ListCountsKey.self) { counts = $0 }
+        .onChange(of: reminderFilter) { _, new in FilterStore.save(new, forKey: FilterStore.Key.reminders) }
         .safeAreaInset(edge: .top) {
             if notificationService.authorizationStatus == .denied {
                 notificationWarningBanner
@@ -48,10 +55,12 @@ struct RemindersView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 16) {
+                    ListCountLabel(counts: counts)
+
                     FilterToolbarButton(filterState: $reminderFilter) {
                         showingFilterSheet = true
                     }
-                    
+
                     Button {
                         showingAddSheet = true
                     } label: {
@@ -132,7 +141,9 @@ struct RemindersListContent: View {
     let onProlongate: (ReminderItem) -> Void
     
     @Query private var allReminders: [ReminderItem]
-    
+    /// Unfiltered query used only to report the total library size for the header count.
+    @Query(sort: [SortDescriptor(\ReminderItem.name)]) private var everyReminder: [ReminderItem]
+
     init(
         filterState: ReminderFilterState,
         persistenceService: ReminderPersistenceService,
@@ -209,6 +220,7 @@ struct RemindersListContent: View {
                 }
             }
         }
+        .reportListCounts(total: everyReminder.count, shown: filteredReminders.count)
     }
 }
 
@@ -235,9 +247,13 @@ enum ReminderTypeFilter: String, FilterTypeOption {
     }
 }
 
-struct ReminderFilterState: CommonFilterState {
+struct ReminderFilterState: CommonFilterState, Codable {
     typealias FilterType = ReminderTypeFilter
-    
+
+    /// The app-wide default for the reminders list. Single source of truth used both
+    /// for the initial state and the filter sheet's Reset action.
+    static var appDefault: ReminderFilterState { ReminderFilterState() }
+
     var itemType: ReminderTypeFilter = .all
     var isExpiringSoon: Bool = false
 

@@ -5,7 +5,7 @@
 //  Created by Slava Davydov on 30.04.2026.
 //
 
-enum TriState: Equatable {
+enum TriState: String, Codable {
     case all, include, exclude
 
     mutating func cycle() {

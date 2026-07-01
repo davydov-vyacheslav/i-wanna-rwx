@@ -5,7 +5,7 @@
 //  Created by Slava Davydov on 11.03.2026.
 //
 
-protocol FilterTypeOption: CaseIterable, Identifiable, Hashable {
+protocol FilterTypeOption: CaseIterable, Identifiable, Hashable, Codable {
     var icon: String { get }
     var label: String { get }
     static var all: Self { get }

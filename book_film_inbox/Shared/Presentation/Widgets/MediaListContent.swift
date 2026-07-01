@@ -22,7 +22,9 @@ where PersistenceService.Item == Item,
     let searchText: String
 
     @Query private var items: [Item]
-    
+    /// Unfiltered query used only to report the total library size for the header count.
+    @Query private var allItems: [Item]
+
     init(customPredicate: Predicate<Item>?, persistenceService: PersistenceService, sortDescriptors: [SortDescriptor<Item>], placeholderIcon: String,
          itemDetailedTypeIconFunc: @escaping (Item) -> String,
          isDraft: @escaping (Item) -> Bool,
@@ -51,6 +53,12 @@ where PersistenceService.Item == Item,
     }
 
     var body: some View {
+        content
+            .reportListCounts(total: allItems.count, shown: displayedItems.count)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if displayedItems.isEmpty {
             Spacer()
             Text(".label.common.list_empty")

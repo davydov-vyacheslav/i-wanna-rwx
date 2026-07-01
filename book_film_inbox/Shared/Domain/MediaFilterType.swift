@@ -7,9 +7,17 @@
 
 import Foundation
 
-struct MediaFilterState<TF: FilterTypeOption>: CommonFilterState {
+struct MediaFilterState<TF: FilterTypeOption>: CommonFilterState, Codable {
     typealias FilterType = TF
-    
+
+    /// The app-wide default for media lists: hide items already marked as "seen".
+    /// Single source of truth used both for the initial state and the filter sheet's Reset action.
+    static var appDefault: MediaFilterState<TF> {
+        var state = MediaFilterState<TF>()
+        state.seenState = .exclude
+        return state
+    }
+
     var itemType: TF = .all
     var draftState: TriState = .all
     var favouriteState: TriState = .all

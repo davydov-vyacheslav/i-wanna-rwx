@@ -13,7 +13,7 @@ struct ReminderFilterSheet: View {
     var body: some View {
         CommonFilterSheet(
             filterState: $filterState,
-            filterStateInstantiate: { ReminderFilterState() },
+            filterStateInstantiate: { ReminderFilterState.appDefault },
             characteristicSectionContent: { _ in
                 ReminderCharacteristicsSection(filterState: $filterState)
             }

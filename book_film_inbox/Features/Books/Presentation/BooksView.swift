@@ -11,19 +11,20 @@ import SwiftData
 struct BooksView: View {
     @Environment(BookPersistenceService.self) private var persistenceService
     
-    @State private var bookFilter: MediaFilterState = {
-        var state = MediaFilterState<BookTypeFilter>()
-        state.seenState = .exclude
-        return state
-    }()
+    @State private var bookFilter: MediaFilterState<BookTypeFilter>
     @State private var searchText = ""
     @State private var showingAddSheet = false
     @State private var showingFilterSheet = false
-    
+    @State private var counts = ListCounts()
+
+    init() {
+        _bookFilter = State(initialValue: FilterStore.load(FilterStore.Key.books, default: .appDefault))
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                
+
                 // List with dynamic filtering
                 MediaListContent<BookItem, ExternalBookItem, BookPersistenceService>(
                     customPredicate: makePredicate(bookFilter),
@@ -36,17 +37,21 @@ struct BooksView: View {
                     searchText: searchText,
                     extraMetaView: { _ in EmptyView() }
                 )
+                .onPreferenceChange(ListCountsKey.self) { counts = $0 }
             }
             .navigationTitle(Tab.books.title)
             .searchable(text: $searchText)
             .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: bookFilter) { _, new in FilterStore.save(new, forKey: FilterStore.Key.books) }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
+                        ListCountLabel(counts: counts)
+
                         FilterToolbarButton(filterState: $bookFilter) {
                             showingFilterSheet = true
                         }
-                        
+
                         Button {
                             showingAddSheet = true
                         } label: {

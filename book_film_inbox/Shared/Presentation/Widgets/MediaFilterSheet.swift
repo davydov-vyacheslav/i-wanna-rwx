@@ -14,7 +14,7 @@ where TF.AllCases: RandomAccessCollection {
     var body: some View {
         CommonFilterSheet(
             filterState: $filterState,
-            filterStateInstantiate: { MediaFilterState<TF>() },
+            filterStateInstantiate: { MediaFilterState<TF>.appDefault },
             characteristicSectionContent: { _ in
                 MediaCharacteristicsSection(filterState: $filterState)
             }
