@@ -28,6 +28,7 @@ enum BookSchemaV102: VersionedSchema {
         var year: Int?
         @Attribute(.spotlight) var sourceName: String
         var sourceId: String?
+        var updatedAt: Date = Date()
         
         public init(
             id: UUID? = UUID(),
@@ -41,7 +42,8 @@ enum BookSchemaV102: VersionedSchema {
             isbn: String?,
             mainAuthor: String?,
             sourceName: String,
-            sourceId: String?
+            sourceId: String?,
+            updatedAt: Date = Date(),
         ) {
             self.id = id ?? UUID()
             self.title = title
@@ -55,6 +57,7 @@ enum BookSchemaV102: VersionedSchema {
             self.mainAuthor = mainAuthor
             self.sourceName = sourceName
             self.sourceId = sourceId
+            self.updatedAt = updatedAt
         }
         
     }

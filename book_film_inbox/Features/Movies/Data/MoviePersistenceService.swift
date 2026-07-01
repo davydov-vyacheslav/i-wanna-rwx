@@ -34,11 +34,13 @@ class MoviePersistenceService: MediaPersistenceService {
     
     func toggleFavorite(_ item: MovieItem) {
         item.isFavorite.toggle()
+        item.updatedAt = Date()
         try? modelContext.save()
     }
     
     func changeStatus(_ item: MovieItem, to status: MediaStatus) {
         item.statusRaw = status.rawValue
+        item.updatedAt = Date()
         try? modelContext.save()
     }
 

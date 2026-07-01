@@ -33,11 +33,13 @@ class BookPersistenceService: MediaPersistenceService {
     
     func toggleFavorite(_ item: BookItem) {
         item.isFavorite.toggle()
+        item.updatedAt = Date()
         try? modelContext.save()
     }
     
     func changeStatus(_ item: BookItem, to status: MediaStatus) {
         item.statusRaw = status.rawValue
+        item.updatedAt = Date()
         try? modelContext.save()
     }
     

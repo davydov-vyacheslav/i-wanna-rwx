@@ -68,6 +68,7 @@ class ReminderPersistenceService {
         dbItem.reminderDays = item.reminderDays
         dbItem.cost = item.cost
         dbItem.notes = item.notes
+        dbItem.updatedAt = Date()
             
         try modelContext.save()
         Log.info("✏️ Reminder updated", context: ["name": item.name])

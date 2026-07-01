@@ -28,6 +28,7 @@ enum ReminderSchemaV100: VersionedSchema {
         var reminderDays: Int?
         var cost: String
         var notes: String
+        var updatedAt: Date = Date()
         
 
         init(id: UUID = UUID(),
@@ -41,7 +42,9 @@ enum ReminderSchemaV100: VersionedSchema {
              licenseKey: String? = nil,
              reminderDays: Int? = nil,
              cost: String,
-             notes: String) {
+             notes: String,
+             updatedAt: Date = Date(),
+        ) {
             self.id = id
             self.typeRaw = type.rawValue
             self.name = name
@@ -54,6 +57,7 @@ enum ReminderSchemaV100: VersionedSchema {
             self.reminderDays = reminderDays
             self.cost = cost
             self.notes = notes
+            self.updatedAt = updatedAt
         }
 
         // MARK: - Computed Properties

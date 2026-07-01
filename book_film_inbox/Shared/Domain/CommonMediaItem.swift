@@ -20,6 +20,7 @@ protocol CommonMediaItem: PersistentModel {
     var isFavorite: Bool { get set }
     var rating: Double { get }
     var mainAuthor: String? { get }
+    var updatedAt: Date { get set }
 
 }
 
