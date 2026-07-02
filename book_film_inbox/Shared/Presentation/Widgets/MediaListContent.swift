@@ -20,6 +20,9 @@ where PersistenceService.Item == Item,
     let isDraft: (_ item: Item) -> Bool
     let extraMetaView: (_ item: Item) -> AnyView
     let searchText: String
+    /// Optional in-memory narrowing applied on top of the SwiftData predicate. Use for
+    /// conditions that are awkward or too expensive to express in a `#Predicate`.
+    let inMemoryFilter: ((Item) -> Bool)?
 
     @Query private var items: [Item]
     /// Unfiltered query used only to report the total library size for the header count.
@@ -31,6 +34,7 @@ where PersistenceService.Item == Item,
          onDelete: @escaping (Item) -> Void,
          onRefresh: (() async -> Void)? = nil,
          searchText: String = "",
+         inMemoryFilter: ((Item) -> Bool)? = nil,
          @ViewBuilder extraMetaView: @escaping (Item) -> some View) {
         self.persistenceService = persistenceService
         self.onDelete = onDelete
@@ -39,17 +43,22 @@ where PersistenceService.Item == Item,
         self.itemDetailedTypeIconFunc = itemDetailedTypeIconFunc
         self.isDraft = isDraft
         self.searchText = searchText
+        self.inMemoryFilter = inMemoryFilter
         self.extraMetaView = { AnyView(extraMetaView($0)) }
-        
+
         _items = Query(
             filter: customPredicate ?? #Predicate { _ in true },
             sort: sortDescriptors
         )
     }
-    
+
     private var displayedItems: [Item] {
-        guard !searchText.isEmpty else { return items }
-        return items.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        var result = items
+        if let inMemoryFilter {
+            result = result.filter(inMemoryFilter)
+        }
+        guard !searchText.isEmpty else { return result }
+        return result.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
     }
 
     var body: some View {

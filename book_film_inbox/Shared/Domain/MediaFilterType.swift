@@ -22,9 +22,12 @@ struct MediaFilterState<TF: FilterTypeOption>: CommonFilterState, Codable {
     var draftState: TriState = .all
     var favouriteState: TriState = .all
     var seenState: TriState = .all
+    /// Movies-only: filter TV series by whether they have ended. Only surfaced when the
+    /// "series" type is selected; reset to `.all` otherwise (see MoviesView).
+    var seriesStatusState: TriState = .all
 
     var isActive: Bool {
-        itemType != .all || draftState != .all || favouriteState != .all || seenState != .all
+        itemType != .all || draftState != .all || favouriteState != .all || seenState != .all || seriesStatusState != .all
     }
 
     var activeCount: Int {
@@ -33,6 +36,7 @@ struct MediaFilterState<TF: FilterTypeOption>: CommonFilterState, Codable {
         if draftState != .all { count += 1 }
         if favouriteState != .all { count += 1 }
         if seenState != .all { count += 1 }
+        if seriesStatusState != .all { count += 1 }
         return count
     }
 }

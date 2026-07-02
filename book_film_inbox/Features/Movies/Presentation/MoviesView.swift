@@ -64,6 +64,7 @@ struct MoviesView: View {
                         persistenceService.saveContext()
                     },
                     searchText: searchText,
+                    inMemoryFilter: seriesStatusFilter,
                     extraMetaView: {
                         if let status = MediaItemHelper.getTvSeriesStatus(from: $0),
                                let seasons = $0.tvNumberOfSeasons,
@@ -90,6 +91,12 @@ struct MoviesView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onChange(of: movieFilter) { _, new in FilterStore.save(new, forKey: FilterStore.Key.movies) }
             .onChange(of: movieSort) { _, new in FilterStore.save(new, forKey: FilterStore.Key.moviesSort) }
+            .onChange(of: movieFilter.itemType) { _, newType in
+                // The "ended" filter only makes sense for TV series; clear it otherwise.
+                if newType != .series && movieFilter.seriesStatusState != .all {
+                    movieFilter.seriesStatusState = .all
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
@@ -112,7 +119,16 @@ struct MoviesView: View {
                 }
             }
             .sheet(isPresented: $showingFilterSheet) {
-                MediaFilterSheet(filterState: $movieFilter)
+                MediaFilterSheet(filterState: $movieFilter) { state in
+                    if state.wrappedValue.itemType == .series {
+                        TriStateCheckbox(
+                            icon: "flag.checkered",
+                            label: ".type.movies.tv.status.ended",
+                            iconTint: .blue,
+                            state: state.seriesStatusState
+                        )
+                    }
+                }
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddMediaSheet<ExternalMovieItem, MoviePersistenceService>(
@@ -151,13 +167,22 @@ struct MoviesView: View {
         let draftServiceName = DraftMovieService.serviceName
         let statusDone = MediaStatus.done.rawValue
         let tvSeriesType = VideoType.tvSeries.rawValue
-        
+
         return #Predicate<MovieItem> { item in
             (!filterType || (wantMovies ? item.typeRaw != tvSeriesType : (wantSeries ? item.typeRaw == tvSeriesType : true)))
             && (!checkFavInclude || item.isFavorite) && (!checkFavExclude  || !item.isFavorite)
             && (!checkSeenInclude || item.statusRaw == statusDone) && (!checkSeenExclude || item.statusRaw != statusDone)
             && (!checkDraftInclude || item.sourceName == draftServiceName) && (!checkDraftExclude || item.sourceName != draftServiceName)
         }
+    }
+
+    /// In-memory filter for the TV-series "ended" criterion. Kept out of the SwiftData
+    /// predicate to avoid overloading its type-checker; only meaningful when the series
+    /// type is selected (guaranteed by resetting seriesStatusState otherwise).
+    private func seriesStatusFilter(_ item: MovieItem) -> Bool {
+        guard movieFilter.itemType == .series, movieFilter.seriesStatusState != .all else { return true }
+        let isEnded = item.tvSeriesStatusRaw == TvSeriesStatus.ended.rawValue
+        return isEnded == (movieFilter.seriesStatusState == .include)
     }
 }
 
